@@ -720,7 +720,7 @@ function renderDiaper(){
    ${['紅','白／灰白','黑'].includes(f.color)?`<div class="warn" style="margin-top:14px">${f.color==='紅'?'大便帶血':f.color==='黑'?'黑色大便（出生幾天後的胎便以外）':'白色或灰白色大便'}建議拍照記錄，並儘快請醫師評估。</div>`:''}</div>`:''}
   <div class="card"><div class="lbl">照片<small>最多 3 張，方便給醫師看</small></div><div class="thumbs">${f.photos.map((p,i)=>`<div class="ph"><img src="${p}" alt="已選照片 ${i+1}"><button class="x" data-xp="${i}" aria-label="移除照片">✕</button></div>`).join('')}${f.photos.length<3?`<label class="addph" for="ph" tabindex="0">📷<br>拍照／選照片</label>`:''}</div>
    <input type="file" id="ph" accept="image/*" multiple style="position:absolute;left:-9999px" aria-label="選擇照片">
-   <p class="sub" style="margin:10px 0 0">照片只存在這台裝置的瀏覽器裡，不會上傳。</p></div>
+   <p class="sub" style="margin:10px 0 0">${DEMO?'照片只存在這台裝置的瀏覽器裡，不會上傳。':'照片會上傳到雲端，登入同一帳號的家人也看得到。'}</p></div>
   <div class="card"><div class="lbl">備註<small>選填</small></div><input class="field" id="dn" style="font-size:16px" placeholder="例如：有點乾、量多、尿布疹發紅" value="${f.note.replace(/"/g,'&quot;')}"></div>
   <button class="btn" id="saveD" style="font-size:19px;padding:18px">儲存紀錄</button>`;
   const sync=()=>{f.d=$('#dd').value;f.t=$('#dt').value;f.note=$('#dn').value};
