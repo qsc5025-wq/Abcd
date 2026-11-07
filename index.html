@@ -1,0 +1,1343 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#FBF7F2"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>nexCare 寶寶照護</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: phone-width app column, centered on wide screens; bottom tab bar with a raised add button */
+:root{
+  --bg:#FBF7F2; --card:#FFFFFF; --fg:#2E2622; --muted:#8C7F78; --line:#EFE7E0; --chip:#F3ECE6;
+  --accent:#B87868; --accent-soft:#FCE9E1; --accent-line:#EDA58E;
+  --milk:#B45309; --milk-soft:#FEF0C3; --milk-line:#F8D54A; --switch:#F59E0B; --switch2:#FACC15;
+  --blue:#0B84D0; --poop:#8A4B08; --temp:#F0587A; --green:#0E9F6E; --green-soft:#E3F8EF;
+  --sleep:#4338CA; --sleep-soft:#EBEEFF; --pump:#7C0FD0; --pump-soft:#F3E6FD; --warn:#C2113B;
+  --c-formula:#F59E0B; --c-breast:#FBD34D; --c-pee:#38BDF8; --c-poop:#A16207; --c-nurse:#F9A8D4;
+  --c-night:#6366F1; --c-day:#C7CCFF; --shadow:0 4px 18px rgba(120,80,50,.08);
+  --font:'Noto Sans TC',system-ui,-apple-system,'PingFang TC','Microsoft JhengHei',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#1D1815; --card:#292320; --fg:#F4ECE6; --muted:#A99C94; --line:#3B322D; --chip:#352D29;
+  --accent:#D49484; --accent-soft:#4A2E27; --accent-line:#B8705B;
+  --milk:#F4B25C; --milk-soft:#4A3A12; --milk-line:#A8851A; --green:#34D399; --green-soft:#15372B;
+  --sleep:#A5A8FF; --sleep-soft:#2A2B52; --pump:#C792F0; --pump-soft:#3A2552; --blue:#4FB6F3; --poop:#D9A15F; --warn:#FF7A99;
+  --c-day:#4B4F94; --shadow:0 4px 18px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1D1815; --card:#292320; --fg:#F4ECE6; --muted:#A99C94; --line:#3B322D; --chip:#352D29;
+  --accent:#D49484; --accent-soft:#4A2E27; --accent-line:#B8705B;
+  --milk:#F4B25C; --milk-soft:#4A3A12; --milk-line:#A8851A; --green:#34D399; --green-soft:#15372B;
+  --sleep:#A5A8FF; --sleep-soft:#2A2B52; --pump:#C792F0; --pump-soft:#3A2552; --blue:#4FB6F3; --poop:#D9A15F; --warn:#FF7A99;
+  --c-day:#4B4F94; --shadow:0 4px 18px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+input{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:520px;margin:0 auto;min-height:100%;position:relative;padding-bottom:120px}
+.screen{display:none;flex-direction:column;gap:14px;padding-top:14px}
+.screen.on{display:flex}
+.hdr{display:flex;align-items:center;gap:12px;min-height:56px}
+.hdr h1{font-size:22px;font-weight:900;margin:0;flex:1;min-width:0;white-space:nowrap}
+.hdr .seg button{padding:8px 9px;font-size:14px}
+.hdr .seg{padding:4px}
+.hdr .ic{font-size:26px}
+.bell{position:relative;width:46px;height:46px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;flex:none}
+.bell svg{width:22px;height:22px;stroke:var(--muted);fill:none;stroke-width:1.8}
+.bell b{position:absolute;top:-4px;right:-4px;background:#F43F5E;color:#fff;font-size:11px;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;font-weight:700}
+.card{background:var(--card);border-radius:24px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin:0 0 4px;font-size:14px;color:var(--muted);font-weight:500}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.big{font-size:44px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+.big small{font-size:18px;font-weight:500;margin-left:6px;color:var(--muted)}
+.sub{font-size:13px;color:var(--muted);margin-top:4px}
+.stat{position:relative}
+.stat .e{position:absolute;top:16px;right:16px;font-size:18px}
+.pill{display:block;margin-top:12px;padding:10px 12px;border-radius:14px;font-size:14px;font-weight:700}
+.avatar{width:58px;height:58px;border-radius:50%;background:#F4A98F;color:#fff;font-size:26px;font-weight:700;display:grid;place-items:center;flex:none;box-shadow:var(--shadow)}
+.datenav{display:flex;align-items:center;justify-content:space-between;text-align:center}
+.datenav button{width:40px;height:40px;font-size:22px;color:var(--fg)}
+.datenav button:disabled{color:var(--line);cursor:default}
+.datenav b{display:block;font-size:18px}
+.datenav span{font-size:13px;color:var(--accent);font-weight:700}
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:20;
+  padding:8px max(8px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-right,0px))}
+.tabs{max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1.1fr 1fr 1fr;align-items:end}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);padding:6px 0}
+.tab svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--accent)}
+.tabs.six{grid-template-columns:1fr 1fr 1fr 1.1fr 1fr 1fr}
+.tabs.six .tab{font-size:11px}
+.fab{width:76px;height:76px;border-radius:50%;background:var(--accent);margin:-34px auto 0;display:grid;place-items:center;box-shadow:0 8px 22px rgba(184,120,104,.45);color:#fff}
+.fab svg{width:38px;height:38px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round}
+.seg{display:flex;background:var(--chip);border-radius:22px;padding:5px;gap:4px}
+.seg button{flex:1;padding:10px 6px;border-radius:18px;font-weight:700;color:var(--muted);white-space:nowrap}
+.seg button.on{background:var(--card);color:var(--fg);box-shadow:var(--shadow)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-weight:500;font-variant-numeric:tabular-nums}
+.chip.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:700}
+.field{display:block;width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:22px;padding:14px 18px;font-size:18px;min-width:0}
+.lbl{font-weight:700;font-size:16px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lbl small{font-weight:400;color:var(--muted);font-size:13px}
+.btn{background:var(--accent);color:#fff;border-radius:999px;padding:12px 18px;font-weight:700}
+.btn.soft{background:var(--chip);color:var(--fg)}
+.btn.sm{padding:8px 14px;font-size:14px}
+.tag{display:inline-block;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;background:var(--chip);color:var(--muted)}
+.tag.ok{background:var(--green-soft);color:var(--green)}
+.tag.soon{background:#FEF0C3;color:#92400E}
+.tag.pub{background:var(--green-soft);color:var(--green);padding:2px 10px;font-size:12px}
+.tag.self{background:var(--pump-soft);color:var(--pump);padding:2px 10px;font-size:12px}
+.list>div{padding:14px 0;border-top:1px solid var(--line);display:flex;gap:12px;align-items:center;min-width:0}
+.list>div:first-child{border-top:0}
+.list .mid{flex:1;min-width:0}
+.list .t{font-weight:700;font-size:17px}
+.muted{color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(120px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(40,30,25,.45);z-index:50;display:none;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.modal.on{display:block}
+.sheet{max-width:520px;margin:0 auto;background:var(--card);border-radius:30px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.nt{border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.nt h4{margin:0;font-size:20px}
+.nt p{margin:0;font-size:14px;line-height:1.6}
+.nt .row{display:flex;gap:10px}
+.nt .row button{flex:1;background:rgba(255,255,255,.7);color:#222;border-radius:999px;padding:10px;font-weight:700}
+.stepper{display:flex;gap:12px;align-items:center}
+.stepper .sb{width:76px;height:76px;border-radius:24px;background:var(--chip);font-size:34px;font-weight:700;flex:none}
+.stepper .val{flex:1;min-width:0;display:flex;align-items:baseline;justify-content:center;gap:12px;border:1.5px solid var(--line);border-radius:28px;height:76px;padding:0 14px}
+.stepper input{width:100%;min-width:0;border:0;background:none;text-align:center;font-size:46px;font-weight:900;outline:0;padding:0}
+.stepper .val span{color:var(--muted);font-size:20px}
+.feedcard{border:2.5px solid var(--milk-line);border-radius:36px;background:var(--card);overflow:hidden}
+.feedcard.off{border-color:var(--line);opacity:.7}
+.feedcard .top{display:flex;align-items:center;gap:14px;padding:18px;border-bottom:1.5px solid var(--line)}
+.feedcard .ico{width:62px;height:62px;border-radius:20px;background:var(--milk-soft);display:grid;place-items:center;font-size:32px;flex:none}
+.feedcard .top .n{flex:1;min-width:0;font-weight:900;font-size:22px;line-height:1.2}
+.feedcard .top .n small{display:block;font-weight:400;font-size:16px;color:var(--muted)}
+.feedcard .top .n em{display:block;font-style:normal;color:var(--milk);font-weight:700;font-size:16px}
+.feedcard .body{padding:18px;display:flex;flex-direction:column;gap:14px}
+.sw{width:58px;height:34px;border-radius:17px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw.on{background:var(--switch)}
+.sw.on::after{transform:translateX(24px)}
+.timebox{display:flex;gap:10px;flex-wrap:wrap}
+.timebox .field{flex:1 1 100px;font-size:14px;padding:12px 8px;min-width:0}
+.timebox .field[type=date]{flex:1.5 1 130px}
+.inline{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+table.tb{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums;min-width:560px}
+table.tb th{background:var(--chip);color:var(--muted);font-weight:500;padding:8px 6px;text-align:right;white-space:nowrap}
+table.tb td{padding:9px 6px;text-align:right;border-top:1px solid var(--line);white-space:nowrap}
+table.tb th:first-child,table.tb td:first-child{text-align:left}
+.scroll{overflow-x:auto}
+svg text{fill:var(--muted);font-family:var(--font)}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.ms h5{margin:14px 0 8px;font-size:17px}
+.ms .it{display:flex;align-items:center;gap:14px;padding:14px 4px;border-top:1px solid var(--line);cursor:pointer;width:100%;text-align:left}
+.ms .ck{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;color:#fff;font-weight:900}
+.ms .it.done .ck{background:#10D08A;border-color:#10D08A}
+.ms .it.done .tx{text-decoration:line-through;text-decoration-color:#10D08A;color:var(--muted)}
+.ms .it small{display:block;color:var(--green);font-size:13px}
+.bar{height:12px;border-radius:6px;background:var(--chip);width:96px;flex:none;overflow:hidden}
+.bar i{display:block;height:100%;background:#10D08A;border-radius:6px}
+.agepills{display:flex;gap:6px;overflow-x:auto;background:var(--chip);padding:6px;border-radius:22px}
+.agepills button{padding:10px 16px;border-radius:16px;font-weight:700;color:var(--muted);white-space:nowrap}
+.agepills button.on{background:var(--card);color:var(--fg)}
+.kind{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kind button{border:2px solid var(--line);background:var(--card);border-radius:22px;padding:16px 4px;font-weight:700;font-size:16px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.kind button span{font-size:32px}
+.kind button.on{border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs button,.thumbs .ph{width:84px;height:84px;border-radius:16px;overflow:hidden;position:relative;background:var(--chip);flex:none}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs .x{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;display:grid;place-items:center}
+.addph{width:84px;height:84px;border-radius:16px;border:2px dashed var(--line);display:grid;place-items:center;font-size:13px;color:var(--muted);text-align:center;cursor:pointer;flex:none}
+.rec{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.rec:first-child{border-top:0}
+.rec .mid{flex:1;min-width:0}
+.warn{background:#FFE9EE;color:#9B1239;border-radius:14px;padding:10px 12px;font-size:14px}
+.sw-color{width:22px;height:22px;border-radius:50%;display:inline-block;vertical-align:-5px;margin-right:6px;border:1px solid rgba(0,0,0,.15)}
+.pdfroot{position:fixed;left:-10000px;top:0;width:720px;padding:0;display:flex;flex-direction:column;gap:12px;background:#FBF7F2;color:#2E2622;
+ --bg:#FBF7F2;--card:#FFFFFF;--fg:#2E2622;--muted:#8C7F78;--line:#EFE7E0;--chip:#F3ECE6;--accent:#B87868;--accent-soft:#FCE9E1;--accent-line:#EDA58E;
+ --milk:#B45309;--milk-soft:#FEF0C3;--blue:#0B84D0;--poop:#8A4B08;--temp:#F0587A;--green:#0E9F6E;--green-soft:#E3F8EF;--sleep:#4338CA;--warn:#C2113B;
+ --c-formula:#F59E0B;--c-breast:#FBD34D;--c-pee:#38BDF8;--c-poop:#A16207;--c-nurse:#F9A8D4;--c-night:#6366F1;--c-day:#C7CCFF;--shadow:none;color-scheme:light}
+.pdfroot .card{box-shadow:none;border:1px solid var(--line)}
+.pdfroot .grid2{grid-template-columns:1fr 1fr}
+.pdfroot table.tb{min-width:0;width:100%}
+.linkbtn{color:var(--accent);text-decoration:underline;font-weight:700;padding:8px 4px}
+.msg{border-radius:14px;padding:10px 12px;font-size:14px;background:var(--chip)}
+.msg.err{background:#FFE9EE;color:#9B1239}
+.msg.ok{background:var(--green-soft);color:var(--green)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+<div class="app" id="app">
+  <section class="screen on" id="s-home"></section>
+  <section class="screen" id="s-stats"></section>
+  <section class="screen" id="s-settings"></section>
+  <section class="screen" id="s-health"></section>
+  <section class="screen" id="s-add"></section>
+  <section class="screen" id="s-report"></section>
+  <section class="screen" id="s-diaper"></section>
+  <section class="screen" id="s-vital"></section>
+  <section class="screen" id="s-pump"></section>
+  <section class="screen" id="s-login"></section>
+  <section class="screen" id="s-onboard"></section>
+  <section class="screen" id="s-join"></section>
+  <section class="screen" id="s-moments"></section>
+  <section class="screen" id="s-mpost"></section>
+  <section class="screen" id="s-sleep"></section>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="主選單">
+  <div class="tabs">
+    <button class="tab on" data-go="home" id="t-home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>今日</button>
+    <button class="tab" data-go="yest" id="t-yest"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>昨日</button>
+    <button class="tab" data-go="moments" id="t-moments" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9-9.2C1.7 8.3 3.7 5 7 5c2 0 3.400 1.100 5 3 1.600-1.900 3-3 5-3 3.300 0 5.300 3.300 4 6.800C19 16.600 12 21 12 21z"/></svg>生活</button>
+    <button class="fab" id="fab" aria-label="新增記錄"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
+    <button class="tab" data-go="stats" id="t-stats"><svg viewBox="0 0 24 24"><path d="M4 21V4M4 21h16M9 21v-9M14 21V8M19 21v-5"/></svg>統計</button>
+    <button class="tab" data-go="settings" id="t-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
+  </div>
+</nav>
+<div class="modal" id="notif" role="dialog" aria-label="通知中心"><div class="sheet" id="notifBody"></div></div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="chooser" role="dialog" aria-label="新增記錄"><div class="sheet" style="position:absolute;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(110px + env(safe-area-inset-bottom,0px));max-width:488px;margin-inline:auto;gap:10px">
+ <b style="font-size:18px">要記錄什麼？</b>
+ <div class="grid2"><button class="btn soft" id="chFeed" style="text-align:left;padding:16px 14px;font-size:16px;border-radius:20px">🍼 餵奶</button><button class="btn soft" id="chDiaper" style="text-align:left;padding:16px 14px;font-size:16px;border-radius:20px">🧷 換尿布</button><button class="btn soft" id="chTemp" style="text-align:left;padding:16px 14px;font-size:16px;border-radius:20px">🌡 體溫</button><button class="btn soft" id="chWeight" style="text-align:left;padding:16px 14px;font-size:16px;border-radius:20px">⚖️ 體重</button><button class="btn soft" id="chPump" style="text-align:left;padding:16px 14px;font-size:16px;border-radius:20px">🫙 擠奶</button><button class="btn soft" id="chSleep" style="text-align:left;padding:16px 14px;font-size:16px;border-radius:20px">😴 補記睡眠</button></div></div></div>
+<div class="modal" id="viewer" role="dialog" aria-label="照片"><div class="sheet" id="viewerBody"></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const DEMO=false;
+let onSaved=()=>{};let readOnly=()=>false;let isOwner=()=>true;
+const todayStart=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime()};
+function okT(t){if(isOwner()||t>=todayStart())return true;toast('只有主帳號可以新增或修改今天以外的紀錄');return false}
+function lockEls(sel,root){(root||document).querySelectorAll(sel).forEach(el=>{el.setAttribute('disabled','');el.inert=true;el.style.opacity='.45';el.removeAttribute('role')})}
+let BIRTH=new Date(2026,9,12,8,20); const NOW=new Date();
+function uid(){return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16)})}
+function ldo(k,def){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v&&typeof v==='object'?v:def}catch(e){return def}}
+const toLocalInput=t=>{if(!t)return '';const d=new Date(t),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`};
+function loadBaby(){const d=DEMO?{name:'小寶',gender:'女寶',birth:new Date(2026,9,12,8,20).getTime(),bw:3120,bl:50,bh:33.5,interval:180,remind:15,sleepRemind:10,onboarded:true}:{name:'',gender:'女寶',birth:0,bw:0,bl:0,bh:0,interval:180,remind:15,sleepRemind:10,onboarded:false};
+  return Object.assign(d,ldo('nc-baby',null)||{})}
+function saveBaby(){sv('nc-baby',st.baby)}
+function saveCL(){sv('nc-vacc',st.vacc);sv('nc-chk',st.checkup);sv('nc-ms',st.ms);sv('nc-msd',st.msDate)}
+const BASE_LAST=!DEMO?{feed:0,feedTxt:'',wake:0,pump:0}:{feed:new Date(2026,10,5,16,30).getTime(),feedTxt:'配方 110 ml',wake:new Date(2026,10,5,17,38).getTime(),pump:new Date(2026,10,5,15,20).getTime()};
+const POST=DEMO?new Date(2026,10,6):new Date(0);
+const D=['日','一','二','三','四','五','六'];
+const pad=n=>String(n).padStart(2,'0');
+const md=d=>pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const dayKey=d=>d.getFullYear()+'-'+md(d);
+const hm=d=>pad(d.getHours())+':'+pad(d.getMinutes());
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200)}
+
+/* ---------- data ---------- */
+const base0={ // 10/30..11/5
+ '10-30':{f:600,b:0,n:[1,11],u:9,p:2,s:13.0,sn:6.5,t:37.0,w:null,pm:720,c:8},
+ '10-31':{f:630,b:0,n:[1,25],u:10,p:4,s:13.3,sn:6.2,t:36.9,w:null,pm:530,c:8},
+ '11-01':{f:710,b:90,n:[0,0],u:9,p:4,s:12.6,sn:5.3,t:36.9,w:null,pm:690,c:8},
+ '11-02':{f:330,b:340,n:[2,36],u:9,p:3,s:13.5,sn:6.2,t:36.7,w:3.48,pm:650,c:8},
+ '11-03':{f:660,b:90,n:[1,19],u:9,p:3,s:13.2,sn:5.8,t:37.1,w:null,pm:870,c:8},
+ '11-04':{f:540,b:100,n:[1,24],u:9,p:8,s:13.6,sn:6.9,t:36.7,w:null,pm:890,c:8},
+ '11-05':{f:440,b:110,n:[1,15],u:7,p:1,s:10.5,sn:4.3,t:36.9,w:3.58,pm:560,c:6}
+};
+const base=DEMO?base0:{};
+function dayData(d){
+  const x0=dayData0(d),x=Object.assign({},x0),[a,b]=dayRange(d);
+  const tr=tempsOn(d);if(tr.length)x.t=Math.max(...tr.map(r=>r.v));
+  const wr=weightsOn(d);x.w=wr.length?wr[0].kg:x.w;
+  const r=recsOn(d);x.u+=r.filter(q=>q.kind!=='poop').length;x.p+=r.filter(q=>q.kind!=='pee').length;
+  const fe=st.feeds.filter(q=>q.t>=a&&q.t<b);x.f+=fe.reduce((s,q)=>s+(q.f||0),0);x.b+=fe.reduce((s,q)=>s+(q.b||0),0);x.c+=fe.length;
+  const sl=st.sleeps.filter(q=>q.s>=a&&q.s<b);
+  x.s+=sl.reduce((s,q)=>s+(q.e-q.s)/36e5,0);x.sn+=sl.reduce((s,q)=>s+nightMin(q.s,q.e)/60,0);
+  x.sc=Math.round(x0.s/2.2)+sl.length;x.sl=sl.length?Math.max(...sl.map(q=>(q.e-q.s)/36e5)):(x0.s>0?2:0);
+  const pu=st.pumps.filter(q=>q.t>=a&&q.t<b);const bl=Math.round(x0.pm*.52);
+  x.pc=(x0.pm>0?3:0)+pu.length;x.pl=bl+pu.reduce((s,q)=>s+(q.l||0),0);x.pr=(x0.pm-bl)+pu.reduce((s,q)=>s+(q.r||0),0);x.pm=x.pl+x.pr;
+  return x}
+function nightMin(s,e){let m=0;for(let t=s;t<e;t+=60000){const h=new Date(t).getHours();if(h>=19||h<7)m++}return m}
+function dayData0(d){
+  const k=md(d); if(base[k]) return base[k];
+  if(d>=POST) return {f:0,b:0,n:[0,0],u:0,p:0,s:0,sn:0,t:0,w:null,pm:0,c:0};
+  const age=Math.max(0,Math.round((d-BIRTH)/864e5)); // synthetic ramp for earlier days
+  const tot=300+age*22+((age*37)%5)*14;
+  const b=age%4===0?60:0;
+  return {f:tot-b,b:b,n:[age%3===0?1:0,age%3===0?20:0],u:Math.min(10,5+Math.floor(age/3)),p:2+(age%4),s:15.5-age*.15,sn:7.5-age*.1,t:36.8,w:null,pm:Math.max(0,300+age*18),c:Math.min(8,6+Math.floor(age/4))};
+}
+function daysBack(n){const a=[];const avail=Math.floor((NOW-BIRTH)/864e5)+1;n=Math.min(n,avail);for(let i=n-1;i>=0;i--)a.push(addDays(NOW,-i));return a}
+const sameDay=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+function recsOn(d){return st.diapers.filter(q=>sameDay(new Date(q.t),d)).sort((a,b)=>b.t-a.t)}
+function loadD(){try{return JSON.parse(localStorage.getItem('nc-diapers')||'[]')}catch(e){return []}}
+function saveD(){try{localStorage.setItem('nc-diapers',JSON.stringify(st.diapers));onSaved();return true}catch(e){return false}}
+const KIND={pee:['💧','小便'],poop:['💩','大便'],both:['💧💩','小便＋大便']};
+const COLORS=[['黃','#E8B923'],['綠','#6B8E23'],['棕','#8B5A2B'],['黑','#1C1C1C'],['紅','#C0392B'],['白／灰白','#E6E2DA']];
+const TEX=['水樣','糊狀','軟便','成形','硬'];
+function ld(k){try{const v=JSON.parse(localStorage.getItem(k)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v));onSaved();return true}catch(e){return false}}
+function loadV(){try{const j=JSON.parse(localStorage.getItem('nc-vitals')||'null');if(j)return j}catch(e){}
+  if(!DEMO)return {temps:[],weights:[]};
+  const T=(m,d,h,mi)=>new Date(2026,m-1,d,h,mi).getTime();
+  return {temps:[{id:'t1',t:T(11,5,9,15),v:36.9,site:'耳溫',note:''},{id:'t2',t:T(11,4,9,30),v:36.4,site:'耳溫',note:''}],
+   weights:[{id:'w1',t:T(11,2,10,0),kg:3.48,len:52.1,head:34.6},{id:'w2',t:T(11,5,10,0),kg:3.58,len:52.4,head:34.7}]}}
+function saveV(){try{localStorage.setItem('nc-vitals',JSON.stringify({temps:st.temps,weights:st.weights}));onSaved();return true}catch(e){return false}}
+const dayRange=d=>[new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(),new Date(d.getFullYear(),d.getMonth(),d.getDate()+1).getTime()];
+function tempsOn(d){const [a,b]=dayRange(d);return st.temps.filter(r=>r.t>=a&&r.t<b).sort((x,y)=>y.t-x.t)}
+function weightsOn(d){const [a,b]=dayRange(d);return st.weights.filter(r=>r.t>=a&&r.t<b).sort((x,y)=>y.t-x.t)}
+function latestW(d){const [,b]=dayRange(d);return st.weights.filter(r=>r.t<b).sort((x,y)=>y.t-x.t)[0]}
+const wDiff=kg=>{const g=Math.round(kg*1000-(st.baby.bw||3120));return (g>=0?'+':'')+g+' g'};
+const tStat=r=>r.v<36.5?'偏低':(r.v>=38||(r.site==='腋溫'&&r.v>=37.5))?'偏高':'正常';
+const V=loadV();
+const st={feeds:ld('nc-feeds'),sleeps:ld('nc-sleeps'),pumps:ld('nc-pumps'),sleepStart:(()=>{try{return +localStorage.getItem('nc-sstart')||null}catch(e){return null}})(),temps:V.temps,weights:V.weights,diapers:loadD(),tab:'home',offset:0,range:7,hrange:'vac',age:0,baby:loadBaby(),get interval(){return this.baby.interval},set interval(v){this.baby.interval=v},get remind(){return this.baby.remind},set remind(v){this.baby.remind=v},get gender(){return this.baby.gender},set gender(v){this.baby.gender=v},get name(){return this.baby.name},set name(v){this.baby.name=v},
+  vacc:ldo('nc-vacc',DEMO?{0:'2026/10/12'}:{}),checkup:ldo('nc-chk',DEMO?{1:{d:'2026/11/1',h:'台北婦幼'}}:{}),ms:ldo('nc-ms',DEMO?{a0:true,a1:true,b0:true}:{}),msDate:ldo('nc-msd',DEMO?{a0:'11/3',a1:'11/3',b0:'11/3'}:{}),
+    feed:{fOn:true,bOn:true,f:110,b:110,fs:10,bs:5,stock:5970}};
+BIRTH=new Date(st.baby.birth||Date.now());
+
+/* ---------- shared bits ---------- */
+const bell=()=>{const c=notifCount();return `<button class="bell" data-open="notif" aria-label="通知"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 8H4c0-1 2-2 2-8zM10 21h4"/></svg>${c?`<b>${c}</b>`:''}</button>`};
+const hdr=(ic,t,extra='')=>`<div class="hdr"><span class="ic">${ic}</span><h1>${t}</h1>${extra}</div>`;
+function ageText(){const dd=Math.floor((NOW-BIRTH)/864e5)+1;return `出生第 ${dd} 天・${Math.floor((dd-1)/7)} 週 ${(dd-1)%7} 天`}
+const hrs=h=>{const m=Math.round(h*60),H=Math.floor(m/60),M=m%60;return H?(M?`${H} 小時 ${M} 分`:`${H} 小時`):`${M} 分`};
+const fmtDur=ms=>{const m=Math.max(0,Math.round(ms/60000));return m>=60?`${Math.floor(m/60)} 小時 ${m%60} 分`:`${m} 分`};
+const fmtWhen=t=>{if(!t)return '—';const d=new Date(t);return sameDay(d,NOW)?hm(d):`${d.getMonth()+1}/${d.getDate()} ${hm(d)}`};
+
+
+function diaperCard(d){
+  const r=recsOn(d);
+  return `<div class="card"><div class="inline" style="justify-content:space-between;margin-bottom:6px"><b style="font-size:17px">🧷 換尿布紀錄</b><button class="btn sm" data-newd="1">＋ 記錄</button></div>`+
+  (r.length?r.map(q=>{const t=new Date(q.t);return `<div class="rec"><div style="font-size:26px;min-width:46px">${KIND[q.kind][0]}</div><div class="mid"><b>${hm(t)} ${KIND[q.kind][1]}</b>${q.kind!=='pee'&&q.color?`<div class="sub" style="margin-top:0"><span class="sw-color" style="background:${(COLORS.find(c=>c[0]===q.color)||[0,'#999'])[1]}"></span>${q.color}${q.tex?' ・ '+q.tex:''}</div>`:''}${q.note?`<div class="sub" style="margin-top:2px">${q.note.replace(/</g,'&lt;')}</div>`:''}
+   ${q.photos&&q.photos.length?`<div class="thumbs" style="margin-top:8px">${q.photos.map((p,i)=>`<button data-view="${q.id}|${i}" aria-label="看照片"><img src="${p}" alt="尿布照片"></button>`).join('')}</div>`:''}</div><button class="muted" data-deld="${q.id}" style="font-size:13px;padding:6px">刪除</button></div>`}).join(''):`<div class="sub" style="padding:8px 0">這天還沒有換尿布紀錄。點「＋ 記錄」選小便或大便，還能附照片給醫師看。</div>`)+`</div>`;
+}
+function bindDiaper(root){
+  $$('[data-newd]',root).forEach(b=>b.onclick=()=>go('diaper'));
+  $$('[data-view]',root).forEach(b=>b.onclick=()=>openViewer(b.dataset.view));
+  $$('[data-deld]',root).forEach(b=>b.onclick=()=>{{const r0=st.diapers.find(q=>q.id===b.dataset.deld);if(r0&&!okT(r0.t))return}if(b.dataset.arm){st.diapers=st.diapers.filter(q=>q.id!==b.dataset.deld);saveD();R.home()}else{b.dataset.arm=1;b.textContent='確定刪除？';b.style.color='var(--warn)'}});
+}
+function openViewer(key){
+  const [id,i]=key.split('|'),q=st.diapers.find(x=>x.id===id);if(!q)return;const t=new Date(q.t);
+  $('#viewerBody').innerHTML=`<div class="inline" style="justify-content:space-between"><b style="font-size:18px">${md(t).replace('-','/')} ${hm(t)} ${KIND[q.kind][1]}</b><button id="vx" aria-label="關閉" style="font-size:28px;width:40px;color:var(--muted)">✕</button></div><img src="${q.photos[i]}" alt="尿布照片" style="width:100%;border-radius:18px;display:block"><div class="sub">${q.color?'顏色：'+q.color:''}${q.tex?' ・ 質地：'+q.tex:''}${q.note?'<br>'+q.note.replace(/</g,'&lt;'):''}</div>`;
+  $('#viewer').classList.add('on');$('#vx').onclick=()=>$('#viewer').classList.remove('on');
+}
+$('#viewer').addEventListener('click',e=>{if(e.target.id==='viewer')$('#viewer').classList.remove('on')});
+
+/* ---------- home ---------- */
+function lastFeedInfo(){const f=st.feeds.slice().sort((a,b)=>b.t-a.t)[0];
+  if(f&&f.t>BASE_LAST.feed)return {t:f.t,txt:[f.f?'配方 '+f.f+' ml':'',f.b?'母乳 '+f.b+' ml':''].filter(Boolean).join('＋')};
+  return {t:BASE_LAST.feed,txt:BASE_LAST.feedTxt}}
+function nextFeed(){return new Date(lastFeedInfo().t+st.interval*60000)}
+const feedStale=()=>nextFeed().getTime()<NOW.getTime()-6*36e5;
+function untilLabel(t){const m=Math.round((t-NOW)/60000);return m>=0?'還有 '+fmtDur(m*60000):'已超過 '+fmtDur(-m*60000)+'，該餵了'}
+function lastPumpTime(){const p=st.pumps.slice().sort((a,b)=>b.t-a.t)[0];return p&&p.t>BASE_LAST.pump?p.t:BASE_LAST.pump}
+function stockNow(){const add=st.pumps.reduce((s,q)=>s+(q.l||0)+(q.r||0),0),use=st.feeds.reduce((s,q)=>s+(q.b||0),0);return Math.max(0,Math.round(((DEMO?5970:0)+add-use)*10)/10)}
+function awakeWin(){const w=(NOW-BIRTH)/6048e5;return w<6?[35,60]:w<12?[45,75]:w<16?[60,90]:[75,120]}
+function avgAwake(){const s=st.sleeps.filter(q=>q.s>NOW.getTime()-7*864e5).sort((a,b)=>a.s-b.s),g=[];
+  for(let i=1;i<s.length;i++){const gap=s[i].s-s[i-1].e;if(gap>=10*6e4&&gap<=4*36e5)g.push(gap)}
+  return g.length>=3?g.reduce((x,y)=>x+y,0)/g.length/60000:0}
+function sleepInfo(){if(st.sleepStart)return {sleeping:true,since:st.sleepStart};
+  const last=st.sleeps.slice().sort((a,b)=>b.e-a.e)[0],wake=last&&last.e>BASE_LAST.wake?last.e:BASE_LAST.wake;
+  if(NOW.getTime()-wake>6*36e5)return {stale:true,wake};const aw=awakeWin();return {wake,from:wake+aw[0]*6e4,to:wake+aw[1]*6e4}}
+function sleepText(){const si=sleepInfo(),aw=awakeWin(),now=NOW.getTime();
+  if(si.sleeping)return {title:'睡眠中',sub:`從 ${hm(new Date(si.since))} 開始 ・ 已睡 ${fmtDur(now-si.since)}`,sleeping:true};
+  if(si.stale)return {title:'還沒有最近的睡眠紀錄',sub:'記錄入睡和醒來後，會預測下一次想睡的時段',sleeping:false};
+  const f=hm(new Date(si.from)),t=hm(new Date(si.to));
+  const title=now<si.from?`預計 ${f}～${t} 想睡 ・ 還有 ${fmtDur(si.from-now)}`:now<=si.to?`現在是想睡時段（到 ${t}）`:`已超過預計想睡時段（${f}～${t}）`;
+  const av=avgAwake();
+  return {title,sub:`${hm(new Date(si.wake))} 醒來 ・ 參考清醒時段 ${aw[0]}～${aw[1]} 分${av?' ・ 最近實際約 '+fmtDur(av*6e4):''}`,sleeping:false}}
+function toggleSleep(){const now=Date.now();
+  if(!st.sleepStart){st.sleepStart=now;try{localStorage.setItem('nc-sstart',String(now))}catch(e){}toast('已記錄入睡，醒來時再按一次')}
+  else{const s=st.sleepStart;st.sleepStart=null;try{localStorage.removeItem('nc-sstart')}catch(e){}
+    if(now-s<6e4)toast('睡眠不到 1 分鐘，已取消');else{st.sleeps.push({id:uid(),s,e:now});sv('nc-sleeps',st.sleeps);toast('已記錄睡眠 '+fmtDur(now-s))}}}
+function feedCard(d){const [a,b]=dayRange(d),r=st.feeds.filter(q=>q.t>=a&&q.t<b).sort((x,y)=>y.t-x.t);if(!r.length)return '';
+  return `<div class="card"><b style="font-size:17px">🍼 餵奶紀錄</b>`+r.map(q=>`<div class="rec"><div class="mid"><b>${hm(new Date(q.t))}</b> <span class="muted">${[q.f?'配方 '+q.f+' ml':'',q.b?'母乳 '+q.b+' ml':''].filter(Boolean).join(' ・ ')}</span></div><button class="muted" data-delf="${q.id}" style="font-size:13px;padding:6px">刪除</button></div>`).join('')+`</div>`}
+function untilText(t){const m=Math.max(0,Math.round((t-NOW)/60000));return `${Math.floor(m/60)} 小時 ${m%60} 分`}
+function renderHome(){
+  const isToday=st.offset===0, d=addDays(NOW,-st.offset), x=dayData(d);
+  const tf=x.f, tb=x.b, cnt=x.c, tot=tf+tb, sl=sleepText();
+  const nf=nextFeed();
+  const tl=tempsOn(d)[0], wl=latestW(d);
+  const nurseTxt=x.n[0]?`親餵 ${x.n[0]} 次・${x.n[1]} 分`:'親餵 0 次';
+  const mins=Math.round(x.s*60), hh=Math.floor(x.s), mm=Math.round((x.s-hh)*60);
+  $('#s-home').innerHTML=`
+  <div class="hdr"><div class="avatar">${st.name.slice(0,1)}</div><div style="flex:1;min-width:0"><div style="font-size:24px;font-weight:900">${st.name}</div><div class="muted">${ageText()}</div></div>${bell(1)}</div>
+  <div class="card datenav"><button id="prev" aria-label="前一天">‹</button><div><b>${d.getMonth()+1}月${d.getDate()}日 (${D[d.getDay()]})</b><span>${isToday?'今天':st.offset===1?'昨天':''}</span></div><button id="next" aria-label="後一天" ${isToday?'disabled':''}>›</button></div>
+  <div class="grid2">
+   <div class="card stat"><span class="e">🍼</span><h3>總奶量</h3><div class="big" style="color:var(--milk)">${tot}<small>ml</small></div><div class="sub">配方 ${tf} ・ 母乳 ${tb}<br>${nurseTxt}</div>
+     ${isToday?`<span class="pill" style="background:var(--milk-soft);color:var(--milk)">${feedStale()?'還沒有最近的餵奶記錄':'下次 '+hm(nf)}<br><span style="font-weight:500">${feedStale()?'記錄後會算出下次時間':untilLabel(nf)}</span></span>`:''}</div>
+   <div class="card stat"><span class="e">⏱</span><h3>餵奶次數</h3><div class="big" style="color:var(--milk)">${cnt}<small>次</small></div><div class="sub" style="font-size:15px">平均 ${Math.round(tot/Math.max(1,cnt-x.n[0]))} ml / 次</div></div>
+  </div>
+  <div class="grid2">
+   <div class="card stat"><span class="e">💧</span><h3>小便</h3><div class="big" style="color:var(--blue)">${x.u}<small>次</small></div><div class="sub" style="font-size:15px">${x.u>=6?'水分足夠 👍':'偏少，多留意'}</div></div>
+   <div class="card stat"><span class="e">💩</span><h3>大便</h3><div class="big" style="color:var(--poop)">${x.p}<small>次</small></div></div>
+  </div>
+  <div class="grid2">
+   <div class="card stat" data-vital="temp" role="button" tabindex="0" style="cursor:pointer"><span class="e">🌡</span><h3>體溫</h3>${tl?`<div class="big" style="color:var(--temp)">${tl.v.toFixed(1)}<small>°C</small></div><div class="sub" style="font-size:15px">${hm(new Date(tl.t))} ・ ${tl.site} ・ <b style="color:${tStat(tl)==='正常'?'inherit':'var(--warn)'}">${tStat(tl)}</b></div>`:`<div class="big" style="color:var(--muted)">—</div><div class="sub" style="font-size:15px">點一下新增</div>`}</div>
+   <div class="card stat" data-vital="weight" role="button" tabindex="0" style="cursor:pointer"><span class="e">⚖️</span><h3>體重</h3>${wl?`<div class="big" style="color:var(--green)">${wl.kg.toFixed(2)}<small>kg</small></div><div class="sub" style="font-size:15px">${md(new Date(wl.t)).replace('-','/')} ・ 較出生 <b style="color:var(--green)">${wDiff(wl.kg)}</b></div>`:`<div class="big" style="color:var(--muted)">—</div><div class="sub" style="font-size:15px">點一下新增</div>`}</div>
+  </div>
+  ${feedCard(d)}
+  ${diaperCard(d)}
+  <div class="card stat"><span class="e" style="right:150px">😴</span><div style="display:flex;gap:12px;align-items:flex-start"><div style="flex:1;min-width:0"><h3>睡眠</h3><div class="big" style="color:var(--sleep);font-size:36px">${hh} 小時 ${mm} 分</div><div class="sub" style="font-size:15px">${x.sc} 覺 ・ 最長 ${x.sl?hrs(x.sl):'—'} ・ 夜間 ${hrs(x.sn)}</div></div>
+   <button class="card" id="sleepBtn" style="background:var(--sleep-soft);color:var(--sleep);font-weight:700;padding:14px;text-align:center;flex:none;box-shadow:none"><div style="font-size:34px">${sl.sleeping?'☀️':'😴'}</div>${sl.sleeping?'醒來了':'睡著了'}</button></div>
+   ${isToday?`<span class="pill" style="background:var(--sleep-soft);color:var(--sleep);font-weight:500"><b>${sl.title}</b><br>${sl.sub}</span>`:''}</div>
+  <div class="card stat" data-go-pump="1" role="button" tabindex="0" style="cursor:pointer"><span class="e">🫙</span><h3>媽媽擠奶</h3><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px"><div class="big" style="color:var(--pump)">${x.pm}<small>ml</small></div><div class="sub" style="text-align:right">${x.pc} 次<br>左 ${x.pl} ・ 右 ${x.pr} ml</div></div></div>`;
+  $('#prev').onclick=()=>{if(st.offset<Math.floor((NOW-BIRTH)/864e5)){st.offset++;R.home()}};
+  $('#next').onclick=()=>{if(st.offset>0){st.offset--;R.home()}};
+  $('#sleepBtn').onclick=()=>{toggleSleep();R.home()};
+  $$('[data-delf]').forEach(b=>b.onclick=()=>{{const r0=st.feeds.find(q=>q.id===b.dataset.delf);if(r0&&!okT(r0.t))return}if(b.dataset.arm){st.feeds=st.feeds.filter(q=>q.id!==b.dataset.delf);sv('nc-feeds',st.feeds);R.home()}else{b.dataset.arm=1;b.textContent='確定刪除？';b.style.color='var(--warn)'}});
+  const gp=$('[data-go-pump]');if(gp){gp.onclick=()=>go('pump');gp.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go('pump')}}}
+  bindDiaper($('#s-home'));
+  $$('[data-vital]').forEach(b=>{const f=()=>{st.vmode=b.dataset.vital;st.vform=null;go('vital')};b.onclick=f;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f()}}});
+}
+
+/* ---------- charts ---------- */
+function bars(opt){ // {labels,series:[{name,color,vals}],stacked,max,ticks,fmt}
+  const W=340,H=210,L=34,R=8,T=10,B=26,n=opt.labels.length,iw=W-L-R,ih=H-T-B;
+  const y=v=>T+ih-(v/opt.max)*ih; let g='';
+  for(let v=0;v<=opt.max;v+=opt.step){g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="11">${v}</text>`}
+  const slot=iw/n, ns=opt.stacked?1:opt.series.length, bw=Math.min(26,(slot*.7)/ns);
+  opt.labels.forEach((lb,i)=>{
+    const cx=L+slot*i+slot/2;
+    if(opt.stacked){let acc=0;opt.series.forEach((s,k)=>{const v=s.vals[i];if(!v)return;const y0=y(acc+v),h=y(acc)-y0;g+=`<rect x="${cx-bw/2}" y="${y0}" width="${bw}" height="${h}" fill="${s.color}" rx="${k===opt.series.length-1?4:0}"/>`;acc+=v})}
+    else opt.series.forEach((s,k)=>{const v=s.vals[i];const bx=cx-(bw*ns)/2+k*bw;g+=`<rect x="${bx}" y="${y(v)}" width="${bw-2}" height="${y(0)-y(v)}" fill="${s.color}" rx="4"/>`});
+    if(n<=8||i%Math.ceil(n/6)===0)g+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="10.5">${lb}</text>`});
+  const lg=opt.series.map(s=>`<span><i style="background:${s.color}"></i>${s.name}</span>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${opt.title}">${g}</svg><div class="legend">${lg}</div>`;
+}
+function charts(days){
+  const lb=days.map(md), dd=days.map(dayData);
+  const mx=Math.max(...dd.map(x=>x.f+x.b)), top=Math.ceil(mx/200)*200;
+  return {milk:bars({title:'每日奶量',labels:lb,stacked:true,max:top,step:top>800?200:100,series:[{name:'配方奶 (ml)',color:'var(--c-formula)',vals:dd.map(x=>x.f)},{name:'母乳瓶餵 (ml)',color:'var(--c-breast)',vals:dd.map(x=>x.b)}]}),
+    diaper:bars({title:'每日尿布與親餵次數',labels:lb,max:10,step:2,series:[{name:'小便 (次)',color:'var(--c-pee)',vals:dd.map(x=>Math.min(10,x.u))},{name:'大便 (次)',color:'var(--c-poop)',vals:dd.map(x=>Math.min(10,x.p))},{name:'親餵 (次)',color:'var(--c-nurse)',vals:dd.map(x=>x.n[0])}]}),
+    sleep:bars({title:'每日睡眠',labels:lb,stacked:true,max:20,step:5,series:[{name:'夜間 (小時)',color:'var(--c-night)',vals:dd.map(x=>+x.sn.toFixed(1))},{name:'白天 (小時)',color:'var(--c-day)',vals:dd.map(x=>+(x.s-x.sn).toFixed(1))}]})};
+}
+const avg=(a)=>a.reduce((s,v)=>s+v,0)/a.length;
+function summary(days){const dd=(days.length>1?days.slice(0,-1):days).map(dayData);return{milk:Math.round(avg(dd.map(x=>x.f+x.b))),cnt:avg(dd.map(x=>x.c)),u:avg(dd.map(x=>x.u)),p:avg(dd.map(x=>x.p)),s:avg(dd.map(x=>x.s))}}
+const rangeSeg=(id)=>`<div class="seg" id="${id}" style="flex:none">${[7,14,30].map(n=>`<button data-r="${n}" class="${st.range===n?'on':''}">${n}天</button>`).join('')}</div>`;
+
+function renderStats(){
+  const days=daysBack(st.range), s=summary(days), c=charts(days);
+  $('#s-stats').innerHTML=`
+  <div class="hdr"><h1 style="flex:none;font-size:20px">統計與趨勢</h1><span style="flex:1"></span><button class="bell" id="toReport" aria-label="照護報告" style="width:40px;height:40px">📄</button>${rangeSeg('rg')}${bell(1)}</div>
+  <div class="grid2">
+   <div class="card"><h3 style="font-weight:700">日均奶量</h3><div class="big" style="color:var(--milk);font-size:36px">${s.milk}<small>ml</small></div><div class="sub">平均 ${s.cnt.toFixed(1)} 次/天</div></div>
+   <div class="card"><h3 style="font-weight:700">目前體重</h3>${(()=>{const w=latestW(NOW);return w?`<div class="big" style="color:var(--green);font-size:36px">${w.kg.toFixed(2)}<small>kg</small></div><div class="sub">較出生 <b style="color:var(--green)">${wDiff(w.kg)}</b></div>`:'<div class="big" style="color:var(--muted);font-size:36px">—</div>'})()}</div>
+   <div class="card"><h3 style="font-weight:700">日均小便</h3><div class="big" style="color:var(--blue);font-size:36px">${s.u.toFixed(1)}<small>次</small></div></div>
+   <div class="card"><h3 style="font-weight:700">日均大便</h3><div class="big" style="color:var(--poop);font-size:36px">${s.p.toFixed(1)}<small>次</small></div></div>
+  </div>
+  <div class="card"><h3 style="font-weight:900;font-size:19px;color:var(--fg)">🍼 每日奶量</h3>${c.milk}</div>
+  <div class="card"><h3 style="font-weight:900;font-size:19px;color:var(--fg)">🧷 每日尿布與親餵次數</h3>${c.diaper}</div>
+  <div class="card"><h3 style="font-weight:900;font-size:19px;color:var(--fg)">😴 每日睡眠（夜間 19:00～07:00）</h3>${c.sleep}</div>`;
+  $$('#rg button').forEach(b=>b.onclick=()=>{st.range=+b.dataset.r;renderStats()});
+  $('#toReport').onclick=()=>go('report');
+}
+
+/* ---------- report ---------- */
+function vitalLines(days){
+  const [a]=dayRange(days[0]),[,b]=dayRange(days[days.length-1]);
+  const L=[...st.weights.filter(r=>r.t>=a&&r.t<b).map(r=>[r.t,`⚖️ ${r.kg.toFixed(2)} kg${r.len?' ・ 身長 '+r.len+' cm':''}${r.head?' ・ 頭圍 '+r.head+' cm':''}`,0]),
+   ...st.temps.filter(r=>r.t>=a&&r.t<b).map(r=>[r.t,`🌡 ${r.v.toFixed(1)} °C ${r.site} ・ ${tStat(r)}`,tStat(r)!=='正常'])].sort((x,y)=>x[0]-y[0]);
+  return L.map(([t,s,w])=>{const d=new Date(t);return `<div><span class="muted">${d.getMonth()+1}/${d.getDate()} ${hm(d)}</span><span${w?' style="color:var(--warn)"':''}>${s}</span></div>`}).join('');
+}
+
+/* ---------- PDF export ---------- */
+const loadScript=src=>new Promise((res,rej)=>{if(document.querySelector('script[data-lib="'+src+'"]'))return res();const s=document.createElement('script');s.src=src;s.dataset.lib=src;s.onload=res;s.onerror=()=>rej(new Error('lib'));document.head.appendChild(s)});
+let pdfBusy=false;
+async function makePdf(nDays){
+  if(pdfBusy)return;
+  const btn=$('#mkpdf'),label=btn.textContent;
+  let downloads=null;
+  try{downloads=window.claude&&await window.claude.use('downloads')}catch(e){}
+  if(!downloads){toast('這個畫面無法儲存檔案，請用 claude.ai 開啟');return}
+  pdfBusy=true;btn.disabled=true;btn.textContent='產生中…';
+  let host=null;
+  try{
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    // light-theme offscreen copy of the report so the PDF always prints dark text on white
+    host=document.createElement('div');host.className='pdfroot';
+    const cards=$$('#s-report > .card').slice(1);
+    host.innerHTML=cards.map(c=>'<section class="pdfsec">'+c.outerHTML+'</section>').join('');
+    document.body.appendChild(host);
+    $$('button',host).forEach(b=>{b.removeAttribute('data-view');b.style.pointerEvents='none'});
+    $$('.scroll',host).forEach(s=>s.style.overflow='visible');
+    await new Promise(r=>setTimeout(r,150));
+    const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4',orientation:'p'});
+    const PW=210,PH=297,M=10,CW=PW-M*2,CH=PH-M*2-6;let y=M,pages=1;
+    for(const sec of $$('.pdfsec',host)){
+      const cv=await html2canvas(sec,{scale:2,backgroundColor:'#FBF7F2',useCORS:true,logging:false});
+      const h=cv.height*CW/cv.width;
+      if(h<=CH){
+        if(y+h>PH-M-6){pdf.addPage();pages++;y=M}
+        pdf.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',M,y,CW,h);y+=h+4;
+      }else{ // taller than a page: slice
+        if(y>M){pdf.addPage();pages++;y=M}
+        const slicePx=Math.floor(CH*cv.width/CW);let off=0;
+        while(off<cv.height){
+          const sh=Math.min(slicePx,cv.height-off),c2=document.createElement('canvas');c2.width=cv.width;c2.height=sh;
+          c2.getContext('2d').drawImage(cv,0,off,cv.width,sh,0,0,cv.width,sh);
+          pdf.addImage(c2.toDataURL('image/jpeg',.9),'JPEG',M,M,CW,sh*CW/cv.width);off+=sh;
+          if(off<cv.height){pdf.addPage();pages++}
+        }
+        y=PH;
+      }
+    }
+    const total=pdf.getNumberOfPages();
+    for(let i=1;i<=total;i++){pdf.setPage(i);pdf.setFontSize(8);pdf.setTextColor(140,127,120);pdf.text('nexCare  '+i+' / '+total,PW/2,PH-6,{align:'center'})}
+    const blob=pdf.output('blob');
+    const n=new Date(NOW),fname='nexCare-care-report-'+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'-'+nDays+'d.pdf';
+    const r=await downloads.save({filename:fname,data:blob});
+    toast(r&&r.status==='saved'?'已儲存 PDF':'已送出');
+  }catch(err){
+    const c=err&&err.code;
+    toast(c==='declined'?'已取消儲存':err&&err.message==='lib'?'無法載入 PDF 工具，請確認網路後再試':'產生 PDF 失敗，請再試一次');
+  }finally{
+    if(host)host.remove();pdfBusy=false;btn.disabled=false;btn.textContent=label;
+  }
+}
+
+function recMilk(){const w=latestW(NOW);return w&&(NOW-BIRTH)/6048e5<=12?`依體重建議 ${Math.round(w.kg*150)}～${Math.round(w.kg*200)}`:''}
+function reportDiapers(days){
+  const a=days[0],b=addDays(days[days.length-1],1);
+  let r=st.diapers.filter(q=>q.t>=new Date(a.getFullYear(),a.getMonth(),a.getDate()).getTime()&&q.t<new Date(b.getFullYear(),b.getMonth(),b.getDate()).getTime()).sort((x,y)=>x.t-y.t);
+  if(!st.detail)r=r.filter(q=>q.photos&&q.photos.length);
+  const body=r.length?r.map(q=>{const t=new Date(q.t);return `<div class="rec"><div style="font-size:22px;min-width:44px">${KIND[q.kind][0]}</div><div class="mid"><b>${md(t).replace('-','/')} ${hm(t)} ${KIND[q.kind][1]}</b><div class="sub" style="margin:0">${q.color?q.color+(q.tex?' ・ '+q.tex:''):''}${q.note?' ・ '+q.note.replace(/</g,'&lt;'):''}</div>${q.photos&&q.photos.length?`<div class="thumbs" style="margin-top:6px">${q.photos.map((p,i)=>`<button data-view="${q.id}|${i}" aria-label="看照片"><img src="${p}" alt="尿布照片"></button>`).join('')}</div>`:''}</div></div>`}).join(''):`<div class="sub">${st.detail?'這段期間沒有換尿布明細。':'這段期間沒有附照片的尿布紀錄。'}</div>`;
+  return `<div class="card"><h3 style="font-weight:900;color:var(--fg)">🧷 尿布${st.detail?'明細':'照片'}</h3>${body}</div>`;
+}
+function renderReport(){
+  const days=daysBack(st.range), s=summary(days), c=charts(days), dd=days.map(dayData);
+  const rows=days.slice(-7).map(d=>{const x=dayData(d);return `<tr><td>${md(d).replace('-','/')} (${D[d.getDay()]})</td><td>${x.f+x.b}</td><td>${x.c}</td><td>${x.n[0]?x.n[0]+'・'+x.n[1]+'分':'—'}</td><td>${x.u}</td><td>${x.p}</td><td>${x.s.toFixed(1)} h</td><td>${x.t?x.t.toFixed(1):'—'}</td><td>${x.w??'—'}</td><td>${x.pm}</td></tr>`}).join('');
+  $('#s-report').innerHTML=`
+  <div class="hdr"><button id="rb" aria-label="返回" style="font-size:30px;width:40px">‹</button><span class="ic">📄</span><h1>照護報告</h1>${rangeSeg('rg2')}</div>
+  <div class="card"><div class="inline" style="flex-wrap:nowrap"><button class="btn" id="mkpdf" style="flex:1;padding:18px;font-size:19px">📄 產生 PDF</button><button class="btn soft" id="detail" style="padding:18px 14px">含每筆明細</button></div>
+   <p class="sub" style="margin:12px 0 0">產生後按「分享或儲存」：iPhone 會跳出分享面板，可直接傳 LINE 給醫師或存到「檔案」；電腦會直接下載。</p></div>
+  <div class="card" style="border-top:6px solid #F4A98F"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="min-width:0"><b style="font-size:22px">${st.name} 的照護紀錄</b><div class="sub">${md(days[0]).replace('-','/')}～${md(days[days.length-1]).replace('-','/')}（${days.length} 天）・ ${st.gender} ・ ${ymd(BIRTH)} ${hm(BIRTH)} 出生 ・ ${ageText().replace('出生第','出生第').replace('・',' ・ ')}<br>出生體重 ${st.baby.bw} g ・ 身長 ${st.baby.bl} cm ・ 頭圍 ${st.baby.bh} cm ・ 餵奶間隔 ${st.interval/60} 小時</div></div><div class="sub" style="text-align:right"><b style="color:var(--poop);font-size:18px">nexCare</b><br>${NOW.getFullYear()}/${NOW.getMonth()+1}/${NOW.getDate()} ${hm(NOW)} 產生</div></div></div>
+  <div class="grid2">
+   <div class="card"><h3>日均奶量（瓶餵）</h3><div class="big" style="font-size:32px;color:var(--milk)">${s.milk}<small>ml</small></div><div class="sub">${s.cnt.toFixed(1)} 次/天・親餵 1 次<br>${recMilk()}</div></div>
+   <div class="card"><h3>日均尿布</h3><div class="big" style="font-size:32px;color:var(--blue)">${s.u.toFixed(1)}<small>濕</small></div><div class="sub">大便 ${s.p.toFixed(1)} 次/天</div></div>
+   <div class="card"><h3>日均睡眠</h3><div class="big" style="font-size:32px;color:var(--sleep)">${s.s.toFixed(1)}<small>小時</small></div><div class="sub">建議 14～17 小時</div></div>
+   <div class="card"><h3>目前體重</h3>${(()=>{const w=latestW(NOW),mt=Math.max(...dd.map(x=>x.t));return w?`<div class="big" style="font-size:32px;color:var(--green)">${w.kg.toFixed(2)}<small>kg</small></div><div class="sub">${md(new Date(w.t)).replace('-','/')} ・ 較出生 ${wDiff(w.kg)}<br>${mt>0?'期間最高體溫 '+mt.toFixed(1)+' °C':''}</div>`:`<div class="big" style="font-size:32px;color:var(--muted)">—</div><div class="sub">${mt>0?'期間最高體溫 '+mt.toFixed(1)+' °C':''}</div>`})()}</div>
+  </div>
+  <div class="card"><h3 style="font-weight:900;color:var(--fg)">每日摘要</h3><div class="scroll"><table class="tb"><thead><tr><th>日期</th><th>奶量 ml</th><th>餵奶</th><th>親餵</th><th>小便</th><th>大便</th><th>睡眠</th><th>最高體溫</th><th>體重</th><th>擠奶 ml</th></tr></thead><tbody>${rows}</tbody></table></div>
+   <p class="sub" style="font-size:12px">奶量為配方 + 母乳瓶餵；小便少於 6 次標紅（出生第 5 天起每天至少 6 片濕尿布）；體溫 ≥38°C（腋溫 37.5）標紅。</p></div>
+  <div class="card"><h3 style="font-weight:900;color:var(--fg)">🍼 每日奶量</h3>${c.milk}</div>
+  <div class="card"><h3 style="font-weight:900;color:var(--fg)">🧷 尿布與親餵次數</h3>${c.diaper}</div>
+  <div class="card"><h3 style="font-weight:900;color:var(--fg)">😴 每日睡眠</h3>${c.sleep}</div>
+  ${reportDiapers(days)}
+  <div class="card"><h3 style="font-weight:900;color:var(--fg)">期間紀錄</h3><div class="list" style="font-size:14px">
+   ${vitalLines(days)}
+   <div><span class="muted">11/1</span><span>🩺 兒童預防保健 第 1 次 ・ 台北婦幼</span></div>
+   <div><span class="muted">11/2</span><span>⭐ 趴著時會抬頭</span></div>
+   <div><span class="muted">11/3</span><span>⭐ 有人跟他說話或抱起來時會安靜下來</span></div></div></div>`;
+  $('#rb').onclick=()=>go('stats');
+  $$('#rg2 button').forEach(b=>b.onclick=()=>{st.range=+b.dataset.r;renderReport()});
+  $('#mkpdf').onclick=()=>makePdf(days.length);
+  const db=$('#detail');db.style.outline=st.detail?'2px solid var(--accent)':'none';
+  db.onclick=()=>{st.detail=!st.detail;renderReport()};
+  bindDiaper($('#s-report'));
+}
+
+/* ---------- add feeding ---------- */
+function renderAdd(){
+  const f=st.feed, nowD=new Date(NOW);
+  const dv=`${nowD.getFullYear()}-${pad(nowD.getMonth()+1)}-${pad(nowD.getDate())}`, tv=hm(nowD);
+  const card=(key,ico,name,on,val,step,presets,extra)=>`
+  <div class="feedcard ${on?'':'off'}" id="fc-${key}">
+    <div class="top"><div class="ico" ${key==='b'?'style="background:#FFFBE6"':''}>${ico}</div><div class="n">${name}<small>${val} ml</small>${extra||''}</div><button class="sw ${on?'on':''}" data-sw="${key}" aria-label="${name}開關" aria-pressed="${on}"></button></div>
+    <div class="body">
+      <div class="lbl">${key==='f'?'配方奶量':'母乳量'}<small>ml，可到小數一位</small></div>
+      <div class="stepper"><button class="sb" data-step="${key}" data-dir="-1" aria-label="減少">−</button><div class="val"><input id="in-${key}" inputmode="decimal" value="${val}" aria-label="${name}毫升"><span>ml</span></div><button class="sb" data-step="${key}" data-dir="1" aria-label="增加">+</button></div>
+      <div class="chips" style="align-items:center"><span class="muted">每次 ±</span>${[.1,.5,1,5,10].map(s=>`<button class="chip ${s===step?'on':''}" data-stepsize="${key}" data-v="${s}">${s}</button>`).join('')}</div>
+      <div class="chips">${presets.map(p=>`<button class="chip" style="font-size:18px;padding:10px 22px" data-preset="${key}" data-v="${p}">${p}ml</button>`).join('')}</div>
+    </div></div>`;
+  $('#s-add').innerHTML=`
+  <div class="hdr"><button id="ab" aria-label="返回" style="font-size:32px;width:40px">‹</button><span class="ic">🍼</span><h1>新增餵奶紀錄</h1></div>
+  <div class="card"><div class="lbl" style="margin-bottom:8px">餵奶時間</div>
+   <div class="timebox"><input class="field" type="date" id="fd" value="${dv}" aria-label="日期"><input class="field" type="time" id="ft" value="${tv}" aria-label="時間"><button class="btn soft" id="nowBtn" style="font-size:16px;padding:10px 16px;border-radius:20px;flex:none">現在</button></div>
+   <p class="sub" style="margin:12px 0 0">可同時勾選多種方式，例如親餵後再補配方奶。</p></div>
+  ${card('f','🍼','配方奶',f.fOn,f.f,f.fs,[30,60,90,120,150,180])}
+  ${card('b','🥛','母乳（瓶餵）',f.bOn,f.b,f.bs,[10,20,30,60,90,120],`<em>庫存 ${stockNow()} ml</em>`)}
+  <button class="btn" id="saveFeed" style="font-size:19px;padding:18px">儲存餵奶紀錄</button>`;
+  const rd=k=>parseFloat($('#in-'+k).value)||0;
+  const setV=(k,v)=>{v=Math.max(0,Math.round(v*10)/10);f[k]=v;$('#in-'+k).value=v;$('#fc-'+k+' .n small').textContent=v+' ml'};
+  $('#ab').onclick=()=>go('home');
+  $('#nowBtn').onclick=()=>{const n=nowParts();$('#fd').value=n.d;$('#ft').value=n.t};
+  $$('[data-sw]').forEach(b=>b.onclick=()=>{const k=b.dataset.sw;f[k+'On']=!f[k+'On'];b.classList.toggle('on',f[k+'On']);b.setAttribute('aria-pressed',f[k+'On']);$('#fc-'+k).classList.toggle('off',!f[k+'On'])});
+  $$('[data-step]').forEach(b=>b.onclick=()=>{const k=b.dataset.step;setV(k,rd(k)+(+b.dataset.dir)*f[k+'s'])});
+  $$('[data-stepsize]').forEach(b=>b.onclick=()=>{const k=b.dataset.stepsize;f[k+'s']=+b.dataset.v;$$('[data-stepsize="'+k+'"]').forEach(x=>x.classList.toggle('on',x===b))});
+  $$('[data-preset]').forEach(b=>b.onclick=()=>setV(b.dataset.preset,+b.dataset.v));
+  ['f','b'].forEach(k=>$('#in-'+k).addEventListener('change',()=>setV(k,rd(k))));
+  $('#saveFeed').onclick=()=>{
+    if(!f.fOn&&!f.bOn){toast('請至少開啟一種餵奶方式');return}
+    const [y,m,d]=$('#fd').value.split('-').map(Number),[h,mi]=$('#ft').value.split(':').map(Number);
+    const t=new Date(y,m-1,d,h,mi);
+    const fv=f.fOn?rd('f'):0,bv=f.bOn?rd('b'):0;
+    if(!(fv>0||bv>0)){toast('請輸入奶量');return}
+    if(!okT(t.getTime()))return;
+    st.feeds.push({id:uid(),t:t.getTime(),f:fv,b:bv});sv('nc-feeds',st.feeds);
+    st.offset=Math.max(0,Math.round((new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate())-new Date(y,m-1,d))/864e5));st.keep=true;
+    toast('已儲存餵奶紀錄');go('home');
+  };
+}
+
+/* ---------- settings ---------- */
+function renderAcct(){}
+function renderSettings(){
+  const iv=[120,150,180,210,240], ivl={120:'2 小時',150:'2.5 小時',180:'3 小時',210:'3.5 小時',240:'4 小時'};
+  const rm=[[0,'準時'],[10,'10 分'],[15,'15 分'],[30,'30 分'],[-1,'關閉']];
+  $('#s-settings').innerHTML=`
+  <div class="hdr"><span class="ic">⚙️</span><h1>設定</h1>${bell(1)}</div>
+  <div id="acct"></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:22px">
+   <div><div class="lbl">寶寶名字 / 小名</div><input class="field" id="nm" value="${st.name}"></div>
+   <div><div class="lbl">性別</div><div class="grid2" style="grid-template-columns:repeat(3,1fr)">${['男寶','女寶','保密'].map(g=>`<button class="chip ${st.gender===g?'on':''}" data-g="${g}" style="padding:14px 0;font-size:18px;font-weight:700">${g}</button>`).join('')}</div></div>
+   <div><div class="lbl">出生日期與時間</div><input class="field" type="datetime-local" id="bd" value="${toLocalInput(st.baby.birth)}" ${(!DEMO&&st.baby.onboarded)?'disabled':''}></div>
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+    <div><div class="lbl">出生體重<small>g</small></div><input class="field" id="bw" ${(!DEMO&&st.baby.onboarded)&&st.baby.bw?'disabled':''} value="${st.baby.bw||''}" inputmode="numeric" style="font-size:20px;padding:16px"></div>
+    <div><div class="lbl">身長<small>cm</small></div><input class="field" id="bh" ${(!DEMO&&st.baby.onboarded)&&st.baby.bl?'disabled':''} value="${st.baby.bl||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div>
+    <div><div class="lbl">頭圍<small>cm</small></div><input class="field" id="bc" ${(!DEMO&&st.baby.onboarded)&&st.baby.bh?'disabled':''} value="${st.baby.bh||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div></div>${(!DEMO&&st.baby.onboarded)?'<div class="msg" style="margin-top:10px">🔒 出生日期與時間、出生體重、身長、頭圍只能輸入一次，已鎖定。留空的欄位可以補填一次。如需修改，請由主帳號刪除帳號後重新註冊。</div>':''}
+   <div><div class="lbl">餵奶間隔<small>用來算下次建議餵奶時間</small></div><div class="chips" id="ivs">${iv.map(v=>`<button class="chip ${st.interval===v?'on':''}" data-iv="${v}">${ivl[v]}</button>`).join('')}</div>
+    <div class="inline" style="margin-top:12px;flex-wrap:nowrap"><span class="muted">自訂</span><div class="field" style="display:flex;align-items:center;gap:8px;padding:8px 16px"><input id="ivc" value="${st.interval}" inputmode="numeric" style="border:0;background:none;font-size:22px;width:100%;min-width:0;outline:0"><span class="muted" style="white-space:nowrap">分鐘</span></div><b id="ivt" style="font-size:19px;white-space:nowrap">${st.interval/60} 小時</b></div></div>
+   <div><div class="lbl">餵奶提醒<small>建議餵奶時間前多久推播通知</small></div><div class="chips" id="rms">${rm.map(([v,l])=>`<button class="chip ${st.remind===v?'on':''}" data-rm="${v}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div>
+    <div class="card" style="background:var(--accent-soft);box-shadow:none;margin-top:14px;border-radius:22px"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:19px">🔔 這台裝置：<span id="nst">未開啟</span></b><button class="btn sm" id="nbtn" style="background:var(--card);color:var(--fg)">開啟通知</button></div><p class="sub" style="margin:10px 0 0">每台手機都要各自開啟一次；開啟後所有寶寶的提醒都會送到這台。</p></div></div>
+   <div><div class="lbl">想睡提醒<small>預測的想睡時段開始前多久推播</small></div><div class="chips">${['準時','10 分','15 分','關閉'].map((l,i)=>`<button class="chip ${st.baby.sleepRemind===[0,10,15,-1][i]?'on':''}" data-sl="${[0,10,15,-1][i]}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div></div>
+  </div>`;
+  $('#nm').oninput=e=>{st.name=e.target.value;saveBaby()};
+  $('#bd').onchange=e=>{const t=new Date(e.target.value).getTime();if(t){st.baby.birth=t;BIRTH=new Date(t);saveBaby()}};
+  $('#bw').onchange=e=>{let v=parseInt(e.target.value)||0;if(v&&(v<500||v>7000)){toast('出生體重請輸入 500～7000 公克');v=0;e.target.value=''}st.baby.bw=v;saveBaby()};
+  $('#bh').onchange=e=>{let v=parseFloat(e.target.value)||0;if(v<0||v>99){toast('身長請輸入公分，例如 50');v=0;e.target.value=''}st.baby.bl=v;saveBaby()};
+  $('#bc').onchange=e=>{let v=parseFloat(e.target.value)||0;if(v<0||v>99){toast('頭圍請輸入公分，例如 34');v=0;e.target.value=''}st.baby.bh=v;saveBaby()};
+  renderAcct();
+  $$('[data-g]').forEach(b=>b.onclick=()=>{st.gender=b.dataset.g;saveBaby();$$('[data-g]').forEach(x=>x.classList.toggle('on',x===b))});
+  const setIv=v=>{st.interval=v;saveBaby();$$('[data-iv]').forEach(x=>x.classList.toggle('on',+x.dataset.iv===v));$('#ivc').value=v;$('#ivt').textContent=(v/60)+' 小時'};
+  $$('[data-iv]').forEach(b=>b.onclick=()=>setIv(+b.dataset.iv));
+  $('#ivc').onchange=e=>{const v=Math.min(480,Math.max(30,parseInt(e.target.value)||180));setIv(v)};
+  $$('[data-rm]').forEach(b=>b.onclick=()=>{st.remind=+b.dataset.rm;saveBaby();$$('[data-rm]').forEach(x=>x.classList.toggle('on',x===b))});
+  $$('[data-sl]').forEach(b=>b.onclick=()=>{st.baby.sleepRemind=+b.dataset.sl;saveBaby();$$('[data-sl]').forEach(x=>x.classList.toggle('on',x===b))});
+  $('#nbtn').onclick=()=>{const on=$('#nst').textContent==='未開啟';$('#nst').textContent=on?'已開啟':'未開啟';$('#nbtn').textContent=on?'關閉通知':'開啟通知';toast(on?'示範版不會真的推播':'已關閉')};
+}
+
+/* ---------- health: vaccines / checkups / milestones ---------- */
+const mAdd=(n)=>{const d=new Date(BIRTH);d.setMonth(d.getMonth()+n);return d};
+const ymd=d=>`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+const dleft=d=>Math.ceil((d-NOW)/864e5);
+const VAC=[['出生',0,'B 型肝炎疫苗','第 1 劑','公'],['1 個月',1,'B 型肝炎疫苗','第 2 劑','公'],
+ ['2 個月',2,'五合一疫苗','第 1 劑','公'],['2 個月',2,'結合型肺炎鏈球菌疫苗','第 1 劑','公'],['2 個月',2,'輪狀病毒疫苗（口服）','第 1 劑','自'],
+ ['4 個月',4,'五合一疫苗','第 2 劑','公'],['4 個月',4,'結合型肺炎鏈球菌疫苗','第 2 劑','公'],['4 個月',4,'輪狀病毒疫苗（口服）','第 2 劑','自'],
+ ['6 個月',6,'五合一疫苗','第 3 劑','公'],['6 個月',6,'B 型肝炎疫苗','第 3 劑','公'],['6 個月',6,'流感疫苗','第 1 劑','公'],
+ ['12 個月',12,'水痘疫苗','第 1 劑','公'],['12 個月',12,'麻疹腮腺炎德國麻疹疫苗','第 1 劑','公'],['12 個月',12,'結合型肺炎鏈球菌疫苗','第 3 劑','公'],['12 個月',12,'A 型肝炎疫苗','第 1 劑','公'],
+ ['15 個月',15,'五合一疫苗','第 4 劑','公'],['18 個月',18,'A 型肝炎疫苗','第 2 劑','公']];
+const CHK=[['出生～未滿 2 個月',0,2,'生長、黃疸、聽力篩檢結果、髖關節、餵食狀況'],['滿 2 個月～未滿 4 個月',2,4,'生長、抬頭與追視、副食品準備'],['滿 4 個月～未滿 6 個月',4,6,'生長、翻身、開始副食品、長牙'],
+ ['滿 6 個月～未滿 12 個月',6,12,'生長、坐與爬、牙齒與潔牙、語言前期'],['滿 12 個月～未滿 18 個月',12,18,'生長、走路、說單字、視力'],['滿 18 個月～未滿 24 個月',18,24,'生長、語言、社交互動、牙齒'],
+ ['滿 24 個月～未滿 36 個月',24,36,'生長、語言、如廁訓練'],['滿 36 個月～未滿 48 個月',36,48,'生長、視力、聽力'],['滿 5 歲～未滿 7 歲',60,84,'生長、視力、入學準備']];
+const MS={2:{'社交情緒':['有人跟他說話或抱起來時會安靜下來','會看著你的臉','你靠近時看起來很開心','你對他說話或微笑時，會回以微笑'],'語言溝通':['會發出哭以外的聲音','對大的聲音有反應'],'認知學習':['你移動時眼睛會跟著你','會盯著玩具看幾秒鐘'],'動作發展':['趴著時會抬頭','手會張開再握起來']},
+ 4:{'社交情緒':['會主動對你微笑','玩耍時會笑出聲'],'語言溝通':['會發出「啊」「喔」的聲音','聽到聲音會轉頭'],'認知學習':['會把手伸向玩具','會用眼睛追視物品'],'動作發展':['趴著時能撐起胸口','會用手把東西放進嘴裡']},
+ 6:{'社交情緒':['認得熟悉的人','會看著鏡子裡的自己'],'語言溝通':['會輪流發聲','會發出像「ㄇㄚ」「ㄅㄚ」的音'],'認知學習':['會把東西放進嘴裡探索','會伸手拿想要的東西'],'動作發展':['會從趴著翻到仰躺','靠著支撐能坐一下']},
+ 9:{'社交情緒':['對陌生人會怕生','玩躲貓貓會笑'],'語言溝通':['會發出「爸爸」「媽媽」的音','會用聲音或動作引起注意'],'認知學習':['會找掉到旁邊的東西','會把兩個東西互相敲'],'動作發展':['不用扶也能坐','會用手腳爬行']},
+ 12:{'社交情緒':['會揮手說再見','會把東西拿給你看'],'語言溝通':['會說「爸爸」「媽媽」','聽得懂「不可以」'],'認知學習':['會把東西放進容器','會模仿簡單動作'],'動作發展':['會扶著家具站起來','會扶著走幾步']},
+ 15:{'社交情緒':['會抱著你表示親近','會用手指著要東西'],'語言溝通':['會說 3 個以上的詞','會聽從簡單指令'],'認知學習':['會用杯子喝水','會模仿你做家事'],'動作發展':['能獨立走幾步','會自己用湯匙']}};
+const AGES=[2,4,6,9,12,15];
+function renderHealth(){
+  const tabs=`<div class="seg" id="hseg">${[['vac','💉 疫苗'],['chk','🩺 健檢'],['ms','⭐ 里程碑']].map(([k,l])=>`<button data-h="${k}" class="${st.hrange===k?'on':''}">${l}</button>`).join('')}</div>`;
+  let h='';
+  if(st.hrange==='vac'){
+    const done=VAC.filter((v,i)=>st.vacc[i]).length, due=VAC.filter((v,i)=>!st.vacc[i]&&dleft(mAdd(v[1]))<=7).length;
+    let g='';VAC.forEach((v,i)=>{
+      if(g!==v[0]){g=v[0];h+=`<div style="margin:6px 0 -2px"><b style="font-size:22px">${v[0]}</b> <span class="muted" style="font-size:14px">建議 ${ymd(mAdd(v[1]))}</span></div>`}
+      const dn=st.vacc[i],n=dleft(mAdd(v[1]));
+      h+=`<div class="card" style="padding:16px 18px"><div class="inline" style="flex-wrap:nowrap;justify-content:space-between"><div style="min-width:0"><div><b style="font-size:19px">${v[2]}</b> <span class="muted">${v[3]}</span> <span class="tag ${v[4]==='公'?'pub':'self'}">${v[4]==='公'?'公費':'自費'}</span></div>
+      <div style="margin-top:6px">${dn?`<span class="tag ok">✓ ${dn} 已打</span>`:`<span class="tag ${n<=7?'soon':''}">還有 ${Math.max(0,n)} 天</span>`}</div></div>
+      ${dn?`<button class="btn soft sm" data-undo="${i}">編輯</button>`:`<div style="text-align:center;flex:none"><button class="btn" data-vac="${i}">記錄施打</button><div class="muted" style="font-size:13px;margin-top:6px">不打這劑</div></div>`}</div></div>`});
+    h=`<div class="card"><div class="inline" style="justify-content:space-between"><div><span style="font-size:40px;font-weight:900;color:var(--green)">${done}</span> <span class="muted">/ ${VAC.length} 劑已完成</span>${due?`<div style="color:var(--warn);font-weight:700">${due} 劑該打了或快到了</div>`:''}</div></div></div>`+h;
+  }else if(st.hrange==='chk'){
+    const done=Object.keys(st.checkup).length;
+    h=`<div class="card"><span style="font-size:40px;font-weight:900;color:var(--green)">${done}</span> <span class="muted">/ ${CHK.length} 次已完成</span><p class="sub" style="margin:8px 0 0;font-size:14px">帶兒童健康手冊與健保卡到合約醫療院所，只付掛號費。每次健檢只能在該年齡區段內使用一次，過了就不補。</p></div>
+    <div style="margin:4px 0 -4px"><b style="font-size:21px">🩺 兒童預防保健</b> <span class="muted">7 歲前 9 次（2026/7/1 起）</span></div><div class="card" style="padding:0;overflow:hidden">`+
+    CHK.map((c,i)=>{const s=mAdd(c[1]),e=addDays(mAdd(c[2]),-1),d=st.checkup[i+1],n=dleft(s);
+      return `<div style="padding:18px;border-top:${i?'1px solid var(--line)':'0'};display:flex;gap:10px;justify-content:space-between;align-items:center"><div style="min-width:0;${d||n<=0?'':'opacity:.75'}"><b style="font-size:19px">第 ${i+1} 次</b> <span>${c[0]}</span>
+      <div style="margin:6px 0">${d?`<span class="tag ok">✓ ${d.d} 已做</span> `:`<span class="tag">${n>0?'還有 '+n+' 天開放':'目前可做'}</span> `}<span class="muted" style="font-size:14px">${ymd(s)}～${ymd(e)}</span></div><div class="muted" style="font-size:14px">${c[3]}${d?'<br>'+d.h:''}</div></div>
+      ${d?`<button class="btn soft sm" data-cundo="${i+1}">編輯</button>`:`<button class="btn" style="flex:none;opacity:${n>0?.85:1}" data-chk="${i+1}">記錄完成</button>`}</div>`}).join('')+'</div>';
+  }else{
+    const cats=MS[st.age>=0?AGES[st.age]:2],a=AGES[st.age];let tot=0,dn=0;
+    Object.entries(cats).forEach(([c,l],ci)=>l.forEach((_,i)=>{tot++;if(st.ms[a+'-'+ci+'-'+i]||(a===2&&st.ms[(['a','b','c','d'][ci])+i]))dn++}));
+    const mdate=mAdd(a);
+    h=`<div class="agepills" id="ages">${AGES.map((m,i)=>`<button data-age="${i}" class="${st.age===i?'on':''}">${m} 個月</button>`).join('')}</div>
+    <div class="card"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><div><b style="font-size:21px">滿 ${a} 個月的里程碑</b><div class="muted">${mdate.getMonth()+1}/${mdate.getDate()} 滿 ${a} 個月${mdate>NOW?'，可以先看看會有什麼變化':''}</div></div><div class="bar"><i style="width:${Math.round(dn/tot*100)}%"></i></div></div></div>`+
+    Object.entries(cats).map(([c,l],ci)=>`<div class="ms"><h5>${['🥰','🗣','🧠','🤸'][ci]} ${c}</h5><div class="card" style="padding:4px 18px">${l.map((t,i)=>{const key=a+'-'+ci+'-'+i,legacy=a===2&&(['a','b','c','d'][ci]+i);const ok=st.ms[key]||(legacy&&st.ms[legacy]);const dd=st.msDate[key]||(legacy&&st.msDate[legacy]);
+      return `<button class="it ${ok?'done':''}" data-ms="${key}"><span class="ck">${ok?'✓':''}</span><span class="tx">${t}${ok?`<small>${dd} 達成</small>`:''}</span></button>`}).join('')}</div></div>`).join('');
+  }
+  $('#s-health').innerHTML=`<div class="hdr"><span class="ic">${st.hrange==='vac'?'💉':st.hrange==='chk'?'🩺':'⭐'}</span><h1>${st.hrange==='vac'?'疫苗':st.hrange==='chk'?'健檢時程':'發展里程碑'}</h1>${bell(st.hrange==='vac'?2:1)}</div>${tabs}${h}`;
+  $$('#hseg button').forEach(b=>b.onclick=()=>{st.hrange=b.dataset.h;renderHealth()});
+  $$('[data-vac]').forEach(b=>b.onclick=()=>{st.vacc[b.dataset.vac]=ymd(NOW);saveCL();toast('已記錄施打');renderHealth()});
+  $$('[data-undo]').forEach(b=>b.onclick=()=>{delete st.vacc[b.dataset.undo];saveCL();toast('已取消這筆記錄');renderHealth()});
+  $$('[data-chk]').forEach(b=>b.onclick=()=>{st.checkup[b.dataset.chk]={d:ymd(NOW),h:''};saveCL();toast('已記錄健檢');renderHealth()});
+  $$('[data-cundo]').forEach(b=>b.onclick=()=>{delete st.checkup[b.dataset.cundo];saveCL();toast('已取消這筆記錄');renderHealth()});
+  $$('[data-age]').forEach(b=>b.onclick=()=>{st.age=+b.dataset.age;renderHealth()});
+  $$('[data-ms]').forEach(b=>b.onclick=()=>{const k=b.dataset.ms,m=k.split('-'),legacy=m[0]==='2'?(['a','b','c','d'][+m[1]]+m[2]):null;
+    const on=st.ms[k]||(legacy&&st.ms[legacy]);if(on){delete st.ms[k];if(legacy)delete st.ms[legacy]}else{st.ms[k]=true;st.msDate[k]=(NOW.getMonth()+1)+'/'+NOW.getDate()}saveCL();renderHealth()});
+}
+
+/* ---------- notifications ---------- */
+let vitDKey=(()=>{try{return localStorage.getItem('nc-vitd')}catch(e){return null}})();
+const vitDone=()=>vitDKey===dayKey(NOW);
+function notifCount(){let n=2;const si=sleepInfo();if(si.sleeping||!si.stale)n++;if(!vitDone())n++;n+=VAC.filter((v,i)=>!st.vacc[i]&&dleft(mAdd(v[1]))<=7).length;return n}
+function renderNotif(){
+  const nf=nextFeed(),pump=new Date(nf.getTime()-30*60000),li=lastFeedInfo(),sl=sleepText();
+  const days=Math.floor((NOW-BIRTH)/864e5)+1,wk=(NOW-BIRTH)/6048e5,mo=Math.max(1,Math.round(days/30.4));
+  const vac=VAC.map((v,i)=>({v,i,n:dleft(mAdd(v[1]))})).filter(o=>!st.vacc[o.i]).sort((a,b)=>a.n-b.n)[0];
+  const vtxt=n=>n>0?'還有 '+n+' 天':n===0?'今天':'已過 '+(-n)+' 天';
+  $('#notifBody').innerHTML=`
+  <div class="inline" style="justify-content:space-between"><b style="font-size:24px">🔔 通知中心</b><button id="nx" aria-label="關閉" style="font-size:30px;width:40px;color:var(--muted)">✕</button></div>
+  <div class="nt" style="background:#FEF0C3;color:#7A3E06"><div style="display:flex;gap:14px;align-items:center"><span style="font-size:44px">🍼</span><div><h4>${feedStale()?'還沒有最近的餵奶記錄':'下次建議餵奶 '+hm(nf)}</h4><b style="font-size:20px">${feedStale()?'記錄餵奶後會算出下次時間':untilLabel(nf)}</b><div style="opacity:.8;font-size:14px;margin-top:4px">上次 ${fmtWhen(li.t)} ・ ${li.txt} ・ 間隔 ${st.interval/60} 小時</div></div></div><div class="row"><button data-n="add">記錄餵奶</button><button data-n="set">調整間隔 / 提醒</button></div></div>
+  <div class="nt" style="background:#F3E6FD;color:#4B0D8A"><div style="display:flex;gap:14px;align-items:center"><span style="font-size:38px">🫙</span><div style="flex:1;min-width:0"><h4>下次擠奶 ${hm(pump)}</h4><div style="opacity:.8;font-size:14px">建議 ${hm(nf)} 餵奶，提早 30 分鐘 ・ 上次擠奶 ${fmtWhen(lastPumpTime())}</div></div><button data-n="pump" style="background:rgba(255,255,255,.7);color:#222;border-radius:999px;padding:8px 18px;font-weight:700">記錄</button></div></div>
+  <div class="nt" style="background:#EBEEFF;color:#25277A"><div style="display:flex;gap:14px;align-items:center"><span style="font-size:44px">${sl.sleeping?'☀️':'🌤'}</span><div><h4>${sl.title}</h4><div style="opacity:.8;font-size:14px">${sl.sub}</div></div></div><div class="row"><button data-n="sleep">${sl.sleeping?'☀️ 醒來了':'😴 睡著了'}</button><button data-n="sleep2">補記睡眠</button></div></div>
+  ${wk>=2&&wk<=16?`<div class="nt" style="background:#E6F2FD;color:#0E3A5C"><div style="display:flex;gap:14px"><span style="font-size:40px">😭</span><div><h4 style="font-size:19px">哭鬧高峰期</h4><p>約 2 週起哭鬧變多，6～8 週最多，3～4 個月後減少，這是正常發展。放下寶寶離開一下沒關係，千萬不要搖晃。</p></div></div></div>`:''}
+  ${[1,2,4,6].includes(mo)&&days>=20?`<div class="nt" style="background:#E6F2FD;color:#0E3A5C"><div style="display:flex;gap:14px"><span style="font-size:40px">💚</span><div><h4 style="font-size:19px">寶寶 ${mo} 個月：媽媽的心情也要顧</h4><p>產後 1、2、4、6 個月是建議的憂鬱篩檢時間點（EPDS 10 題自評，10 分以上請找醫師或心理師聊聊）。照顧者情緒不好不是軟弱，是需要支援。</p></div></div></div>`:''}
+  <div class="nt" style="background:#F1FBE4;color:#33410F"><div class="inline"><span style="font-size:28px">💊</span><b style="font-size:19px">${vitDone()?'今天已補充':'今天還沒補充'}</b><button id="vd" class="chip" style="font-weight:700;color:${vitDone()?'var(--green)':'var(--fg)'}">${vitDone()?'✓ ':''}維生素 D</button></div></div>
+  ${vac&&vac.n<=14?`<div class="nt" style="background:#EFF9F7;color:#14423B"><div style="display:flex;gap:14px;align-items:center"><span style="font-size:34px">💉</span><div style="flex:1;min-width:0"><h4 style="font-size:19px">${vac.v[2]} ${vac.v[3]}</h4><div style="opacity:.8">建議 ${mAdd(vac.v[1]).getMonth()+1}/${mAdd(vac.v[1]).getDate()} ・ ${vtxt(vac.n)}</div></div><button data-n="vac" style="background:rgba(255,255,255,.8);color:#222;border-radius:999px;padding:8px 18px;font-weight:700">記錄</button></div></div>`:''}`;
+  $('#nx').onclick=closeNotif;
+  $$('#notifBody [data-n]').forEach(b=>b.onclick=()=>{const a=b.dataset.n;
+    if(a==='sleep'){toggleSleep();renderNotif();if($('#s-home').classList.contains('on'))R.home();return}
+    closeNotif();
+    if(a==='add')go('add');else if(a==='set')go('settings');else if(a==='pump')go('pump');else if(a==='sleep2')go('sleep');else if(a==='vac'){st.hrange='vac';go('health')}});
+  $('#vd').onclick=()=>{vitDKey=vitDone()?'':dayKey(NOW);try{localStorage.setItem('nc-vitd',vitDKey)}catch(e){}renderNotif()};
+}
+function openNotif(){renderNotif();$('#notif').classList.add('on')}
+function closeNotif(){$('#notif').classList.remove('on')}
+$('#notif').addEventListener('click',e=>{if(e.target.id==='notif')closeNotif()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeNotif();$('#chooser').classList.remove('on');$('#viewer').classList.remove('on')}});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-open="notif"]');if(b)openNotif()});
+
+
+/* ---------- diaper logging with photos ---------- */
+function shrink(file){return new Promise((res,rej)=>{const fr=new FileReader();fr.onerror=rej;fr.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{const M=900,k=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.72))};im.src=fr.result};fr.readAsDataURL(file)})}
+function newForm(){const n=new Date(NOW);return {kind:'pee',color:null,tex:null,note:'',photos:[],d:`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`,t:hm(n)}}
+function renderDiaper(){
+  if(!st.dform)st.dform=newForm();const f=st.dform,poop=f.kind!=='pee';
+  $('#s-diaper').innerHTML=`
+  <div class="hdr"><button id="db" aria-label="返回" style="font-size:32px;width:40px">‹</button><span class="ic">🧷</span><h1>記錄換尿布</h1></div>
+  <div class="card"><div class="lbl">這次是</div><div class="kind">${[['pee','💧','小便'],['poop','💩','大便'],['both','💧💩','都有']].map(([k,e,l])=>`<button data-k="${k}" class="${f.kind===k?'on':''}" aria-pressed="${f.kind===k}"><span>${e}</span>${l}</button>`).join('')}</div></div>
+  <div class="card"><div class="lbl" style="margin-bottom:8px">時間</div><div class="timebox"><input class="field" type="date" id="dd" value="${f.d}" aria-label="日期"><input class="field" type="time" id="dt" value="${f.t}" aria-label="時間"><button class="btn soft" id="dnow" style="font-size:16px;padding:10px 16px;border-radius:20px;flex:none">現在</button></div></div>
+  ${poop?`<div class="card"><div class="lbl">大便顏色</div><div class="chips">${COLORS.map(([n,c])=>`<button class="chip ${f.color===n?'on':''}" data-c="${n}"><span class="sw-color" style="background:${c};width:16px;height:16px;vertical-align:-3px"></span>${n}</button>`).join('')}</div>
+   <div class="lbl" style="margin-top:16px">質地</div><div class="chips">${TEX.map(n=>`<button class="chip ${f.tex===n?'on':''}" data-x="${n}">${n}</button>`).join('')}</div>
+   ${['紅','白／灰白','黑'].includes(f.color)?`<div class="warn" style="margin-top:14px">${f.color==='紅'?'大便帶血':f.color==='黑'?'黑色大便（出生幾天後的胎便以外）':'白色或灰白色大便'}建議拍照記錄，並儘快請醫師評估。</div>`:''}</div>`:''}
+  <div class="card"><div class="lbl">照片<small>最多 3 張，方便給醫師看</small></div><div class="thumbs">${f.photos.map((p,i)=>`<div class="ph"><img src="${p}" alt="已選照片 ${i+1}"><button class="x" data-rm="${i}" aria-label="移除照片">✕</button></div>`).join('')}${f.photos.length<3?`<label class="addph" for="ph" tabindex="0">📷<br>拍照／選照片</label>`:''}</div>
+   <input type="file" id="ph" accept="image/*" multiple style="position:absolute;left:-9999px" aria-label="選擇照片">
+   <p class="sub" style="margin:10px 0 0">照片只存在這台裝置的瀏覽器裡，不會上傳。</p></div>
+  <div class="card"><div class="lbl">備註<small>選填</small></div><input class="field" id="dn" style="font-size:16px" placeholder="例如：有點乾、量多、尿布疹發紅" value="${f.note.replace(/"/g,'&quot;')}"></div>
+  <button class="btn" id="saveD" style="font-size:19px;padding:18px">儲存紀錄</button>`;
+  const sync=()=>{f.d=$('#dd').value;f.t=$('#dt').value;f.note=$('#dn').value};
+  $('#db').onclick=()=>{st.dform=null;go('home')};
+  $$('[data-k]').forEach(b=>b.onclick=()=>{sync();f.kind=b.dataset.k;if(f.kind==='pee'){f.color=null;f.tex=null}renderDiaper()});
+  $$('[data-c]').forEach(b=>b.onclick=()=>{sync();f.color=f.color===b.dataset.c?null:b.dataset.c;renderDiaper()});
+  $$('[data-x]').forEach(b=>b.onclick=()=>{sync();f.tex=f.tex===b.dataset.x?null:b.dataset.x;renderDiaper()});
+  $$('[data-rm]').forEach(b=>b.onclick=()=>{sync();f.photos.splice(+b.dataset.rm,1);renderDiaper()});
+  $('#dnow').onclick=()=>{const n=newForm();$('#dd').value=n.d;$('#dt').value=n.t};
+  $('#ph').onchange=async e=>{sync();const files=[...e.target.files].slice(0,3-f.photos.length);
+    try{for(const fl of files)f.photos.push(await shrink(fl))}catch(err){toast('這張照片無法讀取，請換一張')}renderDiaper()};
+  $('#saveD').onclick=()=>{sync();
+    const [y,m,d]=f.d.split('-').map(Number),[h,mi]=f.t.split(':').map(Number);
+    if(!y||isNaN(h)){toast('請確認日期與時間');return}
+    if(!okT(new Date(y,m-1,d,h,mi).getTime()))return;
+    st.diapers.push({id:uid(),t:new Date(y,m-1,d,h,mi).getTime(),kind:f.kind,color:f.color,tex:f.tex,note:f.note.trim(),photos:f.photos.slice()});
+    const ok=saveD();st.keep=true;st.dform=null;st.offset=Math.max(0,Math.round((new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate())-new Date(y,m-1,d))/864e5));
+    toast(ok?'已儲存換尿布紀錄':'已儲存，但照片太大無法留在這台裝置，重新整理後會消失');go('home');
+  };
+}
+
+
+/* ---------- temperature & weight: add / edit / delete ---------- */
+function vForm(mode,r){const n=new Date(r?r.t:NOW);const base={d:`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`,t:hm(n),id:r?r.id:null};
+  return mode==='temp'?Object.assign(base,{v:r?r.v:36.8,site:r?r.site:'耳溫',note:r?r.note||'':''}):Object.assign(base,{kg:r?r.kg:'',len:r&&r.len?r.len:'',head:r&&r.head?r.head:''})}
+function renderVital(){
+  const m=st.vmode,isT=m==='temp';if(!st.vform)st.vform=vForm(m);const f=st.vform;
+  const list=(isT?st.temps:st.weights).slice().sort((a,b)=>b.t-a.t);
+  const row=r=>{const d=new Date(r.t);const main=isT?`<b style="font-size:20px;color:var(--temp)">${r.v.toFixed(1)} °C</b> <span class="muted">${r.site}</span> <span class="tag ${tStat(r)==='正常'?'ok':'soon'}">${tStat(r)}</span>`:`<b style="font-size:20px;color:var(--green)">${r.kg.toFixed(2)} kg</b> <span class="muted">${wDiff(r.kg)}</span>`;
+    const sub=isT?(r.note||''):[r.len?'身長 '+r.len+' cm':'',r.head?'頭圍 '+r.head+' cm':''].filter(Boolean).join(' ・ ');
+    return `<div class="rec"><div class="mid"><div>${main}</div><div class="sub" style="margin:2px 0 0">${d.getMonth()+1}/${d.getDate()} ${hm(d)}${sub?' ・ '+sub.replace(/</g,'&lt;'):''}</div></div><button class="btn soft sm" data-ve="${r.id}">編輯</button><button class="muted" data-vd="${r.id}" style="font-size:13px;padding:6px">刪除</button></div>`};
+  const editing=!!f.id;
+  $('#s-vital').innerHTML=`
+  <div class="hdr"><button id="vb" aria-label="返回" style="font-size:32px;width:40px">‹</button><span class="ic">${isT?'🌡':'⚖️'}</span><h1>${isT?'體溫':'體重'}</h1></div>
+  <div class="card"><div class="lbl">${editing?'修改這筆紀錄':'新增紀錄'}${editing?'<button class="chip" id="vcancel" style="font-size:13px;padding:4px 12px">取消修改</button>':''}</div>
+   <div class="timebox" style="margin-bottom:14px"><input class="field" type="date" id="vd" value="${f.d}" aria-label="日期"><input class="field" type="time" id="vt" value="${f.t}" aria-label="時間"><button class="btn soft" id="vnow" style="font-size:16px;padding:10px 16px;border-radius:20px;flex:none">現在</button></div>
+   ${isT?`<div class="chips" style="margin-bottom:12px">${['耳溫','額溫','腋溫','肛溫'].map(s=>`<button class="chip ${f.site===s?'on':''}" data-site="${s}">${s}</button>`).join('')}</div>
+    <div class="stepper"><button class="sb" data-vs="-1" aria-label="降低">−</button><div class="val"><input id="vv" inputmode="decimal" value="${f.v}" aria-label="體溫"><span>°C</span></div><button class="sb" data-vs="1" aria-label="提高">+</button></div>
+    <div class="chips" style="margin-top:12px"><button class="chip" data-vq="36.5">36.5</button><button class="chip" data-vq="36.8">36.8</button><button class="chip" data-vq="37.0">37.0</button><button class="chip" data-vq="37.5">37.5</button><button class="chip" data-vq="38.0">38.0</button></div>
+    <div id="vwarn"></div><div class="lbl" style="margin:16px 0 8px">備註<small>選填</small></div><input class="field" id="vn" style="font-size:16px" placeholder="例如：洗澡後、哭鬧時量" value="${(f.note||'').replace(/"/g,'&quot;')}">`
+   :`<div class="lbl">體重<small>kg，到小數兩位</small></div><div class="stepper"><button class="sb" data-vs="-1" aria-label="減少">−</button><div class="val"><input id="vv" inputmode="decimal" value="${f.kg}" placeholder="3.58" aria-label="體重"><span>kg</span></div><button class="sb" data-vs="1" aria-label="增加">+</button></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px"><div><div class="lbl">身長<small>cm 選填</small></div><input class="field" id="vl" inputmode="decimal" value="${f.len}" style="font-size:18px"></div><div><div class="lbl">頭圍<small>cm 選填</small></div><input class="field" id="vh" inputmode="decimal" value="${f.head}" style="font-size:18px"></div></div>`}
+   <button class="btn" id="vsave" style="width:100%;margin-top:16px;padding:16px;font-size:18px">${editing?'儲存修改':'新增'}</button></div>
+  <div class="card"><div class="lbl">歷史紀錄<small>${list.length} 筆</small></div>${list.length?list.map(row).join(''):'<div class="sub">還沒有紀錄。</div>'}</div>`;
+  const rd=()=>parseFloat(String($('#vv').value).replace(',','.'));
+  const warn=()=>{if(!isT)return;const v=rd(),s=f.site;$('#vwarn').innerHTML=(v>=38||(s==='腋溫'&&v>=37.5))?'<div class="warn" style="margin-top:12px">體溫偏高。未滿 3 個月的寶寶發燒（肛溫或耳溫 38°C 以上）建議儘快就醫。</div>':v<36.5?'<div class="warn" style="margin-top:12px">體溫偏低，請注意保暖並再量一次。</div>':''};
+  const sync=()=>{f.d=$('#vd').value;f.t=$('#vt').value;if(isT){f.v=rd();f.note=$('#vn').value}else{f.kg=$('#vv').value;f.len=$('#vl').value;f.head=$('#vh').value}};
+  $('#vb').onclick=()=>{st.vform=null;go('home')};
+  if(editing)$('#vcancel').onclick=()=>{st.vform=null;renderVital()};
+  $('#vnow').onclick=()=>{const n=vForm(m);$('#vd').value=n.d;$('#vt').value=n.t};
+  $$('[data-site]').forEach(b=>b.onclick=()=>{sync();f.site=b.dataset.site;renderVital()});
+  $$('[data-vq]').forEach(b=>b.onclick=()=>{$('#vv').value=b.dataset.vq;warn()});
+  $$('[data-vs]').forEach(b=>b.onclick=()=>{const dir=+b.dataset.vs,cur=rd()||(isT?36.8:3.5),step=isT?.1:.01;$('#vv').value=(Math.max(0,Math.round((cur+dir*step)*100)/100)).toFixed(isT?1:2);warn()});
+  $('#vv').addEventListener('input',warn);warn();
+  $$('[data-ve]').forEach(b=>b.onclick=()=>{const r=(isT?st.temps:st.weights).find(x=>x.id===b.dataset.ve);st.vform=vForm(m,r);renderVital();window.scrollTo(0,0)});
+  $$('[data-vd]').forEach(b=>b.onclick=()=>{{const r0=(isT?st.temps:st.weights).find(x=>x.id===b.dataset.vd);if(r0&&!okT(r0.t))return}if(b.dataset.arm){if(isT)st.temps=st.temps.filter(x=>x.id!==b.dataset.vd);else st.weights=st.weights.filter(x=>x.id!==b.dataset.vd);saveV();if(st.vform&&st.vform.id===b.dataset.vd)st.vform=null;toast('已刪除');renderVital()}else{b.dataset.arm=1;b.textContent='確定刪除？';b.style.color='var(--warn)'}});
+  $('#vsave').onclick=()=>{sync();const [y,mo,d]=f.d.split('-').map(Number),[h,mi]=f.t.split(':').map(Number);
+    if(!y||isNaN(h)){toast('請確認日期與時間');return}
+    const t=new Date(y,mo-1,d,h,mi).getTime();let rec;{const orig=(isT?st.temps:st.weights).find(x=>x.id===f.id);if((orig&&!okT(orig.t))||!okT(t))return}
+    if(isT){if(!(f.v>=30&&f.v<=43)){toast('體溫請輸入 30～43 之間的數字');return}rec={id:f.id||uid(),t,v:Math.round(f.v*10)/10,site:f.site,note:(f.note||'').trim()}}
+    else{const kg=parseFloat(String(f.kg).replace(',','.'));if(!(kg>=1&&kg<=30)){toast('體重請輸入 1～30 kg');return}
+      const num=x=>{const n=parseFloat(x);return n>0?n:null};rec={id:f.id||uid(),t,kg:Math.round(kg*100)/100,len:num(f.len),head:num(f.head)}}
+    const key=isT?'temps':'weights';st[key]=st[key].filter(x=>x.id!==rec.id).concat(rec);
+    const ok=saveV();toast(ok?(f.id?'已儲存修改':'已新增'):'已儲存，但無法留在這台裝置');st.vform=null;renderVital();window.scrollTo(0,0)};
+}
+
+
+/* ---------- pump & manual sleep ---------- */
+function nowParts(){const n=new Date(NOW);return {d:`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`,t:hm(n)}}
+function renderPump(){
+  const np=nowParts(),list=st.pumps.slice().sort((a,b)=>b.t-a.t).slice(0,15);
+  const side=(k,n)=>`<div><div class="lbl">${n}<small>ml</small></div><div class="stepper"><button class="sb" data-ps="${k}" data-dir="-1" aria-label="減少" style="width:56px;height:64px">−</button><div class="val" style="height:64px"><input id="p${k}" inputmode="decimal" value="0" aria-label="${n}毫升" style="font-size:32px"></div><button class="sb" data-ps="${k}" data-dir="1" aria-label="增加" style="width:56px;height:64px">+</button></div></div>`;
+  $('#s-pump').innerHTML=`
+  <div class="hdr"><button id="pb" aria-label="返回" style="font-size:32px;width:40px">‹</button><span class="ic">🫙</span><h1>記錄擠奶</h1></div>
+  <div class="card"><div class="lbl" style="margin-bottom:8px">時間</div><div class="timebox"><input class="field" type="date" id="pd" value="${np.d}" aria-label="日期"><input class="field" type="time" id="pt" value="${np.t}" aria-label="時間"><button class="btn soft" id="pnow" style="font-size:16px;padding:10px 16px;border-radius:20px;flex:none">現在</button></div></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:16px">${side('l','左側')}${side('r','右側')}<div class="chips"><button class="chip" data-pq="30">各 30</button><button class="chip" data-pq="60">各 60</button><button class="chip" data-pq="90">各 90</button></div><div class="sub" style="margin:0">庫存目前 ${stockNow()} ml，儲存後會加上這次的量。</div>
+   <button class="btn" id="psave" style="padding:16px;font-size:18px">儲存擠奶紀錄</button></div>
+  <div class="card"><div class="lbl">最近紀錄<small>${list.length} 筆</small></div>${list.length?list.map(q=>{const d=new Date(q.t);return `<div class="rec"><div class="mid"><b>${d.getMonth()+1}/${d.getDate()} ${hm(d)}</b> <span class="muted">左 ${q.l} ・ 右 ${q.r} ml</span></div><button class="muted" data-pdel="${q.id}" style="font-size:13px;padding:6px">刪除</button></div>`}).join(''):'<div class="sub">還沒有紀錄。</div>'}</div>`;
+  const rd=k=>Math.max(0,parseFloat($('#p'+k).value)||0);
+  $('#pb').onclick=()=>go('home');
+  $('#pnow').onclick=()=>{const n=nowParts();$('#pd').value=n.d;$('#pt').value=n.t};
+  $$('[data-ps]').forEach(b=>b.onclick=()=>{const k=b.dataset.ps;$('#p'+k).value=Math.max(0,Math.round((rd(k)+(+b.dataset.dir)*10)*10)/10)});
+  $$('[data-pq]').forEach(b=>b.onclick=()=>{$('#pl').value=b.dataset.pq;$('#pr').value=b.dataset.pq});
+  $$('[data-pdel]').forEach(b=>b.onclick=()=>{{const r0=st.pumps.find(q=>q.id===b.dataset.pdel);if(r0&&!okT(r0.t))return}if(b.dataset.arm){st.pumps=st.pumps.filter(q=>q.id!==b.dataset.pdel);sv('nc-pumps',st.pumps);toast('已刪除');renderPump()}else{b.dataset.arm=1;b.textContent='確定刪除？';b.style.color='var(--warn)'}});
+  $('#psave').onclick=()=>{const l=rd('l'),r=rd('r');if(!(l+r>0)){toast('請輸入左側或右側的量');return}
+    const [y,m,d]=$('#pd').value.split('-').map(Number),[h,mi]=$('#pt').value.split(':').map(Number);if(!y||isNaN(h)){toast('請確認日期與時間');return}
+    if(!okT(new Date(y,m-1,d,h,mi).getTime()))return;
+    st.pumps.push({id:uid(),t:new Date(y,m-1,d,h,mi).getTime(),l,r});const ok=sv('nc-pumps',st.pumps);toast(ok?'已儲存擠奶紀錄':'已儲存，但無法留在這台裝置');renderPump();window.scrollTo(0,0)};
+}
+function renderSleep(){
+  const np=nowParts(),sd=new Date(NOW.getTime()-36e5),list=st.sleeps.slice().sort((a,b)=>b.s-a.s).slice(0,15);
+  $('#s-sleep').innerHTML=`
+  <div class="hdr"><button id="sb2" aria-label="返回" style="font-size:32px;width:40px">‹</button><span class="ic">😴</span><h1>補記睡眠</h1></div>
+  <div class="card"><div class="lbl">入睡日期</div><input class="field" type="date" id="sdt" value="${np.d}" aria-label="入睡日期" style="font-size:16px;margin-bottom:14px">
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><div class="lbl">入睡</div><input class="field" type="time" id="sst" value="${hm(sd)}" aria-label="入睡時間" style="font-size:18px"></div><div><div class="lbl">醒來</div><input class="field" type="time" id="set" value="${np.t}" aria-label="醒來時間" style="font-size:18px"></div></div>
+   <p class="sub">醒來時間早於入睡時間時，會當作隔天醒來。</p><button class="btn" id="ssave" style="width:100%;padding:16px;font-size:18px">儲存睡眠</button></div>
+  <div class="card"><div class="lbl">最近紀錄<small>${list.length} 筆</small></div>${list.length?list.map(q=>{const d=new Date(q.s);return `<div class="rec"><div class="mid"><b>${d.getMonth()+1}/${d.getDate()} ${hm(d)}～${hm(new Date(q.e))}</b> <span class="muted">${fmtDur(q.e-q.s)}</span></div><button class="muted" data-sdel="${q.id}" style="font-size:13px;padding:6px">刪除</button></div>`}).join(''):'<div class="sub">還沒有紀錄。用今日頁的「睡著了」按鈕，或在這裡補記。</div>'}</div>`;
+  $('#sb2').onclick=()=>go('home');
+  $$('[data-sdel]').forEach(b=>b.onclick=()=>{{const r0=st.sleeps.find(q=>q.id===b.dataset.sdel);if(r0&&!okT(r0.s))return}if(b.dataset.arm){st.sleeps=st.sleeps.filter(q=>q.id!==b.dataset.sdel);sv('nc-sleeps',st.sleeps);toast('已刪除');renderSleep()}else{b.dataset.arm=1;b.textContent='確定刪除？';b.style.color='var(--warn)'}});
+  $('#ssave').onclick=()=>{const [y,m,d]=$('#sdt').value.split('-').map(Number),[h1,i1]=$('#sst').value.split(':').map(Number),[h2,i2]=$('#set').value.split(':').map(Number);
+    if(!y||isNaN(h1)||isNaN(h2)){toast('請確認日期與時間');return}
+    const S=new Date(y,m-1,d,h1,i1).getTime();let E=new Date(y,m-1,d,h2,i2).getTime();if(E<=S)E+=864e5;
+    if(E-S>16*36e5||E-S<6e4){toast('睡眠長度請在 1 分鐘到 16 小時之間');return}
+    if(S>Date.now()+6e4){toast('入睡時間不能是未來');return}
+    st.sleeps.push({id:uid(),s:S,e:E});const ok=sv('nc-sleeps',st.sleeps);toast(ok?'已儲存睡眠':'已儲存，但無法留在這台裝置');renderSleep();window.scrollTo(0,0)};
+}
+
+/* ---------- router ---------- */
+const R={pump:renderPump,sleep:renderSleep,vital:renderVital,diaper:renderDiaper,home:renderHome,stats:renderStats,settings:renderSettings,health:renderHealth,add:renderAdd,report:renderReport};
+function go(name){
+  let scr=name;
+  if(name==='yest'){st.offset=1;scr='home'}else if(name==='home'){if(st.keep)st.keep=false;else st.offset=0}
+  $$('.screen').forEach(s=>s.classList.remove('on'));
+  st.cur=scr;R[scr]();$('#s-'+scr).classList.add('on');
+  const tabKey={home:'home',yest:'yest',stats:'stats',report:'stats',settings:'settings',moments:'moments',mpost:'moments'}[name];
+  $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.go===tabKey));
+  $('#tabbar').style.display=(['add','diaper','vital','pump','sleep','login','onboard','join','mpost'].includes(name))?'none':'';
+  window.scrollTo(0,0);
+}
+$$('.tab').forEach(t=>t.onclick=()=>go(t.dataset.go));
+$('#fab').onclick=()=>{if(readOnly()){toast('你是只能查看的成員，無法新增紀錄');return}$('#chSleep').style.display=isOwner()?'':'none';$('#chooser').classList.add('on')};
+$('#chooser').addEventListener('click',e=>{if(e.target.id==='chooser')$('#chooser').classList.remove('on')});
+$('#chFeed').onclick=()=>{$('#chooser').classList.remove('on');go('add')};
+$('#chTemp').onclick=()=>{$('#chooser').classList.remove('on');st.vmode='temp';st.vform=null;go('vital')};
+$('#chWeight').onclick=()=>{$('#chooser').classList.remove('on');st.vmode='weight';st.vform=null;go('vital')};
+$('#chPump').onclick=()=>{$('#chooser').classList.remove('on');go('pump')};
+$('#chSleep').onclick=()=>{$('#chooser').classList.remove('on');go('sleep')};
+$('#chDiaper').onclick=()=>{$('#chooser').classList.remove('on');st.dform=null;go('diaper')};
+/* shortcut card on home to reach vaccines, checkups, milestones */
+const _rh=renderHome;
+R.home=function(){_rh();$('#s-home').insertAdjacentHTML('beforeend',`<div class="card"><h3 style="font-weight:700">成長紀錄</h3><div class="grid2" style="grid-template-columns:repeat(3,1fr)">${[['vac','💉','疫苗'],['chk','🩺','健檢'],['ms','⭐','里程碑']].map(([k,i,l])=>`<button class="chip" data-hh="${k}" style="padding:14px 0;border-radius:20px;font-weight:700">${i}<br>${l}</button>`).join('')}</div></div>`);
+  $$('[data-hh]').forEach(b=>b.onclick=()=>{st.hrange=b.dataset.hh;go('health')});
+  if(!isOwner()){lockEls('[data-hh]');
+    if(st.offset!==0){lockEls('#sleepBtn,[data-delf],[data-deld],[data-newd],[data-go-pump],[data-vital]');
+      const dn=$('#s-home .datenav');if(dn)dn.insertAdjacentHTML('afterend','<div class="msg" style="margin-bottom:12px">這是過去的紀錄，你可以查看，但只有主帳號可以修改。</div>')}}};
+/* non-owner members: settings / health / PDF are owner-only */
+function lockScreen(root,keep,msg){const r=$(root);if(!r)return;
+  [...r.children].forEach(c=>{if(c.classList.contains('hdr')||c.classList.contains('lockmsg')||(keep&&(c.matches(keep)||c.querySelector(keep))))return;c.inert=true;c.style.opacity='.45'});
+  const h=r.querySelector('.hdr');if(h&&!r.querySelector('.lockmsg'))h.insertAdjacentHTML('afterend','<div class="msg lockmsg" style="margin-bottom:12px">'+msg+'</div>')}
+const _rset=R.settings,_rhl=R.health,_rrep=R.report;
+R.settings=function(){_rset();if(!isOwner())lockScreen('#s-settings','#acct','🔒 只有主帳號可以修改設定。你可以在下方管理自己的帳號。')};
+R.health=function(){_rhl();if(!isOwner())lockScreen('#s-health',null,'🔒 只有主帳號可以修改這個頁面。')};
+R.report=function(){_rrep();if(!isOwner()){lockEls('#mkpdf');const b=$('#mkpdf');if(b&&!$('#s-report .lockmsg'))b.insertAdjacentHTML('beforebegin','<div class="msg lockmsg" style="margin-bottom:10px">🔒 只有主帳號可以產生 PDF。</div>')}};
+let lastMin=-1;
+setInterval(()=>{NOW.setTime(Date.now());const m=NOW.getMinutes();if(m===lastMin)return;lastMin=m;
+  const ae=document.activeElement;if(ae&&/INPUT|TEXTAREA/.test(ae.tagName))return;
+  if($('#notif').classList.contains('on'))renderNotif();
+  else if($('#s-home').classList.contains('on')&&st.offset===0){const y=window.scrollY;R.home();window.scrollTo(0,y)}},15000);
+/* ---------- cloud: login + two-way sync (web build only) ---------- */
+const SB_URL='https://gtllvuvciwyfplqumsvm.supabase.co',SB_KEY='sb_publishable_Nc4_45bfCvzGYFR0Wld6NQ_yOw5_sWj';
+let sb=null;try{sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}):null}catch(e){sb=null}
+const cloud={user:null,fam:null,babyId:null,cur:{},snap:{},status:'local',last:0,err:'',applying:false,changed:false,again:false,role:'',members:null,mAt:0,invite:null,loadingFam:false};
+readOnly=()=>cloud.role==='viewer';
+isOwner=()=>!cloud.user||!cloud.role||cloud.role==='owner';
+const ROLE={owner:'管理者',parent:'爸媽',caregiver:'保母／照顧者',viewer:'只能查看'};
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=t=>new Date(t).toISOString();
+const ts=s=>Date.parse(String(s).replace(/(\.\d{3})\d+/,'$1'));
+const p2d=n=>String(n).padStart(2,'0');
+const dOn=s=>{const m=String(s).split(/[\/-]/).map(Number);return `${m[0]}-${p2d(m[1])}-${p2d(m[2])}`};
+const dLoc=s=>{const m=String(s).slice(0,10).split('-').map(Number);return `${m[0]}/${m[1]}/${m[2]}`};
+const mdToDate=s=>{const [m,d]=String(s).split('/').map(Number);let y=NOW.getFullYear();if(new Date(y,m-1,d)>NOW)y--;return `${y}-${p2d(m)}-${p2d(d)}`};
+const dToMd=s=>{const m=String(s).slice(0,10).split('-').map(Number);return `${m[1]}/${m[2]}`};
+function detId(s){let h1=1779033703,h2=3144134277,h3=1013904242,h4=2773480762;
+  for(let i=0,k;i<s.length;i++){k=s.charCodeAt(i);h1=h2^Math.imul(h1^k,597399067);h2=h3^Math.imul(h2^k,2869860233);h3=h4^Math.imul(h3^k,951274213);h4=h1^Math.imul(h4^k,2716044179)}
+  h1=Math.imul(h3^(h1>>>18),597399067);h2=Math.imul(h4^(h2>>>22),2869860233);h3=Math.imul(h1^(h3>>>17),951274213);h4=Math.imul(h2^(h4>>>19),2716044179);
+  const x=[h1,h2,h3,h4].map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
+  return `${x.slice(0,8)}-${x.slice(8,12)}-${x.slice(12,16)}-${x.slice(16,20)}-${x.slice(20)}`}
+const bid=()=>cloud.babyId||'';
+const SITE={'耳溫':'ear','額溫':'forehead','腋溫':'armpit','肛溫':'rectal'},SITE_R={ear:'耳溫',forehead:'額溫',armpit:'腋溫',rectal:'肛溫'};
+/* each collection maps local records <-> database rows */
+const COLS=[
+ {t:'feeds',get:()=>st.feeds,set:a=>{st.feeds=a;sv('nc-feeds',a)},row:r=>({id:r.id,t:iso(r.t),formula_ml:r.f||0,breast_ml:r.b||0}),loc:w=>({id:w.id,t:ts(w.t),f:+w.formula_ml,b:+w.breast_ml})},
+ {t:'pumps',get:()=>st.pumps,set:a=>{st.pumps=a;sv('nc-pumps',a)},row:r=>({id:r.id,t:iso(r.t),left_ml:r.l||0,right_ml:r.r||0}),loc:w=>({id:w.id,t:ts(w.t),l:+w.left_ml,r:+w.right_ml})},
+ {t:'sleeps',get:()=>st.sleeps,set:a=>{st.sleeps=a;sv('nc-sleeps',a)},row:r=>({id:r.id,start_at:iso(r.s),end_at:iso(r.e)}),loc:w=>({id:w.id,s:ts(w.start_at),e:w.end_at?ts(w.end_at):ts(w.start_at)+60000})},
+ {t:'diapers',get:()=>st.diapers,set:a=>{st.diapers=a;saveD()},row:r=>({id:r.id,t:iso(r.t),kind:r.kind,color:r.color||null,texture:r.tex||null,note:r.note||null}),loc:(w,old)=>({id:w.id,t:ts(w.t),kind:w.kind,color:w.color,tex:w.texture,note:w.note||'',photos:old&&old.photos?old.photos:[]})},
+ {t:'temps',get:()=>st.temps,set:a=>{st.temps=a;saveV()},row:r=>({id:r.id,t:iso(r.t),celsius:r.v,site:SITE[r.site]||'ear',note:r.note||null}),loc:w=>({id:w.id,t:ts(w.t),v:+w.celsius,site:SITE_R[w.site]||'耳溫',note:w.note||''})},
+ {t:'weights',get:()=>st.weights,set:a=>{st.weights=a;saveV()},row:r=>({id:r.id,t:iso(r.t),kg:r.kg,length_cm:r.len||null,head_cm:r.head||null}),loc:w=>({id:w.id,t:ts(w.t),kg:+w.kg,len:w.length_cm?+w.length_cm:null,head:w.head_cm?+w.head_cm:null})},
+ {t:'vaccine_records',get:()=>Object.entries(st.vacc).map(([k,d])=>({id:detId(bid()+'|vac|'+k),k,d})),set:a=>{st.vacc=Object.fromEntries(a.map(r=>[r.k,r.d]));saveCL()},row:r=>({id:r.id,schedule_key:'vac-'+r.k,done_on:dOn(r.d)}),loc:w=>({id:w.id,k:String(w.schedule_key).replace(/^vac-/,''),d:dLoc(w.done_on)})},
+ {t:'checkup_records',get:()=>Object.entries(st.checkup).map(([k,v])=>({id:detId(bid()+'|chk|'+k),k,d:v.d,h:v.h||''})),set:a=>{st.checkup=Object.fromEntries(a.map(r=>[r.k,{d:r.d,h:r.h}]));saveCL()},row:r=>({id:r.id,seq:+r.k,done_on:dOn(r.d),place:r.h||null}),loc:w=>({id:w.id,k:String(w.seq),d:dLoc(w.done_on),h:w.place||''})},
+ {t:'milestone_records',get:()=>Object.keys(st.ms).filter(k=>st.ms[k]).map(k=>({id:detId(bid()+'|ms|'+k),k,d:st.msDate[k]||((NOW.getMonth()+1)+'/'+NOW.getDate())})),set:a=>{st.ms={};st.msDate={};a.forEach(r=>{st.ms[r.k]=true;st.msDate[r.k]=r.d});saveCL()},row:r=>({id:r.id,item_key:r.k,done_on:mdToDate(r.d)}),loc:w=>({id:w.id,k:w.item_key,d:dToMd(w.done_on)})}
+];
+const OWNER_ONLY=new Set(['vaccine_records','checkup_records','milestone_records']);
+const canon=(col,r)=>JSON.stringify(col.row(r));
+async function pushCol(col){
+  const snap=cloud.snap[col.t]||(cloud.snap[col.t]={});
+  const cur=col.get(),seen=new Set(),ups=[];
+  for(const r of cur){seen.add(r.id);const c=canon(col,r);if(snap[r.id]!==c)ups.push([r,c])}
+  const dels=Object.keys(snap).filter(id=>!seen.has(id));
+  for(let i=0;i<ups.length;i+=200){const part=ups.slice(i,i+200);
+    const {error}=await sb.from(col.t).upsert(part.map(([r])=>({...col.row(r),baby_id:cloud.babyId,deleted_at:null})),{onConflict:'id'});
+    if(error)throw error;part.forEach(([r,c])=>{snap[r.id]=c})}
+  for(let i=0;i<dels.length;i+=100){const part=dels.slice(i,i+100);
+    const {error}=await sb.from(col.t).update({deleted_at:new Date().toISOString()}).in('id',part);
+    if(error)throw error;part.forEach(id=>{delete snap[id]})}
+}
+async function pullCol(col){
+  const snap=cloud.snap[col.t]||(cloud.snap[col.t]={});
+  const since=cloud.cur[col.t]||null;let from=0,maxU=null,changed=false;
+  const arr=col.get().slice();const idx=new Map(arr.map((r,i)=>[r.id,i]));
+  const dirty=r=>snap[r.id]!==undefined&&canon(col,r)!==snap[r.id];
+  for(;;){
+    let q=sb.from(col.t).select('*').eq('baby_id',cloud.babyId).order('updated_at',{ascending:true}).order('id',{ascending:true}).range(from,from+999);
+    if(since)q=q.gt('updated_at',since);
+    const {data,error}=await q;if(error)throw error;
+    for(const w of data){
+      const u=String(w.updated_at).replace(/(\.\d{3})\d+/,'$1');if(!maxU||u>maxU)maxU=u;
+      const i=idx.get(w.id),local=i===undefined?null:arr[i];
+      if(w.deleted_at){
+        if(local){if(dirty(local))continue;arr[i]=null;idx.delete(w.id);changed=true}
+        delete snap[w.id];continue}
+      if(local&&dirty(local))continue;                      // edited here, upload wins
+      if(!local&&snap[w.id]!==undefined)continue;            // deleted here, delete pending
+      const nl=col.loc(w,local),c=canon(col,nl);
+      if(!local){arr.push(nl);idx.set(w.id,arr.length-1);changed=true}
+      else if(canon(col,local)!==c){arr[i]=nl;changed=true}
+      snap[w.id]=c}
+    if(data.length<1000)break;from+=1000}
+  if(changed){col.set(arr.filter(Boolean));cloud.changed=true}
+  if(maxU)cloud.cur[col.t]=new Date(ts(maxU)-5000).toISOString();
+}
+const GENDER={'男寶':'male','女寶':'female','保密':'private'},GENDER_R={male:'男寶',female:'女寶',private:'保密'};
+const babyRow=()=>({id:cloud.babyId,name:st.baby.name||'寶寶',gender:GENDER[st.baby.gender]||'private',birth_at:iso(st.baby.birth),birth_weight_g:(st.baby.bw>=500&&st.baby.bw<=7000)?st.baby.bw:null,birth_length_cm:(st.baby.bl>0&&st.baby.bl<100)?st.baby.bl:null,birth_head_cm:(st.baby.bh>0&&st.baby.bh<100)?st.baby.bh:null,feed_interval_min:st.baby.interval,feed_remind_min:st.baby.remind,sleep_remind_min:st.baby.sleepRemind});
+const babyCanon=()=>JSON.stringify(babyRow());
+async function pullBaby(){
+  const {data,error}=await sb.from('babies').select('*').eq('id',cloud.babyId).limit(1);if(error)throw error;
+  const w=data[0];if(!w)return;
+  if(cloud.snap.baby!==undefined&&babyCanon()!==cloud.snap.baby)return;   // edited here, upload wins
+  const b=st.baby,before=babyCanon();
+  Object.assign(b,{id:w.id,name:w.name,gender:GENDER_R[w.gender]||'保密',birth:ts(w.birth_at),bw:w.birth_weight_g||0,bl:+w.birth_length_cm||0,bh:+w.birth_head_cm||0,interval:w.feed_interval_min,remind:w.feed_remind_min,sleepRemind:w.sleep_remind_min,onboarded:true});
+  BIRTH=new Date(b.birth);saveBaby();
+  if(babyCanon()!==before)cloud.changed=true;
+  cloud.snap.baby=babyCanon();
+}
+async function pushBaby(){const c=babyCanon();if(cloud.snap.baby===c)return;
+  const {error}=await sb.from('babies').upsert({...babyRow(),family_id:cloud.fam,deleted_at:null},{onConflict:'id'});if(error)throw error;cloud.snap.baby=c}
+function pending(){let n=0;if(cloud.role==='viewer')return 0;
+  for(const col of COLS){if(!isOwner()&&OWNER_ONLY.has(col.t))continue;const snap=cloud.snap[col.t]||{},seen=new Set();for(const r of col.get()){seen.add(r.id);if(snap[r.id]!==canon(col,r))n++}n+=Object.keys(snap).filter(id=>!seen.has(id)).length}
+  if(isOwner()&&cloud.babyId&&cloud.snap.baby!==undefined&&cloud.snap.baby!==babyCanon())n++;return n}
+const META='nc-sync',LOCALKEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd','nc-sstart','nc-vitd','nc-sync','nc-localonly'];
+function wipeLocal(reload){LOCALKEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});if(reload!==false)location.reload()}
+function saveMeta(){try{localStorage.setItem(META,JSON.stringify({uid:cloud.user&&cloud.user.id,fam:cloud.fam,babyId:cloud.babyId,role:cloud.role,cur:cloud.cur,snap:cloud.snap}))}catch(e){}}
+function loadMeta(){const m=ldo(META,null);
+  if(m&&m.uid&&cloud.user&&m.uid!==cloud.user.id){wipeLocal(true);return 'reset'}
+  if(m&&cloud.user&&m.uid===cloud.user.id)Object.assign(cloud,{fam:m.fam,babyId:m.babyId,role:m.role||'',cur:m.cur||{},snap:m.snap||{}});
+  return 'ok'}
+async function link(){
+  const {data:mem,error}=await sb.from('family_members').select('family_id,role').eq('user_id',cloud.user.id).order('joined_at',{ascending:false});if(error)throw error;
+  if(mem.length){cloud.fam=mem[0].family_id;cloud.role=mem[0].role}
+  else{const {data,error:e}=await sb.rpc('create_family',{p_name:(st.baby.name||'我')+'的家'});if(e)throw e;cloud.fam=data;cloud.role='owner'}
+  const {data:bs,error:e2}=await sb.from('babies').select('id').eq('family_id',cloud.fam).is('deleted_at',null).order('created_at',{ascending:true}).limit(1);if(e2)throw e2;
+  if(bs.length){cloud.babyId=bs[0].id;return true}
+  if(!st.baby.onboarded)return false;                         // needs the baby profile first
+  cloud.babyId=st.baby.id||uid();st.baby.id=cloud.babyId;saveBaby();
+  const {error:e3}=await sb.from('babies').upsert({...babyRow(),family_id:cloud.fam},{onConflict:'id'});if(e3)throw e3;
+  cloud.snap.baby=babyCanon();return true}
+function friendly(e){const m=String(e&&e.message||e);
+  if(/only the owner can delete/i.test(m))return '只有主帳號可以刪除帳號';
+  if(/invite is invalid/i.test(m))return '邀請碼無效、已使用或已過期';
+  if(/only the owner/i.test(m))return '只有管理者可以邀請家人';
+  if(/Invalid login credentials/i.test(m))return '帳號或密碼錯誤';
+  if(/already registered|already been registered/i.test(m))return '這個 Email 已註冊，請改用登入';
+  if(/at least \d+ char/i.test(m))return '密碼至少 6 個字';
+  if(/not confirmed/i.test(m))return '這個帳號還沒確認 Email，請到信箱點確認連結';
+  if(/rate limit|too many|security purposes/i.test(m))return '嘗試次數太多，請稍後再試';
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m))return '連不上伺服器，請確認網路';
+  if(/row-level security|permission denied/i.test(m))return '沒有權限寫入，請重新登入';
+  return m.slice(0,120)}
+let syncP=null,tmr=null;
+const schedule=(ms)=>{clearTimeout(tmr);tmr=setTimeout(()=>{syncNow()},ms==null?800:ms)};
+function syncNow(){
+  if(!sb||!cloud.user)return Promise.resolve();
+  if(syncP){cloud.again=true;return syncP}
+  cloud.status='syncing';renderAcct();
+  syncP=(async()=>{
+    try{
+      if(!cloud.babyId||!cloud.fam){const ok=await link();if(!ok){cloud.status='needprofile';return}}
+      cloud.applying=true;cloud.changed=false;
+      await pullBaby();for(const col of COLS)await pullCol(col);
+      cloud.applying=false;
+      if(cloud.role!=='viewer'){if(isOwner())await pushBaby();for(const col of COLS)if(isOwner()||!OWNER_ONLY.has(col.t))await pushCol(col)}
+      cloud.last=Date.now();cloud.status='ok';cloud.err='';saveMeta();
+    }catch(e){cloud.status=navigator.onLine===false?'offline':'error';cloud.err=friendly(e);saveMeta()}
+    finally{cloud.applying=false;
+      if(cloud.changed){cloud.changed=false;const ae=document.activeElement;
+        if(!(ae&&/INPUT|TEXTAREA/.test(ae.tagName))&&['home','stats','health','report'].includes(st.cur)){const y=window.scrollY;R[st.cur]();window.scrollTo(0,y)}}
+      renderAcct()}
+  })().finally(()=>{syncP=null;if(cloud.again){cloud.again=false;schedule(300)}});
+  return syncP}
+onSaved=()=>{if(!cloud.applying&&cloud.user)schedule()};
+setInterval(()=>{if(cloud.user&&!document.hidden&&navigator.onLine!==false)syncNow()},20000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cloud.user)syncNow()});
+window.addEventListener('online',()=>{if(cloud.user)syncNow()});
+window.ncSyncNow=()=>syncNow();window.ncLoadFam=()=>loadFamily(true);
+
+
+async function loadFamily(force){
+  if(!sb||!cloud.user||!cloud.fam||cloud.loadingFam)return;
+  if(!force&&cloud.members&&Date.now()-cloud.mAt<8000)return;
+  cloud.loadingFam=true;
+  try{
+    const {data:ms,error}=await sb.from('family_members').select('user_id,role,joined_at').eq('family_id',cloud.fam).order('joined_at',{ascending:true});if(error)throw error;
+    const {data:ps}=await sb.from('profiles').select('id,display_name').in('id',ms.map(m=>m.user_id));
+    const nm={};(ps||[]).forEach(x=>nm[x.id]=x.display_name);
+    cloud.members=ms.map(m=>({user_id:m.user_id,role:m.role,name:nm[m.user_id]||''}));cloud.mAt=Date.now();
+    const me=ms.find(m=>m.user_id===cloud.user.id);if(me&&me.role!==cloud.role){cloud.role=me.role;saveMeta();if(['home','settings','health','report'].includes(st.cur))R[st.cur]()}
+  }catch(e){if(!cloud.members)cloud.members=[];cloud.mAt=Date.now()}
+  cloud.loadingFam=false;renderAcct()}
+function famHtml(){
+  if(!cloud.members)return '<div class="sub" style="margin:14px 0 0">載入家人名單…</div>';
+  if(!cloud.members.length)return '<div class="sub" style="margin:14px 0 0">暫時無法載入家人名單，稍後再試。</div>';
+  const own=cloud.role==='owner';
+  const rows=cloud.members.map(m=>{const me=m.user_id===cloud.user.id;const nm=me?(m.name||cloud.user.email.split('@')[0])+'（你）':(m.name||'家人');
+    return `<div class="inline" style="justify-content:space-between;flex-wrap:nowrap;padding:8px 0"><div><b>${esc(nm)}</b><div class="sub" style="margin:0">${ROLE[m.role]||m.role}</div></div>${own&&!me?`<button class="btn soft sm" data-rm="${m.user_id}">移除</button>`:''}</div>`}).join('');
+  const inv=own?`<div class="lbl" style="margin:14px 0 8px">邀請家人加入</div>
+   <div class="chips" id="invrole"><button class="chip on" data-ir="parent">爸媽</button><button class="chip" data-ir="caregiver">保母</button><button class="chip" data-ir="viewer">只能查看</button></div>
+   <button class="btn sm" id="invgo" style="margin-top:10px">產生邀請碼</button>
+   ${cloud.invite?`<div class="msg ok" style="margin-top:10px"><div style="font-size:26px;font-weight:800;letter-spacing:2px;user-select:all">${esc(cloud.invite)}</div><div style="margin:6px 0">7 天內有效，只能用一次。對方註冊或登入後輸入這組碼，或直接開下面的連結。</div><button class="btn soft sm" id="invcopy">複製邀請連結</button></div>`:''}`
+   :`<div class="inline" style="margin-top:10px"><button class="btn soft sm" id="leave">退出這個家庭</button></div><div id="leavewarn"></div>`;
+  const myn=(cloud.members.find(m=>m.user_id===cloud.user.id)||{}).name||'';
+  return `<div class="lbl" style="margin:16px 0 8px">我的暱稱<small>家人會看到</small></div><input class="field" id="nick" value="${esc(myn)}" placeholder="例如：爸爸、媽媽、保母" maxlength="12"><div class="lbl" style="margin:16px 0 4px">家人（${cloud.members.length}）</div>${rows}${inv}
+   <div class="inline" style="margin-top:12px"><button class="linkbtn" id="gojoin">我有邀請碼，要加入別人的家庭</button></div>
+   ${own?'<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line,rgba(128,128,128,.25))"><button class="btn soft sm" id="delacc">刪除帳號並重新註冊</button><div id="delwarn"></div></div>':''}`}
+function bindFam(){
+  let role='parent';
+  $$('[data-ir]').forEach(b=>b.onclick=()=>{role=b.dataset.ir;$$('[data-ir]').forEach(x=>x.classList.toggle('on',x===b))});
+  const g=$('#invgo');if(g)g.onclick=async()=>{g.disabled=true;
+    const {data,error}=await sb.rpc('create_invite',{p_family:cloud.fam,p_role:role});
+    if(error){toast(friendly(error));g.disabled=false;return}
+    cloud.invite=data;renderAcct()};
+  const c=$('#invcopy');if(c)c.onclick=async()=>{const url=location.origin+location.pathname+'?join='+cloud.invite;
+    try{await navigator.clipboard.writeText(url);toast('已複製邀請連結')}catch(e){prompt('複製這個連結',url)}};
+  $$('[data-rm]').forEach(b=>b.onclick=async()=>{if(!confirm('確定移除這位家人？他就看不到寶寶的紀錄了。'))return;
+    const {error}=await sb.from('family_members').delete().eq('family_id',cloud.fam).eq('user_id',b.dataset.rm);
+    if(error){toast(friendly(error));return}loadFamily(true)});
+  const nk=$('#nick');if(nk)nk.onchange=async()=>{const v=nk.value.trim().slice(0,12);const {error}=await sb.from('profiles').update({display_name:v||null}).eq('id',cloud.user.id);if(error){toast(friendly(error));return}toast('已儲存暱稱');loadFamily(true)};
+  const da=$('#delacc');if(da)da.onclick=()=>{
+    const n=(cloud.members||[]).length-1;
+    $('#delwarn').innerHTML=`<div class="msg err" style="margin-top:10px"><b>⚠️ 刪除後資料無法復原</b><br>會永久刪除這個帳號，以及你建立的寶寶資料、所有餵奶、睡眠、尿布、體溫、體重、疫苗等紀錄${n>0?`。目前的 ${n} 位家人也會一起失去這些紀錄`:''}。這台裝置上的資料和照片也會清除。沒有任何方法可以救回。<br>建議先到「統計」產生 PDF 保存。<div style="margin:10px 0 6px">請輸入「刪除」兩個字確認：</div><input class="field" id="delconf" placeholder="刪除" autocomplete="off"><div class="inline" style="margin-top:10px"><button class="btn sm" id="delyes" disabled>永久刪除</button><button class="btn soft sm" id="delno">取消</button></div><div id="delmsg" style="margin-top:8px"></div></div>`;
+    $('#delconf').oninput=e=>{$('#delyes').disabled=e.target.value.trim()!=='刪除'};
+    $('#delno').onclick=()=>{$('#delwarn').innerHTML=''};
+    $('#delyes').onclick=async()=>{const b=$('#delyes');b.disabled=true;b.textContent='刪除中…';
+      try{const {error}=await sb.rpc('delete_my_account');if(error)throw error;
+        try{await sb.auth.signOut()}catch(e){}
+        try{localStorage.removeItem(JK)}catch(e){}
+        wipeLocal(false);try{localStorage.setItem('nc-deleted','1')}catch(e){}location.reload()}
+      catch(e){$('#delmsg').textContent=friendly(e);b.disabled=false;b.textContent='永久刪除'}}};
+  const j=$('#gojoin');if(j)j.onclick=()=>go('join');
+  const l=$('#leave');if(l)l.onclick=()=>{$('#leavewarn').innerHTML='<div class="msg err" style="margin-top:10px">退出後這台裝置的資料會清除，你會回到一個全新的空白家庭。<div class="inline" style="margin-top:10px"><button class="btn sm" id="leaveyes">確定退出</button><button class="btn soft sm" id="leaveno">取消</button></div></div>';
+    $('#leaveno').onclick=()=>{$('#leavewarn').innerHTML=''};
+    $('#leaveyes').onclick=async()=>{const {error}=await sb.from('family_members').delete().eq('family_id',cloud.fam).eq('user_id',cloud.user.id);
+      if(error){toast(friendly(error));return}wipeLocal(true)}}}
+/* ---------- account card in settings ---------- */
+renderAcct=function(){
+  const el=$('#acct');if(!el)return;let h;
+  if(!sb)h='<div class="msg err">無法載入雲端同步工具，目前只存在這台裝置。請確認網路後重新整理。</div>';
+  else if(!cloud.user)h='<div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><div><b>尚未登入</b><div class="sub" style="margin:2px 0 0">資料只存在這台裝置</div></div><button class="btn sm" id="acgo">登入或註冊</button></div>';
+  else{const label={syncing:'同步中…',ok:'已同步 '+hm(new Date(cloud.last)),offline:'目前離線，連線後會自動同步',error:'同步失敗：'+esc(cloud.err),needprofile:'請先填寫寶寶資料',local:'尚未同步'}[cloud.status]||'';
+    const pend=pending();
+    h=`<b>${esc(cloud.user.email)}</b><div class="msg ${cloud.status==='error'?'err':cloud.status==='ok'?'ok':''}" style="margin:10px 0">${label}${pend&&cloud.status!=='syncing'?`（${pend} 筆待上傳）`:''}</div>
+    <div class="inline"><button class="btn sm" id="acsync">立即同步</button><button class="btn soft sm" id="acout">登出</button></div><div id="acwarn"></div>
+    <p class="sub" style="margin:10px 0 0">照片目前只存在這台裝置，換裝置看不到。${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div>`}
+  el.innerHTML=`<div class="card">${h}</div>`;
+  const g=$('#acgo');if(g)g.onclick=()=>go('login');
+  if(cloud.user&&cloud.fam){bindFam();loadFamily(false)}
+  const sy=$('#acsync');if(sy)sy.onclick=()=>syncNow();
+  const o=$('#acout');if(o)o.onclick=async()=>{
+    $('#acwarn').innerHTML='<div class="msg" style="margin-top:10px">確認中…</div>';await syncNow();const n=pending();
+    $('#acwarn').innerHTML=`<div class="msg err" style="margin-top:10px">${n?`還有 ${n} 筆資料沒上傳，登出後會遺失。`:'資料都已上傳。'}登出會清除這台裝置上的資料（包含照片），雲端的資料不受影響。<div class="inline" style="margin-top:10px"><button class="btn sm" id="acyes">確定登出</button><button class="btn soft sm" id="acno">取消</button></div></div>`;
+    $('#acno').onclick=()=>{$('#acwarn').innerHTML=''};
+    $('#acyes').onclick=async()=>{try{await sb.auth.signOut()}catch(e){}wipeLocal(true)}}};
+
+/* ---------- login & first-time baby profile ---------- */
+let loginMode='in';
+const showMsg=(id,text,type)=>{const el=$(id);el.hidden=!text;el.className='msg '+(type||'');el.textContent=text||''};
+function renderLogin(){
+  const sIn=loginMode==='in';
+  $('#s-login').innerHTML=`<div class="hdr"><span class="ic">👶</span><h1>nexCare</h1></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:14px"><div class="lbl" style="margin:0">${sIn?'登入':'建立帳號'}</div>
+   <p class="sub" style="margin:0">登入後，網站和 APP 會共用同一份寶寶紀錄。</p>
+   <input class="field" id="lem" type="email" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="Email" style="font-size:17px">
+   <input class="field" id="lpw" type="password" autocomplete="${sIn?'current-password':'new-password'}" placeholder="密碼（至少 6 個字）" style="font-size:17px">
+   <div id="lmsg" hidden></div>
+   <button class="btn" id="lgo" style="padding:16px;font-size:18px">${sIn?'登入':'註冊'}</button>
+   <button class="linkbtn" id="lsw">${sIn?'還沒有帳號？註冊':'已有帳號？登入'}</button>
+   <button class="linkbtn muted" id="lskip" style="font-weight:400">先不登入，只存在這台裝置</button>${(()=>{try{if(localStorage.getItem('nc-deleted')){localStorage.removeItem('nc-deleted');return '<div class="msg ok">帳號與資料已刪除。可以用新的 Email 重新註冊。</div>'}}catch(e){}return ''})()}${getJoin()?'<div class="msg ok">已收到邀請碼，登入或註冊後會繼續加入。</div>':''}</div>`;
+  $('#lsw').onclick=()=>{loginMode=sIn?'up':'in';renderLogin()};
+  $('#lskip').onclick=()=>{try{localStorage.setItem('nc-localonly','1')}catch(e){}go(st.baby.onboarded?'home':'onboard')};
+  $('#lgo').onclick=async()=>{
+    const email=$('#lem').value.trim(),password=$('#lpw').value;
+    if(!/^\S+@\S+\.\S+$/.test(email)){showMsg('#lmsg','請輸入正確的 Email','err');return}
+    if(password.length<6){showMsg('#lmsg','密碼至少 6 個字','err');return}
+    if(!sb){showMsg('#lmsg','無法載入雲端工具，請確認網路後重新整理','err');return}
+    const b=$('#lgo');b.disabled=true;b.textContent='請稍候…';showMsg('#lmsg','');
+    try{
+      let r;
+      if(sIn){r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error}
+      else{r=await sb.auth.signUp({email,password});if(r.error)throw r.error;
+        if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)throw new Error('already registered');
+        if(!r.data.session){showMsg('#lmsg','已寄出確認信，請到信箱點確認連結後，再回來登入。','ok');b.disabled=false;b.textContent='註冊';return}}
+      try{localStorage.removeItem('nc-localonly')}catch(e){}
+      cloud.user=r.data.user||r.data.session.user;
+      if(loadMeta()==='reset')return;
+      await syncNow();go(getJoin()?'join':st.baby.onboarded?'home':'onboard');
+    }catch(e){showMsg('#lmsg',friendly(e),'err');b.disabled=false;b.textContent=sIn?'登入':'註冊'}};
+}
+function renderOnboard(){
+  const b=st.baby;
+  $('#s-onboard').innerHTML=`<div class="hdr"><span class="ic">🍼</span><h1>寶寶資料</h1></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:18px"><p class="sub" style="margin:0">先填基本資料，之後可以在設定修改。出生日期會用來計算疫苗、健檢和睡眠建議。</p>
+   <div><div class="lbl">名字 / 小名</div><input class="field" id="onm" value="${esc(b.name)}" placeholder="例如：小寶"></div>
+   <div><div class="lbl">性別</div><div class="grid2" style="grid-template-columns:repeat(3,1fr)">${['男寶','女寶','保密'].map(g=>`<button class="chip ${b.gender===g?'on':''}" data-og="${g}" style="padding:14px 0;font-size:18px;font-weight:700">${g}</button>`).join('')}</div></div>
+   <div><div class="lbl">出生日期與時間</div><input class="field" type="datetime-local" id="obd" value="${toLocalInput(b.birth)}"></div>
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+    <div><div class="lbl">出生體重<small>g 選填</small></div><input class="field" id="obw" value="${b.bw||''}" inputmode="numeric" style="font-size:20px;padding:16px"></div>
+    <div><div class="lbl">身長<small>cm 選填</small></div><input class="field" id="obl" value="${b.bl||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div>
+    <div><div class="lbl">頭圍<small>cm 選填</small></div><input class="field" id="obh" value="${b.bh||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div></div>
+   <div class="msg err">⚠️ 出生日期與時間、出生體重、身長、頭圍送出後<b>只能輸入這一次，無法修改</b>。要改的話，必須刪除帳號後重新註冊，所有紀錄會一起消失。請再確認一次。</div><div id="omsg" hidden></div><button class="btn" id="ogo" style="padding:16px;font-size:18px">開始使用</button>${cloud.user?'<button class="linkbtn" id="ojoin">我是被邀請的家人，輸入邀請碼</button>':''}</div>`;
+  const oj=$('#ojoin');if(oj)oj.onclick=()=>go('join');
+  $$('[data-og]').forEach(x=>x.onclick=()=>{st.baby.gender=x.dataset.og;$$('[data-og]').forEach(y=>y.classList.toggle('on',y===x))});
+  $('#ogo').onclick=async()=>{
+    const name=$('#onm').value.trim(),t=new Date($('#obd').value).getTime();
+    if(!name){showMsg('#omsg','請輸入寶寶的名字','err');return}
+    if(!t||t>Date.now()+6e4){showMsg('#omsg','請輸入正確的出生日期與時間，不能是未來','err');return}
+    if(!st.baby.onboarded&&!confirm('確認出生日期與時間：'+$('#obd').value.replace('T',' ')+'\n送出後無法修改，確定嗎？'))return;
+    const bw=parseInt($('#obw').value)||0,bl=parseFloat($('#obl').value)||0,bh=parseFloat($('#obh').value)||0;
+    if(bw&&(bw<500||bw>7000)){showMsg('#omsg','出生體重請輸入 500～7000 公克','err');return}
+    if(bl>99||bh>99){showMsg('#omsg','身長、頭圍請輸入公分，例如 50、34','err');return}
+    Object.assign(st.baby,{name,birth:t,bw,bl,bh,onboarded:true});BIRTH=new Date(t);saveBaby();
+    const g=$('#ogo');g.disabled=true;g.textContent='請稍候…';
+    if(cloud.user)await syncNow();
+    go('home')};
+}
+
+const JK='nc-joincode';
+const getJoin=()=>{try{return localStorage.getItem(JK)||''}catch(e){return ''}};
+function renderJoin(){
+  const code=getJoin();
+  $('#s-join').innerHTML=`<div class="hdr"><span class="ic">👨‍👩‍👧</span><h1>加入家人</h1></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:14px">
+   <p class="sub" style="margin:0">輸入家人給你的邀請碼，加入後就能和家人共用同一個寶寶的紀錄。</p>
+   ${cloud.user?'':'<div class="msg err">請先登入或註冊，再加入家人。</div>'}
+   <input class="field" id="jc" value="${esc(code)}" placeholder="邀請碼" autocapitalize="characters" autocomplete="off" style="font-size:20px;letter-spacing:2px;text-align:center">
+   ${cloud.user&&st.baby.onboarded?`<div class="msg err">加入後，這台裝置目前的寶寶「${esc(st.baby.name)}」會換成家人的寶寶。你自己帳號裡的紀錄會先上傳保留，但不會再顯示。</div>`:''}
+   <div id="jmsg" hidden></div>
+   <button class="btn" id="jgo" style="padding:16px;font-size:18px">${cloud.user?'加入':'前往登入'}</button>
+   <button class="linkbtn muted" id="jback" style="font-weight:400">返回</button></div>`;
+  $('#jback').onclick=()=>go(cloud.user?(st.baby.onboarded?'settings':'onboard'):'login');
+  $('#jgo').onclick=async()=>{
+    const c=$('#jc').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if(c.length<6){showMsg('#jmsg','請輸入完整的邀請碼','err');return}
+    try{localStorage.setItem(JK,c)}catch(e){}
+    if(!cloud.user){go('login');return}
+    const b=$('#jgo');b.disabled=true;b.textContent='請稍候…';showMsg('#jmsg','');
+    try{
+      await syncNow();
+      const {data:fam,error}=await sb.rpc('accept_invite',{p_code:c});if(error)throw error;
+      const {data:bs,error:e2}=await sb.from('babies').select('id').eq('family_id',fam).is('deleted_at',null).order('created_at',{ascending:true}).limit(1);if(e2)throw e2;
+      const u=cloud.user.id;let rl='';try{const {data:mr}=await sb.from('family_members').select('role').eq('family_id',fam).eq('user_id',u);if(mr&&mr[0])rl=mr[0].role}catch(e){}
+      wipeLocal(false);
+      try{localStorage.setItem(META,JSON.stringify({uid:u,fam,babyId:bs.length?bs[0].id:null,role:rl,cur:{},snap:{}}));localStorage.removeItem(JK)}catch(e){}
+      location.reload();
+    }catch(e){showMsg('#jmsg',friendly(e),'err');b.disabled=false;b.textContent='加入'}}}
+R.join=renderJoin;
+R.login=renderLogin;R.onboard=renderOnboard;
+async function boot(){
+  try{const q=new URLSearchParams(location.search).get('join');if(q){localStorage.setItem(JK,q.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20));history.replaceState(null,'',location.pathname)}}catch(e){}
+  const entry=()=>go(cloud.user&&getJoin()?'join':st.baby.onboarded?'home':'onboard');
+  if(!sb){entry();return}
+  let sess=null;try{const r=await sb.auth.getSession();sess=r.data.session}catch(e){}
+  if(sess){cloud.user=sess.user;if(loadMeta()==='reset')return;if(!st.baby.onboarded&&cloud.babyId)await syncNow();entry();syncNow()}
+  else if((()=>{try{return localStorage.getItem('nc-localonly')==='1'}catch(e){return false}})())entry();
+  else go('login');
+  try{sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT')cloud.user=null;else if(s)cloud.user=s.user})}catch(e){}
+}
+/* ---------- life moments: shared posts with photos / videos (needs login) ---------- */
+const MK={items:[],more:false,loading:false,loaded:false,err:'',urls:{},urlAt:0,named:false,form:null,sig:''};
+const WD=['日','一','二','三','四','五','六'];
+const dayLabel=s=>{const [y,m,d]=String(s).slice(0,10).split('-').map(Number),t=new Date(y,m-1,d);
+  const n=Math.floor((t-new Date(BIRTH.getFullYear(),BIRTH.getMonth(),BIRTH.getDate()))/864e5)+1;
+  return `${y}/${m}/${d} 週${WD[t.getDay()]}${st.baby.birth&&n>=1?` ・ 出生第 ${n} 天`:''}`};
+const todayStr=()=>{const t=new Date();return `${t.getFullYear()}-${p2d(t.getMonth()+1)}-${p2d(t.getDate())}`};
+const canPost=()=>cloud.user&&cloud.babyId&&cloud.role!=='viewer';
+const canManage=m=>cloud.role==='owner'||(cloud.role!=='viewer'&&m.created_by===cloud.user.id);
+const authorOf=m=>{const x=(cloud.members||[]).find(y=>y.user_id===m.created_by);
+  if(m.created_by===cloud.user.id)return (x&&x.name)||'我';
+  return x?(x.name||ROLE[x.role]||'家人'):(cloud.members&&cloud.members.length?'前家人':'家人')};
+async function signUrls(list){
+  if(Date.now()-MK.urlAt>50*60*1000){MK.urls={};MK.urlAt=Date.now()}
+  const need=[...new Set(list.flatMap(m=>(m.media||[]).map(x=>x.path)))].filter(p=>!MK.urls[p]);
+  if(!need.length)return;
+  const {data}=await sb.storage.from('moments').createSignedUrls(need,3600);
+  (data||[]).forEach(x=>{if(x&&x.signedUrl)MK.urls[x.path]=x.signedUrl})}
+async function loadMoments(reset){
+  if(!sb||!cloud.user||!cloud.babyId||MK.loading)return;
+  MK.loading=true;
+  try{
+    const from=reset?0:MK.items.length;
+    const {data,error}=await sb.from('moments').select('*').eq('baby_id',cloud.babyId).is('deleted_at',null)
+      .order('posted_on',{ascending:false}).order('created_at',{ascending:false}).range(from,from+19);
+    if(error)throw error;
+    await signUrls(data);
+    const items=reset?data:MK.items.concat(data);
+    const sig=JSON.stringify(items.map(m=>[m.id,m.updated_at]));
+    MK.more=data.length===20;MK.err='';MK.loaded=true;
+    const changed=sig!==MK.sig;MK.items=items;MK.sig=sig;
+    MK.loading=false;if(changed&&st.cur==='moments')renderMoments();else if(st.cur==='moments'&&!reset)renderMoments();
+  }catch(e){MK.loading=false;MK.err=friendly(e);MK.loaded=true;if(st.cur==='moments')renderMoments()}}
+function mediaHtml(m){
+  const md=(m.media||[]).filter(x=>MK.urls[x.path]);const n=md.length;if(!n)return '';
+  const cell=(x,i)=>x.type==='video'
+    ?`<video src="${MK.urls[x.path]}#t=0.1" preload="metadata" playsinline controls style="width:100%;height:100%;object-fit:cover;border-radius:14px;background:#000"></video>`
+    :`<img src="${MK.urls[x.path]}" alt="生活照片" loading="lazy" data-mv="${m.id}|${i}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;cursor:zoom-in">`;
+  if(n===1)return `<div style="margin-top:10px;${md[0].type==='video'?'':'max-height:420px;'}overflow:hidden;border-radius:14px">${md[0].type==='video'?`<video src="${MK.urls[md[0].path]}#t=0.1" preload="metadata" playsinline controls style="width:100%;max-height:420px;border-radius:14px;background:#000;display:block"></video>`:`<img src="${MK.urls[md[0].path]}" alt="生活照片" loading="lazy" data-mv="${m.id}|0" style="width:100%;display:block;cursor:zoom-in">`}</div>`;
+  return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">${md.map((x,i)=>`<div style="aspect-ratio:1;overflow:hidden;border-radius:14px">${cell(x,i)}</div>`).join('')}</div>`}
+function renderMoments(){
+  const root=$('#s-moments');
+  let h=`<div class="hdr"><span class="ic">🌱</span><h1>生活點滴</h1></div>`;
+  if(!cloud.user)h+=`<div class="card"><b>登入後才能使用</b><p class="sub">生活點滴會和家人一起看，需要先登入帳號。</p><button class="btn" id="mlogin">登入或註冊</button></div>`;
+  else if(!cloud.babyId)h+=`<div class="card"><b>還沒有寶寶資料</b><p class="sub">請先到設定填寫寶寶資料。</p></div>`;
+  else{
+    if(canPost())h+=`<button class="btn" id="mnew" style="padding:16px;font-size:18px;width:100%">＋ 分享生活點滴</button>`;
+    else h+=`<div class="msg">你是只能查看的成員，可以看但不能發文。</div>`;
+    if(!MK.loaded)h+=`<div class="sub" style="text-align:center;margin:30px 0">載入中…</div>`;
+    else if(MK.err)h+=`<div class="msg err">${esc(MK.err)}</div><button class="btn soft sm" id="mretry">重新載入</button>`;
+    else if(!MK.items.length)h+=`<div class="card" style="text-align:center;padding:34px 18px"><div style="font-size:40px">📷</div><b>還沒有貼文</b><p class="sub">記錄寶寶的每個第一次，家人都能一起看。</p></div>`;
+    h+=MK.items.map(m=>`<div class="card" data-m="${m.id}"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><div><b>${esc(authorOf(m))}</b><div class="sub" style="margin:2px 0 0">${dayLabel(m.posted_on)}</div></div>${canManage(m)?`<div class="inline" style="flex-wrap:nowrap"><button class="btn soft sm" data-me="${m.id}">編輯</button><button class="btn soft sm" data-md="${m.id}">刪除</button></div>`:''}</div>${m.body?`<div style="white-space:pre-wrap;word-break:break-word;margin-top:10px;font-size:16px;line-height:1.5">${esc(m.body)}</div>`:''}${mediaHtml(m)}</div>`).join('');
+    if(MK.more)h+=`<button class="btn soft" id="mmore" style="width:100%">載入更多</button>`;
+  }
+  const y=window.scrollY;root.innerHTML=h;window.scrollTo(0,y);
+  const q=s=>$(s,root);
+  if(q('#mlogin'))q('#mlogin').onclick=()=>go('login');
+  if(q('#mnew'))q('#mnew').onclick=()=>{MK.form={id:uid(),isEdit:false,date:todayStr(),body:'',media:[],files:[],removed:[]};go('mpost')};
+  if(q('#mretry'))q('#mretry').onclick=()=>{MK.loaded=false;renderMoments();loadMoments(true)};
+  if(q('#mmore'))q('#mmore').onclick=()=>loadMoments(false);
+  $$('[data-me]',root).forEach(b=>b.onclick=()=>{const m=MK.items.find(x=>x.id===b.dataset.me);if(!m)return;
+    MK.form={id:m.id,isEdit:true,date:m.posted_on,body:m.body||'',media:(m.media||[]).map(x=>({...x})),files:[],removed:[]};go('mpost')});
+  $$('[data-md]',root).forEach(b=>b.onclick=()=>deleteMoment(b.dataset.md,b));
+  $$('[data-mv]',root).forEach(i=>i.onclick=()=>{const [id,k]=i.dataset.mv.split('|');const m=MK.items.find(x=>x.id===id);if(!m)return;
+    const x=(m.media||[]).filter(z=>MK.urls[z.path])[+k];if(!x)return;
+    $('#viewerBody').innerHTML=`<div class="inline" style="justify-content:space-between"><b style="font-size:18px">${dayLabel(m.posted_on)}</b><button id="vx" aria-label="關閉" style="font-size:28px;width:40px;color:var(--muted)">✕</button></div><img src="${MK.urls[x.path]}" alt="生活照片" style="width:100%;border-radius:18px;display:block">`;
+    $('#viewer').classList.add('on');$('#vx').onclick=()=>$('#viewer').classList.remove('on')});
+  loadFamily(false).then(()=>{if(cloud.members&&!MK.named&&cloud.members.length){MK.named=true;if(st.cur==='moments')renderMoments()}});
+}
+async function deleteMoment(id,btn){
+  const m=MK.items.find(x=>x.id===id);if(!m)return;
+  if(!confirm('確定刪除這則貼文？裡面的照片和影片也會一起刪除，無法復原。'))return;
+  btn.disabled=true;
+  const {error}=await sb.from('moments').update({deleted_at:new Date().toISOString()}).eq('id',id);
+  if(error){toast(friendly(error));btn.disabled=false;return}
+  const paths=(m.media||[]).map(x=>x.path);if(paths.length)try{await sb.storage.from('moments').remove(paths)}catch(e){}
+  MK.items=MK.items.filter(x=>x.id!==id);MK.sig='';toast('已刪除貼文');renderMoments()}
+const EXT={'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm'};
+function shrink(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const k=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.round(img.naturalWidth*k),h=Math.round(img.naturalHeight*k);
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+    c.toBlob(b=>{URL.revokeObjectURL(u);b?res(b):rej(new Error('照片處理失敗'))},'image/jpeg',.85)};
+  img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('無法讀取這張照片，請換成 JPG 或 PNG'))};img.src=u})}
+function renderMpost(){
+  const f=MK.form;if(!f){go('moments');return}
+  const total=f.media.length+f.files.length;
+  const thumbs=[...f.media.map((x,i)=>({k:'m'+i,v:x.type==='video',src:MK.urls[x.path]||''})),...f.files.map((x,i)=>({k:'f'+i,v:x.type==='video',src:x.url}))];
+  $('#s-mpost').innerHTML=`<div class="hdr"><button id="mpb" aria-label="返回" style="font-size:32px;width:40px">‹</button><span class="ic">🌱</span><h1>${f.isEdit?'編輯貼文':'新增貼文'}</h1></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:16px">
+   <div><div class="lbl">貼文日期</div><input class="field" type="date" id="mpd" value="${f.date}" max="${todayStr()}"></div>
+   <div><div class="lbl">內容<small id="mpc">${f.body.length}/2000</small></div><textarea class="field" id="mpt" rows="6" maxlength="2000" placeholder="今天寶寶發生了什麼事？" style="resize:vertical;line-height:1.5">${esc(f.body)}</textarea></div>
+   <div><div class="lbl">照片與影片<small>${total}/9</small></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${thumbs.map(t=>`<div style="position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--chip)">${t.v?`<video src="${t.src}#t=0.1" preload="metadata" muted playsinline style="width:100%;height:100%;object-fit:cover"></video><span style="position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;padding:1px 6px;font-size:12px">▶ 影片</span>`:`<img src="${t.src}" alt="" style="width:100%;height:100%;object-fit:cover">`}<button data-xm="${t.k}" aria-label="移除" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:15px">✕</button></div>`).join('')}
+     ${total<9?`<label style="aspect-ratio:1;border:2px dashed var(--line);border-radius:14px;display:grid;place-items:center;color:var(--muted);cursor:pointer;text-align:center;font-size:13px"><span><span style="font-size:30px;display:block">＋</span>加照片／影片</span><input type="file" id="mpf" accept="image/*,video/mp4,video/quicktime,video/webm" multiple hidden></label>`:''}</div>
+    <div class="sub">最多 9 個。照片會自動縮小；影片每個最多 50 MB。</div></div>
+   <div id="mpm" hidden></div>
+   <button class="btn" id="mpgo" style="padding:16px;font-size:18px">${f.isEdit?'儲存修改':'發佈'}</button></div>`;
+  $('#mpb').onclick=()=>{if(f.files.length)f.files.forEach(x=>URL.revokeObjectURL(x.url));MK.form=null;go('moments')};
+  $('#mpd').onchange=e=>{if(e.target.value)f.date=e.target.value};
+  $('#mpt').oninput=e=>{f.body=e.target.value;$('#mpc').textContent=f.body.length+'/2000'};
+  $$('[data-xm]').forEach(b=>b.onclick=()=>{const k=b.dataset.xm,i=+k.slice(1);
+    if(k[0]==='m'){f.removed.push(f.media[i].path);f.media.splice(i,1)}else{URL.revokeObjectURL(f.files[i].url);f.files.splice(i,1)}renderMpost()});
+  const inp=$('#mpf');if(inp)inp.onchange=e=>{
+    let msg='';for(const file of [...e.target.files]){
+      if(f.media.length+f.files.length>=9){msg='最多 9 個，多的沒有加入';break}
+      const isV=file.type.startsWith('video/'),isI=file.type.startsWith('image/');
+      if(!isV&&!isI){msg='有檔案不是照片或影片，已略過';continue}
+      if(isV&&!EXT[file.type]){msg='影片請使用 MP4 或 MOV 格式';continue}
+      if(isV&&file.size>52428800){msg='影片超過 50 MB（'+file.name+'），請剪短或壓縮後再上傳';continue}
+      f.files.push({file,type:isV?'video':'image',name:file.name,url:URL.createObjectURL(file)})}
+    renderMpost();if(msg)showMsg('#mpm',msg,'err')};
+  $('#mpgo').onclick=publishMoment}
+async function publishMoment(){
+  const f=MK.form,body=f.body.trim(),total=f.media.length+f.files.length;
+  if(!body&&!total){showMsg('#mpm','請寫點內容，或加一張照片','err');return}
+  if(!f.date){showMsg('#mpm','請選擇日期','err');return}
+  const b=$('#mpgo');b.disabled=true;showMsg('#mpm','');
+  const added=[];
+  try{
+    for(let i=0;i<f.files.length;i++){const x=f.files[i];b.textContent=`上傳中 ${i+1}/${f.files.length}…`;
+      const img=x.type==='image',blob=img?await shrink(x.file):x.file,ct=img?'image/jpeg':x.file.type;
+      const path=`${cloud.fam}/${f.id}/${uid()}.${img?'jpg':EXT[ct]}`;
+      const {error}=await sb.storage.from('moments').upload(path,blob,{contentType:ct,upsert:false});if(error)throw error;
+      added.push({path,type:x.type,name:(x.name||'').slice(0,60)})}
+    b.textContent='發佈中…';
+    const media=[...f.media.map(({path,type,name})=>({path,type,name})),...added];
+    if(f.isEdit){const {error}=await sb.from('moments').update({posted_on:f.date,body,media}).eq('id',f.id);if(error)throw error;
+      if(f.removed.length)try{await sb.storage.from('moments').remove(f.removed)}catch(e){}}
+    else{const {error}=await sb.from('moments').insert({id:f.id,baby_id:cloud.babyId,posted_on:f.date,body,media});if(error)throw error}
+  }catch(e){
+    if(added.length)try{await sb.storage.from('moments').remove(added.map(a=>a.path))}catch(_){}
+    showMsg('#mpm',/Payload too large|exceeded the maximum/i.test(String(e&&e.message))?'檔案太大，請剪短影片或減少數量':friendly(e),'err');
+    b.disabled=false;b.textContent=f.isEdit?'儲存修改':'發佈';return}
+  f.files.forEach(x=>URL.revokeObjectURL(x.url));MK.form=null;MK.sig='';toast(f.isEdit?'已儲存修改':'已發佈');go('moments')}
+R.moments=()=>{MK.named=false;renderMoments();loadMoments(true)};
+R.mpost=renderMpost;
+setInterval(()=>{if(st.cur==='moments'&&!document.hidden&&cloud.user&&navigator.onLine!==false)loadMoments(true)},30000);
+$('#t-moments').style.display='';$('.tabs').classList.add('six');
+
+boot();
+
+})();
+</script>
+
+</body></html>
