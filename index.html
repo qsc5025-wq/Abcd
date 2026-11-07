@@ -286,7 +286,7 @@ function latestW(d){const [,b]=dayRange(d);return st.weights.filter(r=>r.t<b).so
 const wDiff=kg=>{const g=Math.round(kg*1000-(st.baby.bw||3120));return (g>=0?'+':'')+g+' g'};
 const tStat=r=>r.v<36.5?'偏低':(r.v>=38||(r.site==='腋溫'&&r.v>=37.5))?'偏高':'正常';
 const V=loadV();
-const st={feeds:ld('nc-feeds'),sleeps:ld('nc-sleeps'),pumps:ld('nc-pumps'),sleepStart:(()=>{try{return +localStorage.getItem('nc-sstart')||null}catch(e){return null}})(),temps:V.temps,weights:V.weights,diapers:loadD(),tab:'home',offset:0,range:7,hrange:'vac',age:0,baby:loadBaby(),get interval(){return this.baby.interval},set interval(v){this.baby.interval=v},get remind(){return this.baby.remind},set remind(v){this.baby.remind=v},get gender(){return this.baby.gender},set gender(v){this.baby.gender=v},get name(){return this.baby.name},set name(v){this.baby.name=v},
+const st={feeds:ld('nc-feeds'),sleeps:ld('nc-sleeps'),pumps:ld('nc-pumps'),sleepId:(()=>{try{return localStorage.getItem('nc-sid')||null}catch(e){return null}})(),sleepStart:(()=>{try{return +localStorage.getItem('nc-sstart')||null}catch(e){return null}})(),temps:V.temps,weights:V.weights,diapers:loadD(),tab:'home',offset:0,range:7,hrange:'vac',age:0,baby:loadBaby(),get interval(){return this.baby.interval},set interval(v){this.baby.interval=v},get remind(){return this.baby.remind},set remind(v){this.baby.remind=v},get gender(){return this.baby.gender},set gender(v){this.baby.gender=v},get name(){return this.baby.name},set name(v){this.baby.name=v},
   vacc:ldo('nc-vacc',DEMO?{0:'2026/10/12'}:{}),checkup:ldo('nc-chk',DEMO?{1:{d:'2026/11/1',h:'台北婦幼'}}:{}),ms:ldo('nc-ms',DEMO?{a0:true,a1:true,b0:true}:{}),msDate:ldo('nc-msd',DEMO?{a0:'11/3',a1:'11/3',b0:'11/3'}:{}),
     feed:{fOn:true,bOn:true,f:110,b:110,fs:10,bs:5,stock:5970}};
 BIRTH=new Date(st.baby.birth||Date.now());
@@ -304,7 +304,7 @@ function diaperCard(d){
   const r=recsOn(d);
   return `<div class="card"><div class="inline" style="justify-content:space-between;margin-bottom:6px"><b style="font-size:17px">🧷 換尿布紀錄</b><button class="btn sm" data-newd="1">＋ 記錄</button></div>`+
   (r.length?r.map(q=>{const t=new Date(q.t);return `<div class="rec"><div style="font-size:26px;min-width:46px">${KIND[q.kind][0]}</div><div class="mid"><b>${hm(t)} ${KIND[q.kind][1]}</b>${q.kind!=='pee'&&q.color?`<div class="sub" style="margin-top:0"><span class="sw-color" style="background:${(COLORS.find(c=>c[0]===q.color)||[0,'#999'])[1]}"></span>${q.color}${q.tex?' ・ '+q.tex:''}</div>`:''}${q.note?`<div class="sub" style="margin-top:2px">${q.note.replace(/</g,'&lt;')}</div>`:''}
-   ${q.photos&&q.photos.length?`<div class="thumbs" style="margin-top:8px">${q.photos.map((p,i)=>`<button data-view="${q.id}|${i}" aria-label="看照片"><img src="${p}" alt="尿布照片"></button>`).join('')}</div>`:''}</div><button class="muted" data-deld="${q.id}" style="font-size:13px;padding:6px">刪除</button></div>`}).join(''):`<div class="sub" style="padding:8px 0">這天還沒有換尿布紀錄。點「＋ 記錄」選小便或大便，還能附照片給醫師看。</div>`)+`</div>`;
+   ${q.photos&&q.photos.some(Boolean)?`<div class="thumbs" style="margin-top:8px">${q.photos.map((p,i)=>p?`<button data-view="${q.id}|${i}" aria-label="看照片"><img src="${p}" alt="尿布照片"></button>`:'').join('')}</div>`:''}</div><button class="muted" data-deld="${q.id}" style="font-size:13px;padding:6px">刪除</button></div>`}).join(''):`<div class="sub" style="padding:8px 0">這天還沒有換尿布紀錄。點「＋ 記錄」選小便或大便，還能附照片給醫師看。</div>`)+`</div>`;
 }
 function bindDiaper(root){
   $$('[data-newd]',root).forEach(b=>b.onclick=()=>go('diaper'));
@@ -342,9 +342,9 @@ function sleepText(){const si=sleepInfo(),aw=awakeWin(),now=NOW.getTime();
   const av=avgAwake();
   return {title,sub:`${hm(new Date(si.wake))} 醒來 ・ 參考清醒時段 ${aw[0]}～${aw[1]} 分${av?' ・ 最近實際約 '+fmtDur(av*6e4):''}`,sleeping:false}}
 function toggleSleep(){const now=Date.now();
-  if(!st.sleepStart){st.sleepStart=now;try{localStorage.setItem('nc-sstart',String(now))}catch(e){}toast('已記錄入睡，醒來時再按一次')}
-  else{const s=st.sleepStart;st.sleepStart=null;try{localStorage.removeItem('nc-sstart')}catch(e){}
-    if(now-s<6e4)toast('睡眠不到 1 分鐘，已取消');else{st.sleeps.push({id:uid(),s,e:now});sv('nc-sleeps',st.sleeps);toast('已記錄睡眠 '+fmtDur(now-s))}}}
+  if(!st.sleepStart){st.sleepStart=now;st.sleepId=uid();try{localStorage.setItem('nc-sstart',String(now));localStorage.setItem('nc-sid',st.sleepId)}catch(e){}onSaved();toast('已記錄入睡，醒來時再按一次')}
+  else{const s=st.sleepStart,sid=st.sleepId||uid();st.sleepStart=null;st.sleepId=null;try{localStorage.removeItem('nc-sstart');localStorage.removeItem('nc-sid')}catch(e){}
+    if(now-s<6e4){onSaved();toast('睡眠不到 1 分鐘，已取消')}else{st.sleeps.push({id:sid,s,e:now});sv('nc-sleeps',st.sleeps);toast('已記錄睡眠 '+fmtDur(now-s))}}}
 function feedCard(d){const [a,b]=dayRange(d),r=st.feeds.filter(q=>q.t>=a&&q.t<b).sort((x,y)=>y.t-x.t);if(!r.length)return '';
   return `<div class="card"><b style="font-size:17px">🍼 餵奶紀錄</b>`+r.map(q=>`<div class="rec"><div class="mid"><b>${hm(new Date(q.t))}</b> <span class="muted">${[q.f?'配方 '+q.f+' ml':'',q.b?'母乳 '+q.b+' ml':''].filter(Boolean).join(' ・ ')}</span></div><button class="muted" data-delf="${q.id}" style="font-size:13px;padding:6px">刪除</button></div>`).join('')+`</div>`}
 function untilText(t){const m=Math.max(0,Math.round((t-NOW)/60000));return `${Math.floor(m/60)} 小時 ${m%60} 分`}
@@ -497,8 +497,8 @@ function recMilk(){const w=latestW(NOW);return w&&(NOW-BIRTH)/6048e5<=12?`依體
 function reportDiapers(days){
   const a=days[0],b=addDays(days[days.length-1],1);
   let r=st.diapers.filter(q=>q.t>=new Date(a.getFullYear(),a.getMonth(),a.getDate()).getTime()&&q.t<new Date(b.getFullYear(),b.getMonth(),b.getDate()).getTime()).sort((x,y)=>x.t-y.t);
-  if(!st.detail)r=r.filter(q=>q.photos&&q.photos.length);
-  const body=r.length?r.map(q=>{const t=new Date(q.t);return `<div class="rec"><div style="font-size:22px;min-width:44px">${KIND[q.kind][0]}</div><div class="mid"><b>${md(t).replace('-','/')} ${hm(t)} ${KIND[q.kind][1]}</b><div class="sub" style="margin:0">${q.color?q.color+(q.tex?' ・ '+q.tex:''):''}${q.note?' ・ '+q.note.replace(/</g,'&lt;'):''}</div>${q.photos&&q.photos.length?`<div class="thumbs" style="margin-top:6px">${q.photos.map((p,i)=>`<button data-view="${q.id}|${i}" aria-label="看照片"><img src="${p}" alt="尿布照片"></button>`).join('')}</div>`:''}</div></div>`}).join(''):`<div class="sub">${st.detail?'這段期間沒有換尿布明細。':'這段期間沒有附照片的尿布紀錄。'}</div>`;
+  if(!st.detail)r=r.filter(q=>q.photos&&q.photos.some(Boolean));
+  const body=r.length?r.map(q=>{const t=new Date(q.t);return `<div class="rec"><div style="font-size:22px;min-width:44px">${KIND[q.kind][0]}</div><div class="mid"><b>${md(t).replace('-','/')} ${hm(t)} ${KIND[q.kind][1]}</b><div class="sub" style="margin:0">${q.color?q.color+(q.tex?' ・ '+q.tex:''):''}${q.note?' ・ '+q.note.replace(/</g,'&lt;'):''}</div>${q.photos&&q.photos.some(Boolean)?`<div class="thumbs" style="margin-top:6px">${q.photos.map((p,i)=>p?`<button data-view="${q.id}|${i}" aria-label="看照片"><img src="${p}" alt="尿布照片"></button>`:'').join('')}</div>`:''}</div></div>`}).join(''):`<div class="sub">${st.detail?'這段期間沒有換尿布明細。':'這段期間沒有附照片的尿布紀錄。'}</div>`;
   return `<div class="card"><h3 style="font-weight:900;color:var(--fg)">🧷 尿布${st.detail?'明細':'照片'}</h3>${body}</div>`;
 }
 function renderReport(){
@@ -697,7 +697,7 @@ function renderNotif(){
     if(a==='sleep'){toggleSleep();renderNotif();if($('#s-home').classList.contains('on'))R.home();return}
     closeNotif();
     if(a==='add')go('add');else if(a==='set')go('settings');else if(a==='pump')go('pump');else if(a==='sleep2')go('sleep');else if(a==='vac'){st.hrange='vac';go('health')}});
-  $('#vd').onclick=()=>{vitDKey=vitDone()?'':dayKey(NOW);try{localStorage.setItem('nc-vitd',vitDKey)}catch(e){}renderNotif()};
+  $('#notifBody #vd').onclick=()=>{vitDKey=vitDone()?'':dayKey(NOW);try{localStorage.setItem('nc-vitd',vitDKey)}catch(e){}onSaved();renderNotif()};
 }
 function openNotif(){renderNotif();$('#notif').classList.add('on')}
 function closeNotif(){$('#notif').classList.remove('on')}
@@ -718,7 +718,7 @@ function renderDiaper(){
   ${poop?`<div class="card"><div class="lbl">大便顏色</div><div class="chips">${COLORS.map(([n,c])=>`<button class="chip ${f.color===n?'on':''}" data-c="${n}"><span class="sw-color" style="background:${c};width:16px;height:16px;vertical-align:-3px"></span>${n}</button>`).join('')}</div>
    <div class="lbl" style="margin-top:16px">質地</div><div class="chips">${TEX.map(n=>`<button class="chip ${f.tex===n?'on':''}" data-x="${n}">${n}</button>`).join('')}</div>
    ${['紅','白／灰白','黑'].includes(f.color)?`<div class="warn" style="margin-top:14px">${f.color==='紅'?'大便帶血':f.color==='黑'?'黑色大便（出生幾天後的胎便以外）':'白色或灰白色大便'}建議拍照記錄，並儘快請醫師評估。</div>`:''}</div>`:''}
-  <div class="card"><div class="lbl">照片<small>最多 3 張，方便給醫師看</small></div><div class="thumbs">${f.photos.map((p,i)=>`<div class="ph"><img src="${p}" alt="已選照片 ${i+1}"><button class="x" data-rm="${i}" aria-label="移除照片">✕</button></div>`).join('')}${f.photos.length<3?`<label class="addph" for="ph" tabindex="0">📷<br>拍照／選照片</label>`:''}</div>
+  <div class="card"><div class="lbl">照片<small>最多 3 張，方便給醫師看</small></div><div class="thumbs">${f.photos.map((p,i)=>`<div class="ph"><img src="${p}" alt="已選照片 ${i+1}"><button class="x" data-xp="${i}" aria-label="移除照片">✕</button></div>`).join('')}${f.photos.length<3?`<label class="addph" for="ph" tabindex="0">📷<br>拍照／選照片</label>`:''}</div>
    <input type="file" id="ph" accept="image/*" multiple style="position:absolute;left:-9999px" aria-label="選擇照片">
    <p class="sub" style="margin:10px 0 0">照片只存在這台裝置的瀏覽器裡，不會上傳。</p></div>
   <div class="card"><div class="lbl">備註<small>選填</small></div><input class="field" id="dn" style="font-size:16px" placeholder="例如：有點乾、量多、尿布疹發紅" value="${f.note.replace(/"/g,'&quot;')}"></div>
@@ -728,7 +728,7 @@ function renderDiaper(){
   $$('[data-k]').forEach(b=>b.onclick=()=>{sync();f.kind=b.dataset.k;if(f.kind==='pee'){f.color=null;f.tex=null}renderDiaper()});
   $$('[data-c]').forEach(b=>b.onclick=()=>{sync();f.color=f.color===b.dataset.c?null:b.dataset.c;renderDiaper()});
   $$('[data-x]').forEach(b=>b.onclick=()=>{sync();f.tex=f.tex===b.dataset.x?null:b.dataset.x;renderDiaper()});
-  $$('[data-rm]').forEach(b=>b.onclick=()=>{sync();f.photos.splice(+b.dataset.rm,1);renderDiaper()});
+  $$('[data-xp]').forEach(b=>b.onclick=()=>{sync();f.photos.splice(+b.dataset.xp,1);renderDiaper()});
   $('#dnow').onclick=()=>{const n=newForm();$('#dd').value=n.d;$('#dt').value=n.t};
   $('#ph').onchange=async e=>{sync();const files=[...e.target.files].slice(0,3-f.photos.length);
     try{for(const fl of files)f.photos.push(await shrink(fl))}catch(err){toast('這張照片無法讀取，請換一張')}renderDiaper()};
@@ -890,15 +890,38 @@ function detId(s){let h1=1779033703,h2=3144134277,h3=1013904242,h4=2773480762;
   const x=[h1,h2,h3,h4].map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
   return `${x.slice(0,8)}-${x.slice(8,12)}-${x.slice(12,16)}-${x.slice(16,20)}-${x.slice(20)}`}
 const bid=()=>cloud.babyId||'';
+function d2b(u){const m=/^data:([^;]+);base64,(.*)$/.exec(u);const bin=atob(m[2]),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:m[1]})}
+const b2d=b=>new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(f.result);f.onerror=rej;f.readAsDataURL(b)});
+function setSleepLocal(s,id){st.sleepStart=s||null;st.sleepId=id||null;try{if(s){localStorage.setItem('nc-sstart',String(s));localStorage.setItem('nc-sid',id)}else{localStorage.removeItem('nc-sstart');localStorage.removeItem('nc-sid')}}catch(e){}}
+async function uploadPhotos(r){
+  const pp=(r.pp||[]).slice();let ch=false;
+  for(let i=0;i<(r.photos||[]).length;i++){if(!r.photos[i]||pp[i])continue;
+    const path=`${cloud.fam}/${r.id}/${uid()}.jpg`;
+    const {error}=await sb.storage.from('diaper-photos').upload(path,d2b(r.photos[i]),{contentType:'image/jpeg',upsert:false});if(error)throw error;
+    pp[i]=path;ch=true}
+  if(ch)r.pp=pp;return ch}
+async function repairPhotos(){let ch=false;
+  for(const r of st.diapers){const pp=r.pp||[];for(let i=0;i<pp.length;i++){if(pp[i]&&!(r.photos&&r.photos[i])){
+    try{const {data,error}=await sb.storage.from('diaper-photos').download(pp[i]);if(error||!data)continue;(r.photos=r.photos||[])[i]=await b2d(data);ch=true}catch(e){}}}}
+  if(ch){cloud.applying=true;try{saveD()}finally{cloud.applying=false}cloud.changed=true}}
 const SITE={'耳溫':'ear','額溫':'forehead','腋溫':'armpit','肛溫':'rectal'},SITE_R={ear:'耳溫',forehead:'額溫',armpit:'腋溫',rectal:'肛溫'};
 /* each collection maps local records <-> database rows */
 const COLS=[
  {t:'feeds',get:()=>st.feeds,set:a=>{st.feeds=a;sv('nc-feeds',a)},row:r=>({id:r.id,t:iso(r.t),formula_ml:r.f||0,breast_ml:r.b||0}),loc:w=>({id:w.id,t:ts(w.t),f:+w.formula_ml,b:+w.breast_ml})},
  {t:'pumps',get:()=>st.pumps,set:a=>{st.pumps=a;sv('nc-pumps',a)},row:r=>({id:r.id,t:iso(r.t),left_ml:r.l||0,right_ml:r.r||0}),loc:w=>({id:w.id,t:ts(w.t),l:+w.left_ml,r:+w.right_ml})},
- {t:'sleeps',get:()=>st.sleeps,set:a=>{st.sleeps=a;sv('nc-sleeps',a)},row:r=>({id:r.id,start_at:iso(r.s),end_at:iso(r.e)}),loc:w=>({id:w.id,s:ts(w.start_at),e:w.end_at?ts(w.end_at):ts(w.start_at)+60000})},
- {t:'diapers',get:()=>st.diapers,set:a=>{st.diapers=a;saveD()},row:r=>({id:r.id,t:iso(r.t),kind:r.kind,color:r.color||null,texture:r.tex||null,note:r.note||null}),loc:(w,old)=>({id:w.id,t:ts(w.t),kind:w.kind,color:w.color,tex:w.texture,note:w.note||'',photos:old&&old.photos?old.photos:[]})},
+ {t:'sleeps',get:()=>{if(st.sleepStart&&!st.sleepId){st.sleepId=uid();try{localStorage.setItem('nc-sid',st.sleepId)}catch(e){}}return st.sleepStart?st.sleeps.concat([{id:st.sleepId,s:st.sleepStart,e:null}]):st.sleeps},
+  set:a=>{const ip=a.find(r=>r.e==null),done=a.filter(r=>r.e!=null);st.sleeps=done;sv('nc-sleeps',done);
+    if(ip)setSleepLocal(ip.s,ip.id);else if(st.sleepStart)setSleepLocal(null,null)},
+  row:r=>({id:r.id,start_at:iso(r.s),end_at:r.e?iso(r.e):null}),loc:w=>({id:w.id,s:ts(w.start_at),e:w.end_at?ts(w.end_at):null})},
+ {t:'diapers',get:()=>st.diapers,set:a=>{st.diapers=a;saveD()},row:r=>({id:r.id,t:iso(r.t),kind:r.kind,color:r.color||null,texture:r.tex||null,note:r.note||null,photo_paths:(r.pp||[]).filter(Boolean)}),
+  loc:(w,old)=>{const pp=w.photo_paths||[],op=(old&&old.pp)||[];return {id:w.id,t:ts(w.t),kind:w.kind,color:w.color,tex:w.texture,note:w.note||'',pp,photos:pp.map(p=>{const i=op.indexOf(p);return i>=0&&old.photos&&old.photos[i]?old.photos[i]:''})}},
+  pre:uploadPhotos,
+  onDel:sn=>{try{const p=JSON.parse(sn).photo_paths||[];if(p.length)sb.storage.from('diaper-photos').remove(p)}catch(e){}}},
  {t:'temps',get:()=>st.temps,set:a=>{st.temps=a;saveV()},row:r=>({id:r.id,t:iso(r.t),celsius:r.v,site:SITE[r.site]||'ear',note:r.note||null}),loc:w=>({id:w.id,t:ts(w.t),v:+w.celsius,site:SITE_R[w.site]||'耳溫',note:w.note||''})},
  {t:'weights',get:()=>st.weights,set:a=>{st.weights=a;saveV()},row:r=>({id:r.id,t:iso(r.t),kg:r.kg,length_cm:r.len||null,head_cm:r.head||null}),loc:w=>({id:w.id,t:ts(w.t),kg:+w.kg,len:w.length_cm?+w.length_cm:null,head:w.head_cm?+w.head_cm:null})},
+ {t:'supplement_logs',get:()=>vitDKey?[{id:detId(bid()+'|vitd|'+vitDKey),d:vitDKey}]:[],
+  set:a=>{const d=a.map(r=>r.d).sort().pop()||'';vitDKey=d;try{localStorage.setItem('nc-vitd',d)}catch(e){}},
+  row:r=>({id:r.id,name:'vitamin_d',day:r.d}),loc:w=>({id:w.id,d:String(w.day).slice(0,10)})},
  {t:'vaccine_records',get:()=>Object.entries(st.vacc).map(([k,d])=>({id:detId(bid()+'|vac|'+k),k,d})),set:a=>{st.vacc=Object.fromEntries(a.map(r=>[r.k,r.d]));saveCL()},row:r=>({id:r.id,schedule_key:'vac-'+r.k,done_on:dOn(r.d)}),loc:w=>({id:w.id,k:String(w.schedule_key).replace(/^vac-/,''),d:dLoc(w.done_on)})},
  {t:'checkup_records',get:()=>Object.entries(st.checkup).map(([k,v])=>({id:detId(bid()+'|chk|'+k),k,d:v.d,h:v.h||''})),set:a=>{st.checkup=Object.fromEntries(a.map(r=>[r.k,{d:r.d,h:r.h}]));saveCL()},row:r=>({id:r.id,seq:+r.k,done_on:dOn(r.d),place:r.h||null}),loc:w=>({id:w.id,k:String(w.seq),d:dLoc(w.done_on),h:w.place||''})},
  {t:'milestone_records',get:()=>Object.keys(st.ms).filter(k=>st.ms[k]).map(k=>({id:detId(bid()+'|ms|'+k),k,d:st.msDate[k]||((NOW.getMonth()+1)+'/'+NOW.getDate())})),set:a=>{st.ms={};st.msDate={};a.forEach(r=>{st.ms[r.k]=true;st.msDate[r.k]=r.d});saveCL()},row:r=>({id:r.id,item_key:r.k,done_on:mdToDate(r.d)}),loc:w=>({id:w.id,k:w.item_key,d:dToMd(w.done_on)})}
@@ -907,7 +930,10 @@ const OWNER_ONLY=new Set(['vaccine_records','checkup_records','milestone_records
 const canon=(col,r)=>JSON.stringify(col.row(r));
 async function pushCol(col){
   const snap=cloud.snap[col.t]||(cloud.snap[col.t]={});
-  const cur=col.get(),seen=new Set(),ups=[];
+  const cur=col.get();
+  if(col.pre){let any=false;for(const r of cur){if(await col.pre(r))any=true}
+    if(any){cloud.applying=true;try{col.set(cur)}finally{cloud.applying=false}}}
+  const seen=new Set(),ups=[];
   for(const r of cur){seen.add(r.id);const c=canon(col,r);if(snap[r.id]!==c)ups.push([r,c])}
   const dels=Object.keys(snap).filter(id=>!seen.has(id));
   for(let i=0;i<ups.length;i+=200){const part=ups.slice(i,i+200);
@@ -915,7 +941,7 @@ async function pushCol(col){
     if(error)throw error;part.forEach(([r,c])=>{snap[r.id]=c})}
   for(let i=0;i<dels.length;i+=100){const part=dels.slice(i,i+100);
     const {error}=await sb.from(col.t).update({deleted_at:new Date().toISOString()}).in('id',part);
-    if(error)throw error;part.forEach(id=>{delete snap[id]})}
+    if(error)throw error;part.forEach(id=>{if(col.onDel)col.onDel(snap[id]);delete snap[id]})}
 }
 async function pullCol(col){
   const snap=cloud.snap[col.t]||(cloud.snap[col.t]={});
@@ -960,7 +986,7 @@ async function pushBaby(){const c=babyCanon();if(cloud.snap.baby===c)return;
 function pending(){let n=0;if(cloud.role==='viewer')return 0;
   for(const col of COLS){if(!isOwner()&&OWNER_ONLY.has(col.t))continue;const snap=cloud.snap[col.t]||{},seen=new Set();for(const r of col.get()){seen.add(r.id);if(snap[r.id]!==canon(col,r))n++}n+=Object.keys(snap).filter(id=>!seen.has(id)).length}
   if(isOwner()&&cloud.babyId&&cloud.snap.baby!==undefined&&cloud.snap.baby!==babyCanon())n++;return n}
-const META='nc-sync',LOCALKEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd','nc-sstart','nc-vitd','nc-sync','nc-localonly'];
+const META='nc-sync',LOCALKEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd','nc-sstart','nc-sid','nc-vitd','nc-sync','nc-localonly'];
 function wipeLocal(reload){LOCALKEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});if(reload!==false)location.reload()}
 function saveMeta(){try{localStorage.setItem(META,JSON.stringify({uid:cloud.user&&cloud.user.id,fam:cloud.fam,babyId:cloud.babyId,role:cloud.role,cur:cloud.cur,snap:cloud.snap}))}catch(e){}}
 function loadMeta(){const m=ldo(META,null);
@@ -999,7 +1025,7 @@ function syncNow(){
     try{
       if(!cloud.babyId||!cloud.fam){const ok=await link();if(!ok){cloud.status='needprofile';return}}
       cloud.applying=true;cloud.changed=false;
-      await pullBaby();for(const col of COLS)await pullCol(col);
+      await pullBaby();for(const col of COLS)await pullCol(col);await repairPhotos();
       cloud.applying=false;
       if(cloud.role!=='viewer'){if(isOwner())await pushBaby();for(const col of COLS)if(isOwner()||!OWNER_ONLY.has(col.t))await pushCol(col)}
       cloud.last=Date.now();cloud.status='ok';cloud.err='';saveMeta();
@@ -1053,7 +1079,7 @@ function bindFam(){
     cloud.invite=data;renderAcct()};
   const c=$('#invcopy');if(c)c.onclick=async()=>{const url=location.origin+location.pathname+'?join='+cloud.invite;
     try{await navigator.clipboard.writeText(url);toast('已複製邀請連結')}catch(e){prompt('複製這個連結',url)}};
-  $$('[data-rm]').forEach(b=>b.onclick=async()=>{if(!confirm('確定移除這位家人？他就看不到寶寶的紀錄了。'))return;
+  $$('#fam [data-rm]').forEach(b=>b.onclick=async()=>{if(!confirm('確定移除這位家人？他就看不到寶寶的紀錄了。'))return;
     const {error}=await sb.from('family_members').delete().eq('family_id',cloud.fam).eq('user_id',b.dataset.rm);
     if(error){toast(friendly(error));return}loadFamily(true)});
   const nk=$('#nick');if(nk)nk.onchange=async()=>{const v=nk.value.trim().slice(0,12);const {error}=await sb.from('profiles').update({display_name:v||null}).eq('id',cloud.user.id);if(error){toast(friendly(error));return}toast('已儲存暱稱');loadFamily(true)};
@@ -1082,7 +1108,7 @@ renderAcct=function(){
     const pend=pending();
     h=`<b>${esc(cloud.user.email)}</b><div class="msg ${cloud.status==='error'?'err':cloud.status==='ok'?'ok':''}" style="margin:10px 0">${label}${pend&&cloud.status!=='syncing'?`（${pend} 筆待上傳）`:''}</div>
     <div class="inline"><button class="btn sm" id="acsync">立即同步</button><button class="btn soft sm" id="acout">登出</button></div><div id="acwarn"></div>
-    <p class="sub" style="margin:10px 0 0">照片目前只存在這台裝置，換裝置看不到。${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div>`}
+    <p class="sub" style="margin:10px 0 0">${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div>`}
   el.innerHTML=`<div class="card">${h}</div>`;
   const g=$('#acgo');if(g)g.onclick=()=>go('login');
   if(cloud.user&&cloud.fam){bindFam();loadFamily(false)}
@@ -1274,7 +1300,7 @@ async function deleteMoment(id,btn){
   const paths=(m.media||[]).map(x=>x.path);if(paths.length)try{await sb.storage.from('moments').remove(paths)}catch(e){}
   MK.items=MK.items.filter(x=>x.id!==id);MK.sig='';toast('已刪除貼文');renderMoments()}
 const EXT={'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm'};
-function shrink(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
+function shrinkBlob(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
   img.onload=()=>{const k=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.round(img.naturalWidth*k),h=Math.round(img.naturalHeight*k);
     const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
     c.toBlob(b=>{URL.revokeObjectURL(u);b?res(b):rej(new Error('照片處理失敗'))},'image/jpeg',.85)};
@@ -1316,7 +1342,7 @@ async function publishMoment(){
   const added=[];
   try{
     for(let i=0;i<f.files.length;i++){const x=f.files[i];b.textContent=`上傳中 ${i+1}/${f.files.length}…`;
-      const img=x.type==='image',blob=img?await shrink(x.file):x.file,ct=img?'image/jpeg':x.file.type;
+      const img=x.type==='image',blob=img?await shrinkBlob(x.file):x.file,ct=img?'image/jpeg':x.file.type;
       const path=`${cloud.fam}/${f.id}/${uid()}.${img?'jpg':EXT[ct]}`;
       const {error}=await sb.storage.from('moments').upload(path,blob,{contentType:ct,upsert:false});if(error)throw error;
       added.push({path,type:x.type,name:(x.name||'').slice(0,60)})}
