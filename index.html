@@ -2,7 +2,7 @@
 <title>nexCare 寶寶照護</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@500;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap">
 <style>
 /* Layout: phone-width app column, centered on wide screens; bottom tab bar with a raised add button */
 :root{
@@ -216,6 +216,54 @@ button:active{transform:scale(.96)}
 .thumbs button,.thumbs .ph{box-shadow:var(--ring)}
 .tag{letter-spacing:.02em}
 @media (hover:hover){.chip:hover,.seg button:hover{filter:brightness(.98)}.btn:hover{filter:brightness(1.04)}}
+
+/* ---- luxe layer: champagne / rose-gold ---- */
+:root{--serif:'Cormorant Garamond','Noto Serif TC','Songti TC','PMingLiU',serif;--gold:#B8935A;--gold2:#E6CFA3;
+  --bg:#F9F4EC;--line:#EADFD2;--chip:#F4ECE1;--accent:#B5776A;--accent-soft:#F8E8E0;--accent-line:#E3B3A2;--fg:#2B211C;--muted:#8F8077;
+  --shadow:0 1px 1px rgba(90,60,30,.04),0 10px 30px rgba(110,75,40,.08);--ring:0 0 0 1px rgba(184,147,90,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17120F;--card:#221B17;--line:#3A2F27;--chip:#2D241E;--fg:#F6EDE3;--muted:#AC9D91;--accent:#D8A092;--accent-soft:#3F2A24;--gold:#D9B77A;--ring:0 0 0 1px rgba(217,183,122,.16)}}
+:root[data-theme="dark"]{--bg:#17120F;--card:#221B17;--line:#3A2F27;--chip:#2D241E;--fg:#F6EDE3;--muted:#AC9D91;--accent:#D8A092;--accent-soft:#3F2A24;--gold:#D9B77A;--ring:0 0 0 1px rgba(217,183,122,.16)}
+body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(--gold2) 45%,transparent) 0,transparent 70%),radial-gradient(60% 30% at 100% 100%,var(--accent-soft) 0,transparent 70%)}
+.hdr h1,.card .lbl,.datenav b,.feedcard .top .n{font-family:var(--serif),var(--font)}
+.hdr h1{font-weight:700;font-size:25px;letter-spacing:.04em}
+.card{border-radius:22px;padding:20px}
+.card h3{font-weight:500;color:var(--gold);text-transform:none;letter-spacing:.12em;font-size:12.5px}
+.big{font-family:var(--serif),var(--font);font-weight:700;letter-spacing:-.01em}
+.big small{font-family:var(--font)}
+.stat .e{background:linear-gradient(145deg,color-mix(in srgb,var(--gold2) 55%,var(--card)),var(--card));box-shadow:inset 0 0 0 1px rgba(184,147,90,.25)}
+.avatar{background:linear-gradient(145deg,#EAC3B3,#B5776A);box-shadow:0 0 0 3px var(--card),0 0 0 4px var(--gold2),0 10px 22px rgba(181,119,106,.3)}
+.datenav b{font-weight:700;font-size:19px;letter-spacing:.03em}
+.datenav span{color:var(--gold);letter-spacing:.2em;font-size:12px}
+.btn{background:linear-gradient(135deg,#D3A090 0%,#B5776A 55%,#A2685B 100%);box-shadow:0 8px 20px rgba(181,119,106,.32),inset 0 1px 0 rgba(255,255,255,.35);letter-spacing:.08em}
+.chip.on{background:linear-gradient(180deg,var(--accent-soft),color-mix(in srgb,var(--accent-soft) 70%,var(--card)));border-color:var(--accent-line)}
+.seg{background:var(--chip);box-shadow:inset 0 0 0 1px var(--line)}
+.tabbar{border-top:1px solid color-mix(in srgb,var(--gold) 28%,transparent)}
+.tab{letter-spacing:.08em;font-size:11.5px}
+.tab svg{stroke-width:1.5}
+.tab.on::after{background:var(--gold);width:5px;height:5px}
+.fab{background:linear-gradient(145deg,#E2B7A8,#B5776A 55%,#9C6054);box-shadow:0 12px 26px rgba(181,119,106,.5),0 0 0 6px var(--bg),0 0 0 7px color-mix(in srgb,var(--gold) 45%,transparent)}
+.pill{background-image:linear-gradient(135deg,rgba(255,255,255,.5),transparent)}
+.field{border-radius:16px;border-color:var(--line);background:color-mix(in srgb,var(--card) 92%,var(--chip))}
+.toast{border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);letter-spacing:.04em}
+.sheet{border-radius:26px;box-shadow:var(--ring),0 24px 70px rgba(40,25,10,.3)}
+.linkbtn{text-decoration:none;border-bottom:1px solid currentColor;padding:2px 0;margin:6px auto;font-weight:500;letter-spacing:.04em}
+/* login hero */
+#s-login.on{min-height:calc(100vh - 28px);justify-content:center;padding-top:8px}
+.lx-hero{text-align:center;padding:10px 0 4px}
+.lx-mark{width:84px;height:84px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#EAC3B3,#B5776A);box-shadow:0 0 0 5px var(--bg),0 0 0 6px var(--gold2),0 18px 36px rgba(181,119,106,.35)}
+.lx-mark svg{width:40px;height:40px;fill:#fff}
+.lx-name{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:.06em;line-height:1.1;margin:0}
+.lx-name i{font-style:italic;color:var(--accent)}
+.lx-tag{margin:8px 0 0;font-size:13px;letter-spacing:.35em;color:var(--gold);padding-left:.35em}
+.lx-orn{display:flex;align-items:center;gap:12px;justify-content:center;margin:16px auto 2px;color:var(--gold);font-size:11px;max-width:220px}
+.lx-orn::before,.lx-orn::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--gold))}
+.lx-orn::after{transform:scaleX(-1)}
+#s-login .card{padding:24px 22px;border-radius:26px;backdrop-filter:blur(8px);background:color-mix(in srgb,var(--card) 88%,transparent)}
+#s-login .card .lbl{font-size:24px;letter-spacing:.08em;justify-content:center;margin-bottom:0!important}
+#s-login .card .sub{text-align:center;font-size:12.5px;letter-spacing:.04em}
+#s-login .field{padding:15px 18px;font-size:16px;text-align:left}
+#s-login .btn{border-radius:999px}
+.lx-foot{text-align:center;font-size:11px;letter-spacing:.25em;color:var(--muted);margin-top:4px}
 </style>
 </head><body>
 <div class="app" id="app">
@@ -266,7 +314,7 @@ function uid(){return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xx
 function ldo(k,def){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v&&typeof v==='object'?v:def}catch(e){return def}}
 const toLocalInput=t=>{if(!t)return '';const d=new Date(t),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`};
 function loadBaby(){const d=DEMO?{name:'小寶',gender:'女寶',birth:new Date(2026,9,12,8,20).getTime(),bw:3120,bl:50,bh:33.5,interval:180,remind:15,sleepRemind:10,onboarded:true}:{name:'',gender:'女寶',birth:0,bw:0,bl:0,bh:0,interval:180,remind:15,sleepRemind:10,onboarded:false};
-  return Object.assign(d,ldo('nc-baby',null)||{})}
+  const o=Object.assign(d,ldo('nc-baby',null)||{});if(!Number.isFinite(o.remind))o.remind=15;if(!Number.isFinite(o.sleepRemind))o.sleepRemind=10;if(!(o.interval>0))o.interval=180;return o}
 function saveBaby(){sv('nc-baby',st.baby)}
 function saveCL(){sv('nc-vacc',st.vacc);sv('nc-chk',st.checkup);sv('nc-ms',st.ms);sv('nc-msd',st.msDate)}
 const BASE_LAST=!DEMO?{feed:0,feedTxt:'',wake:0,pump:0}:{feed:new Date(2026,10,5,16,30).getTime(),feedTxt:'配方 110 ml',wake:new Date(2026,10,5,17,38).getTime(),pump:new Date(2026,10,5,15,20).getTime()};
@@ -1017,14 +1065,14 @@ async function pullCol(col){
   if(maxU)cloud.cur[col.t]=new Date(ts(maxU)-5000).toISOString();
 }
 const GENDER={'男寶':'male','女寶':'female','保密':'private'},GENDER_R={male:'男寶',female:'女寶',private:'保密'};
-const babyRow=()=>({id:cloud.babyId,name:st.baby.name||'寶寶',gender:GENDER[st.baby.gender]||'private',birth_at:iso(st.baby.birth),birth_weight_g:(st.baby.bw>=500&&st.baby.bw<=7000)?st.baby.bw:null,birth_length_cm:(st.baby.bl>0&&st.baby.bl<100)?st.baby.bl:null,birth_head_cm:(st.baby.bh>0&&st.baby.bh<100)?st.baby.bh:null,feed_interval_min:st.baby.interval,feed_remind_min:st.baby.remind,sleep_remind_min:st.baby.sleepRemind});
+const babyRow=()=>({id:cloud.babyId,name:st.baby.name||'寶寶',gender:GENDER[st.baby.gender]||'private',birth_at:iso(st.baby.birth),birth_weight_g:(st.baby.bw>=500&&st.baby.bw<=7000)?st.baby.bw:null,birth_length_cm:(st.baby.bl>0&&st.baby.bl<100)?st.baby.bl:null,birth_head_cm:(st.baby.bh>0&&st.baby.bh<100)?st.baby.bh:null,feed_interval_min:Number.isFinite(+st.baby.interval)&&st.baby.interval>0?+st.baby.interval:180,feed_remind_min:Number.isFinite(st.baby.remind)?st.baby.remind:15,sleep_remind_min:Number.isFinite(st.baby.sleepRemind)?st.baby.sleepRemind:10});
 const babyCanon=()=>JSON.stringify(babyRow());
 async function pullBaby(){
   const {data,error}=await sb.from('babies').select('*').eq('id',cloud.babyId).limit(1);if(error)throw error;
   const w=data[0];if(!w)return;
   if(cloud.snap.baby!==undefined&&babyCanon()!==cloud.snap.baby)return;   // edited here, upload wins
   const b=st.baby,before=babyCanon();
-  Object.assign(b,{id:w.id,name:w.name,gender:GENDER_R[w.gender]||'保密',birth:ts(w.birth_at),bw:w.birth_weight_g||0,bl:+w.birth_length_cm||0,bh:+w.birth_head_cm||0,interval:w.feed_interval_min,remind:w.feed_remind_min,sleepRemind:w.sleep_remind_min,onboarded:true});
+  Object.assign(b,{id:w.id,name:w.name,gender:GENDER_R[w.gender]||'保密',birth:ts(w.birth_at),bw:w.birth_weight_g||0,bl:+w.birth_length_cm||0,bh:+w.birth_head_cm||0,interval:w.feed_interval_min??180,remind:w.feed_remind_min??15,sleepRemind:w.sleep_remind_min??10,onboarded:true});
   BIRTH=new Date(b.birth);saveBaby();
   if(babyCanon()!==before)cloud.changed=true;
   cloud.snap.baby=babyCanon();
@@ -1174,9 +1222,9 @@ let loginMode='in';
 const showMsg=(id,text,type)=>{const el=$(id);el.hidden=!text;el.className='msg '+(type||'');el.textContent=text||''};
 function renderLogin(){
   const sIn=loginMode==='in';
-  $('#s-login').innerHTML=`<div class="hdr"><span class="ic">👶</span><h1>nexCare</h1></div>
+  $('#s-login').innerHTML=`<div class="lx-hero"><div class="lx-mark"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.5 1 5.4 3 1.9-2 3.4-3 5.4-3 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg></div><h1 class="lx-name">nex<i>Care</i></h1><p class="lx-tag">溫柔守護 · 每個珍貴時刻</p><div class="lx-orn">◆</div></div>
   <div class="card" style="display:flex;flex-direction:column;gap:14px"><div class="lbl" style="margin:0">${sIn?'登入':'建立帳號'}</div>
-   <p class="sub" style="margin:0">登入後，網站和 APP 會共用同一份寶寶紀錄。</p>
+   <p class="sub" style="margin:0">登入後，全家人共享同一份寶寶紀錄。</p>
    <input class="field" id="lem" type="email" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="Email" style="font-size:17px">
    <input class="field" id="lpw" type="password" autocomplete="${sIn?'current-password':'new-password'}" placeholder="密碼（至少 6 個字）" style="font-size:17px">
    <div id="lmsg" hidden></div>
