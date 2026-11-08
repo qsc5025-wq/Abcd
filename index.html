@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#FBF7F2"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#FBF7F2"><meta name="apple-mobile-web-app-title" content="nexCare"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>nexCare 寶寶照護</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -596,7 +596,7 @@ function renderSettings(){
    <div><div class="lbl">餵奶間隔<small>用來算下次建議餵奶時間</small></div><div class="chips" id="ivs">${iv.map(v=>`<button class="chip ${st.interval===v?'on':''}" data-iv="${v}">${ivl[v]}</button>`).join('')}</div>
     <div class="inline" style="margin-top:12px;flex-wrap:nowrap"><span class="muted">自訂</span><div class="field" style="display:flex;align-items:center;gap:8px;padding:8px 16px"><input id="ivc" value="${st.interval}" inputmode="numeric" style="border:0;background:none;font-size:22px;width:100%;min-width:0;outline:0"><span class="muted" style="white-space:nowrap">分鐘</span></div><b id="ivt" style="font-size:19px;white-space:nowrap">${st.interval/60} 小時</b></div></div>
    <div><div class="lbl">餵奶提醒<small>建議餵奶時間前多久推播通知</small></div><div class="chips" id="rms">${rm.map(([v,l])=>`<button class="chip ${st.remind===v?'on':''}" data-rm="${v}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div>
-    <div class="card" style="background:var(--accent-soft);box-shadow:none;margin-top:14px;border-radius:22px"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:19px">🔔 這台裝置：<span id="nst">未開啟</span></b><button class="btn sm" id="nbtn" style="background:var(--card);color:var(--fg)">開啟通知</button></div><p class="sub" style="margin:10px 0 0">每台手機都要各自開啟一次；開啟後所有寶寶的提醒都會送到這台。</p></div></div>
+    ${DEMO?`<div class="card" style="background:var(--accent-soft);box-shadow:none;margin-top:14px;border-radius:22px"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:19px">🔔 這台裝置：<span id="nst">未開啟</span></b><button class="btn sm" id="nbtn" style="background:var(--card);color:var(--fg)">開啟通知</button></div><p class="sub" style="margin:10px 0 0">每台手機都要各自開啟一次；開啟後所有寶寶的提醒都會送到這台。</p></div>`:'<div class="sub" style="margin-top:14px">🔔 要收到推播通知，請到上方「推播通知」開啟。</div>'}</div>
    <div><div class="lbl">想睡提醒<small>預測的想睡時段開始前多久推播</small></div><div class="chips">${['準時','10 分','15 分','關閉'].map((l,i)=>`<button class="chip ${st.baby.sleepRemind===[0,10,15,-1][i]?'on':''}" data-sl="${[0,10,15,-1][i]}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div></div>
   </div>`;
   $('#nm').oninput=e=>{st.name=e.target.value;saveBaby()};
@@ -611,7 +611,7 @@ function renderSettings(){
   $('#ivc').onchange=e=>{const v=Math.min(480,Math.max(30,parseInt(e.target.value)||180));setIv(v)};
   $$('[data-rm]').forEach(b=>b.onclick=()=>{st.remind=+b.dataset.rm;saveBaby();$$('[data-rm]').forEach(x=>x.classList.toggle('on',x===b))});
   $$('[data-sl]').forEach(b=>b.onclick=()=>{st.baby.sleepRemind=+b.dataset.sl;saveBaby();$$('[data-sl]').forEach(x=>x.classList.toggle('on',x===b))});
-  $('#nbtn').onclick=()=>{const on=$('#nst').textContent==='未開啟';$('#nst').textContent=on?'已開啟':'未開啟';$('#nbtn').textContent=on?'關閉通知':'開啟通知';toast(on?'示範版不會真的推播':'已關閉')};
+  if($('#nbtn'))$('#nbtn').onclick=()=>{const on=$('#nst').textContent==='未開啟';$('#nst').textContent=on?'已開啟':'未開啟';$('#nbtn').textContent=on?'關閉通知':'開啟通知';toast(on?'示範版不會真的推播':'已關閉')};
 }
 
 /* ---------- health: vaccines / checkups / milestones ---------- */
@@ -1029,6 +1029,7 @@ function syncNow(){
       cloud.applying=false;
       if(cloud.role!=='viewer'){if(isOwner())await pushBaby();for(const col of COLS)if(isOwner()||!OWNER_ONLY.has(col.t))await pushCol(col)}
       cloud.last=Date.now();cloud.status='ok';cloud.err='';saveMeta();
+      if(PUSH.sub&&cloud.fam&&PUSH.famSaved&&PUSH.famSaved!==cloud.fam)pushRow(PUSH.sub).catch(()=>{});
     }catch(e){cloud.status=navigator.onLine===false?'offline':'error';cloud.err=friendly(e);saveMeta()}
     finally{cloud.applying=false;
       if(cloud.changed){cloud.changed=false;const ae=document.activeElement;
@@ -1108,16 +1109,17 @@ renderAcct=function(){
     const pend=pending();
     h=`<b>${esc(cloud.user.email)}</b><div class="msg ${cloud.status==='error'?'err':cloud.status==='ok'?'ok':''}" style="margin:10px 0">${label}${pend&&cloud.status!=='syncing'?`（${pend} 筆待上傳）`:''}</div>
     <div class="inline"><button class="btn sm" id="acsync">立即同步</button><button class="btn soft sm" id="acout">登出</button></div><div id="acwarn"></div>
-    <p class="sub" style="margin:10px 0 0">${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div>`}
+    <p class="sub" style="margin:10px 0 0">${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div><div id="pushbox">${pushHtml()}</div>`}
   el.innerHTML=`<div class="card">${h}</div>`;
   const g=$('#acgo');if(g)g.onclick=()=>go('login');
+  if(cloud.user){bindPush()}
   if(cloud.user&&cloud.fam){bindFam();loadFamily(false)}
   const sy=$('#acsync');if(sy)sy.onclick=()=>syncNow();
   const o=$('#acout');if(o)o.onclick=async()=>{
     $('#acwarn').innerHTML='<div class="msg" style="margin-top:10px">確認中…</div>';await syncNow();const n=pending();
     $('#acwarn').innerHTML=`<div class="msg err" style="margin-top:10px">${n?`還有 ${n} 筆資料沒上傳，登出後會遺失。`:'資料都已上傳。'}登出會清除這台裝置上的資料（包含照片），雲端的資料不受影響。<div class="inline" style="margin-top:10px"><button class="btn sm" id="acyes">確定登出</button><button class="btn soft sm" id="acno">取消</button></div></div>`;
     $('#acno').onclick=()=>{$('#acwarn').innerHTML=''};
-    $('#acyes').onclick=async()=>{try{await sb.auth.signOut()}catch(e){}wipeLocal(true)}}};
+    $('#acyes').onclick=async()=>{try{await pushDisable(true)}catch(e){}try{await sb.auth.signOut()}catch(e){}wipeLocal(true)}}};
 
 /* ---------- login & first-time baby profile ---------- */
 let loginMode='in';
@@ -1360,6 +1362,74 @@ R.moments=()=>{MK.named=false;renderMoments();loadMoments(true)};
 R.mpost=renderMpost;
 setInterval(()=>{if(st.cur==='moments'&&!document.hidden&&cloud.user&&navigator.onLine!==false)loadMoments(true)},30000);
 $('#t-moments').style.display='';$('.tabs').classList.add('six');
+
+/* ---------- web push: enable / disable / preferences (web build, logged in) ---------- */
+const VAPID_PUB='BNuFOyBG1C_I0oU2HrMCX18L4jzPjYNPAMcAifGNCKLG4mAivDph-yKw6k3ABP1Yh5b119PoGpCtZzPjAOs96a4';
+const PUSH={reg:null,sub:null,prefs:{feed:true,sleep:true,moment:true,vaccine:true},loaded:false,busy:false,msg:'',famSaved:null};
+const PK=[['feed','🍼 餵奶時間快到'],['sleep','😴 寶寶快想睡'],['moment','📷 家人新增生活貼文'],['vaccine','💉 疫苗／健檢快到期']];
+const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isStandalone=()=>navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
+const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const u8=s=>{const p='='.repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))};
+async function pushInit(){
+  if(!pushOk())return;
+  try{PUSH.reg=await navigator.serviceWorker.register('sw.js');await navigator.serviceWorker.ready;PUSH.sub=await PUSH.reg.pushManager.getSubscription()}catch(e){PUSH.reg=null}
+  renderAcct()}
+async function pushRow(sub){
+  const j=sub.toJSON();
+  const {error}=await sb.from('push_subscriptions').upsert({user_id:cloud.user.id,family_id:cloud.fam,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,prefs:PUSH.prefs,updated_at:new Date().toISOString()},{onConflict:'endpoint'});
+  if(error)throw error;PUSH.famSaved=cloud.fam}
+async function pushLoadPrefs(){
+  if(PUSH.loaded||!PUSH.sub||!cloud.user)return;PUSH.loaded=true;
+  try{const {data}=await sb.from('push_subscriptions').select('prefs,family_id').eq('endpoint',PUSH.sub.endpoint).limit(1);
+    if(data&&data[0]){PUSH.prefs={...PUSH.prefs,...data[0].prefs};PUSH.famSaved=data[0].family_id}
+    else if(cloud.fam)await pushRow(PUSH.sub);
+    renderAcct()}catch(e){PUSH.loaded=false}}
+async function pushEnable(){
+  if(!cloud.fam){PUSH.msg='請先完成寶寶資料';renderAcct();return}
+  PUSH.busy=true;PUSH.msg='';renderAcct();
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){PUSH.msg=perm==='denied'?'通知被封鎖了，請到手機「設定 → 通知 → nexCare」重新允許。':'沒有允許通知。';return}
+    if(!PUSH.reg)PUSH.reg=await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+    const sub=await PUSH.reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(VAPID_PUB)});
+    await pushRow(sub);PUSH.sub=sub;PUSH.loaded=true;PUSH.msg='已開啟通知。可以按「傳送測試通知」確認。'}
+  catch(e){PUSH.msg='開啟失敗：'+friendly(e)}
+  finally{PUSH.busy=false;renderAcct()}}
+async function pushDisable(keepMsg){
+  try{if(PUSH.sub){const ep=PUSH.sub.endpoint;try{await sb.from('push_subscriptions').delete().eq('endpoint',ep)}catch(e){}await PUSH.sub.unsubscribe()}}catch(e){}
+  PUSH.sub=null;PUSH.loaded=false;if(!keepMsg)PUSH.msg='已關閉這台裝置的通知。';renderAcct()}
+async function pushSavePrefs(){
+  if(!PUSH.sub)return;const {error}=await sb.from('push_subscriptions').update({prefs:PUSH.prefs,updated_at:new Date().toISOString()}).eq('endpoint',PUSH.sub.endpoint);
+  if(error)toast(friendly(error))}
+async function pushTest(){
+  PUSH.busy=true;PUSH.msg='';renderAcct();
+  try{const {data,error}=await sb.functions.invoke('smooth-endpoint',{body:{action:'test'}});
+    if(error)throw error;
+    PUSH.msg=data&&data.sent>0?'已送出，幾秒內應該會收到通知。':'伺服器找不到這台裝置的訂閱，請先關閉再重新開啟通知。'}
+  catch(e){PUSH.msg='測試失敗：伺服器還沒設定好，或網路有問題。'}
+  finally{PUSH.busy=false;renderAcct()}}
+function pushHtml(){
+  let h='<div class="lbl" style="margin:16px 0 8px">推播通知</div>';
+  if(!VAPID_PUB||VAPID_PUB.indexOf('__')===0)return h+'<div class="sub">通知功能尚未啟用。</div>';
+  if(!pushOk()){
+    return h+(isIOS&&!isStandalone()?'<div class="msg">📲 iPhone 要先加到主畫面才能收通知：<br>1. 用 Safari 開這個網站<br>2. 點下方「分享」鈕 → 「加入主畫面」<br>3. 從主畫面的 nexCare 圖示打開，再回到這裡按「開啟通知」</div>':'<div class="sub">這個瀏覽器不支援通知。</div>')}
+  if(Notification.permission==='denied')return h+'<div class="msg err">通知被封鎖了，請到手機「設定 → 通知 → nexCare」（或瀏覽器的網站設定）重新允許，再回來開啟。</div>';
+  if(!PUSH.sub)return h+`<div class="sub" style="margin-bottom:10px">餵奶、想睡、家人貼文、疫苗到期時，推播到這支手機。</div><button class="btn sm" id="pson" ${PUSH.busy?'disabled':''}>${PUSH.busy?'處理中…':'開啟通知'}</button>${PUSH.msg?`<div class="msg err" style="margin-top:10px">${esc(PUSH.msg)}</div>`:''}`;
+  return h+`<div class="msg ok" style="margin-bottom:10px">這台裝置已開啟通知</div>
+   <div class="chips">${PK.map(([k,l])=>`<button class="chip ${PUSH.prefs[k]!==false?'on':''}" data-pk="${k}" style="font-size:15px">${l}</button>`).join('')}</div>
+   <div class="inline" style="margin-top:10px"><button class="btn sm" id="pstest" ${PUSH.busy?'disabled':''}>傳送測試通知</button><button class="btn soft sm" id="psoff">關閉通知</button></div>
+   ${PUSH.msg?`<div class="msg" style="margin-top:10px">${esc(PUSH.msg)}</div>`:''}
+   <div class="sub" style="margin:8px 0 0">提醒時間依「設定」裡的餵奶間隔與提醒時間而定。</div>`}
+function bindPush(){
+  const on=$('#pson');if(on)on.onclick=pushEnable;
+  const t=$('#pstest');if(t)t.onclick=pushTest;
+  const off=$('#psoff');if(off)off.onclick=()=>pushDisable();
+  $$('[data-pk]').forEach(b=>b.onclick=()=>{const k=b.dataset.pk;PUSH.prefs[k]=PUSH.prefs[k]===false;b.classList.toggle('on',PUSH.prefs[k]!==false);pushSavePrefs()});
+  pushLoadPrefs()}
+window.ncPush=PUSH;
+pushInit();
 
 boot();
 
