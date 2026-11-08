@@ -167,7 +167,55 @@ svg text{fill:var(--muted);font-family:var(--font)}
 .msg{border-radius:14px;padding:10px 12px;font-size:14px;background:var(--chip)}
 .msg.err{background:#FFE9EE;color:#9B1239}
 .msg.ok{background:var(--green-soft);color:var(--green)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---- polish layer (additive) ---- */
+:root{--r-card:26px;--ease:cubic-bezier(.2,.8,.2,1);
+  --ring:0 0 0 1px rgba(120,80,50,.06);--shadow:0 1px 2px rgba(120,80,50,.05),0 8px 24px rgba(120,80,50,.09)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ring:0 0 0 1px rgba(255,255,255,.06);--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--ring:0 0 0 1px rgba(255,255,255,.06);--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35)}
+html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+body{background:var(--bg);background-image:radial-gradient(120% 60% at 50% -10%,var(--accent-soft) 0,transparent 60%);background-repeat:no-repeat;background-attachment:fixed;-webkit-font-smoothing:antialiased;letter-spacing:.01em}
+.screen.on{animation:ncIn .32s var(--ease) both}
+@keyframes ncIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{border-radius:var(--r-card);box-shadow:var(--ring),var(--shadow)}
+.card h3{letter-spacing:.04em;font-size:13px}
+.big{letter-spacing:-.02em}
+.stat .e{top:14px;right:14px;width:34px;height:34px;border-radius:12px;background:var(--chip);display:grid;place-items:center;font-size:17px}
+.avatar{background:linear-gradient(145deg,#F7B7A0,#E58F76);box-shadow:0 6px 16px rgba(229,143,118,.35)}
+.bell{box-shadow:var(--ring),var(--shadow);transition:transform .15s var(--ease)}
+.bell b{box-shadow:0 0 0 2px var(--bg)}
+button{transition:transform .15s var(--ease),background-color .15s,box-shadow .15s,border-color .15s,color .15s}
+button:active{transform:scale(.96)}
+.chip{transition:all .15s var(--ease)}
+.chip:active{transform:scale(.95)}
+.chip.on{box-shadow:0 2px 8px rgba(184,120,104,.18)}
+.seg{box-shadow:inset 0 1px 2px rgba(120,80,50,.08)}
+.seg button.on{box-shadow:0 1px 2px rgba(120,80,50,.12),0 3px 10px rgba(120,80,50,.08)}
+.btn{background:linear-gradient(180deg,#C48575,var(--accent));box-shadow:0 4px 12px rgba(184,120,104,.35)}
+.btn.soft{background:var(--chip);box-shadow:none}
+.field{transition:border-color .15s,box-shadow .15s}
+.field:focus-within,.field:focus{border-color:var(--accent-line);box-shadow:0 0 0 4px var(--accent-soft);outline:0}
+.pill{border-radius:16px}
+.list>div{padding:13px 0}
+.datenav button{border-radius:50%}
+.datenav button:not(:disabled):active{background:var(--chip)}
+.tabbar{background:color-mix(in srgb,var(--card) 82%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(18px);backdrop-filter:saturate(1.6) blur(18px);border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent);box-shadow:0 -6px 24px rgba(120,80,50,.06)}
+.tab{position:relative;transition:color .15s}
+.tab.on::after{content:"";position:absolute;bottom:-3px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.tab.on svg{transform:translateY(-1px)}
+.fab{background:linear-gradient(145deg,#CF9082,var(--accent) 60%,#A8685A);box-shadow:0 10px 24px rgba(184,120,104,.5),0 0 0 6px var(--bg);transition:transform .2s var(--ease)}
+.fab:active{transform:scale(.92)}
+.toast{background:color-mix(in srgb,var(--fg) 92%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,.25);transform:translate(-50%,6px);transition:opacity .2s,transform .25s var(--ease)}
+.toast.on{transform:translate(-50%,0)}
+.modal{-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.sheet{box-shadow:0 20px 60px rgba(0,0,0,.25);animation:ncIn .28s var(--ease) both}
+.feedcard{box-shadow:var(--shadow)}
+.sw{box-shadow:inset 0 1px 3px rgba(0,0,0,.12)}
+.sw::after{box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.thumbs button,.thumbs .ph{box-shadow:var(--ring)}
+.tag{letter-spacing:.02em}
+@media (hover:hover){.chip:hover,.seg button:hover{filter:brightness(.98)}.btn:hover{filter:brightness(1.04)}}
 </style>
 </head><body>
 <div class="app" id="app">
@@ -594,7 +642,7 @@ function renderSettings(){
     <div><div class="lbl">身長<small>cm</small></div><input class="field" id="bh" ${(!DEMO&&st.baby.onboarded)&&st.baby.bl?'disabled':''} value="${st.baby.bl||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div>
     <div><div class="lbl">頭圍<small>cm</small></div><input class="field" id="bc" ${(!DEMO&&st.baby.onboarded)&&st.baby.bh?'disabled':''} value="${st.baby.bh||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div></div>${(!DEMO&&st.baby.onboarded)?'<div class="msg" style="margin-top:10px">🔒 出生日期與時間、出生體重、身長、頭圍只能輸入一次，已鎖定。留空的欄位可以補填一次。如需修改，請由主帳號刪除帳號後重新註冊。</div>':''}
    <div><div class="lbl">餵奶間隔<small>用來算下次建議餵奶時間</small></div><div class="chips" id="ivs">${iv.map(v=>`<button class="chip ${st.interval===v?'on':''}" data-iv="${v}">${ivl[v]}</button>`).join('')}</div>
-    <div class="inline" style="margin-top:12px;flex-wrap:nowrap"><span class="muted">自訂</span><div class="field" style="display:flex;align-items:center;gap:8px;padding:8px 16px"><input id="ivc" value="${st.interval}" inputmode="numeric" style="border:0;background:none;font-size:22px;width:100%;min-width:0;outline:0"><span class="muted" style="white-space:nowrap">分鐘</span></div><b id="ivt" style="font-size:19px;white-space:nowrap">${st.interval/60} 小時</b></div></div>
+    <div class="inline" style="margin-top:12px;flex-wrap:nowrap"><span class="muted" style="white-space:nowrap">自訂</span><div class="field" style="display:flex;align-items:center;gap:8px;padding:8px 16px"><input id="ivc" value="${st.interval}" inputmode="numeric" style="border:0;background:none;font-size:22px;width:100%;min-width:0;outline:0"><span class="muted" style="white-space:nowrap">分鐘</span></div><b id="ivt" style="font-size:19px;white-space:nowrap">${st.interval/60} 小時</b></div></div>
    <div><div class="lbl">餵奶提醒<small>建議餵奶時間前多久推播通知</small></div><div class="chips" id="rms">${rm.map(([v,l])=>`<button class="chip ${st.remind===v?'on':''}" data-rm="${v}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div>
     ${DEMO?`<div class="card" style="background:var(--accent-soft);box-shadow:none;margin-top:14px;border-radius:22px"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:19px">🔔 這台裝置：<span id="nst">未開啟</span></b><button class="btn sm" id="nbtn" style="background:var(--card);color:var(--fg)">開啟通知</button></div><p class="sub" style="margin:10px 0 0">每台手機都要各自開啟一次；開啟後所有寶寶的提醒都會送到這台。</p></div>`:'<div class="sub" style="margin-top:14px">🔔 要收到推播通知，請到上方「推播通知」開啟。</div>'}</div>
    <div><div class="lbl">想睡提醒<small>預測的想睡時段開始前多久推播</small></div><div class="chips">${['準時','10 分','15 分','關閉'].map((l,i)=>`<button class="chip ${st.baby.sleepRemind===[0,10,15,-1][i]?'on':''}" data-sl="${[0,10,15,-1][i]}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div></div>
