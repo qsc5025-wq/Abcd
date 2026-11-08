@@ -264,6 +264,7 @@ body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(-
 #s-login .field{padding:15px 18px;font-size:16px;text-align:left}
 #s-login .btn{border-radius:999px}
 .lx-foot{text-align:center;font-size:11px;letter-spacing:.25em;color:var(--muted);margin-top:4px}
+
 </style>
 </head><body>
 <div class="app" id="app">
@@ -277,6 +278,7 @@ body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(-
   <section class="screen" id="s-vital"></section>
   <section class="screen" id="s-pump"></section>
   <section class="screen" id="s-login"></section>
+  <section class="screen" id="s-reset"></section>
   <section class="screen" id="s-onboard"></section>
   <section class="screen" id="s-join"></section>
   <section class="screen" id="s-moments"></section>
@@ -933,7 +935,7 @@ function go(name){
   st.cur=scr;R[scr]();$('#s-'+scr).classList.add('on');
   const tabKey={home:'home',yest:'yest',stats:'stats',report:'stats',settings:'settings',moments:'moments',mpost:'moments'}[name];
   $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.go===tabKey));
-  $('#tabbar').style.display=(['add','diaper','vital','pump','sleep','login','onboard','join','mpost'].includes(name))?'none':'';
+  $('#tabbar').style.display=(['add','diaper','vital','pump','sleep','login','reset','onboard','join','mpost'].includes(name))?'none':'';
   window.scrollTo(0,0);
 }
 $$('.tab').forEach(t=>t.onclick=()=>go(t.dataset.go));
@@ -967,7 +969,7 @@ setInterval(()=>{NOW.setTime(Date.now());const m=NOW.getMinutes();if(m===lastMin
   else if($('#s-home').classList.contains('on')&&st.offset===0){const y=window.scrollY;R.home();window.scrollTo(0,y)}},15000);
 /* ---------- cloud: login + two-way sync (web build only) ---------- */
 const SB_URL='https://gtllvuvciwyfplqumsvm.supabase.co',SB_KEY='sb_publishable_Nc4_45bfCvzGYFR0Wld6NQ_yOw5_sWj';
-let sb=null;try{sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}):null}catch(e){sb=null}
+let sb=null;try{sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null}catch(e){sb=null}
 const cloud={user:null,fam:null,babyId:null,cur:{},snap:{},status:'local',last:0,err:'',applying:false,changed:false,again:false,role:'',members:null,mAt:0,invite:null,loadingFam:false};
 readOnly=()=>cloud.role==='viewer';
 isOwner=()=>!cloud.user||!cloud.role||cloud.role==='owner';
@@ -1229,9 +1231,18 @@ function renderLogin(){
    <input class="field" id="lpw" type="password" autocomplete="${sIn?'current-password':'new-password'}" placeholder="密碼（至少 6 個字）" style="font-size:17px">
    <div id="lmsg" hidden></div>
    <button class="btn" id="lgo" style="padding:16px;font-size:18px">${sIn?'登入':'註冊'}</button>
-   <button class="linkbtn" id="lsw">${sIn?'還沒有帳號？註冊':'已有帳號？登入'}</button>
+   <button class="linkbtn" id="lsw">${sIn?'還沒有帳號？註冊':'已有帳號？登入'}</button>${sIn?'<button class="linkbtn muted" id="lfg" style="font-weight:400">忘記密碼？</button>':''}
    <button class="linkbtn muted" id="lskip" style="font-weight:400">先不登入，只存在這台裝置</button>${(()=>{try{if(localStorage.getItem('nc-deleted')){localStorage.removeItem('nc-deleted');return '<div class="msg ok">帳號與資料已刪除。可以用新的 Email 重新註冊。</div>'}}catch(e){}return ''})()}${getJoin()?'<div class="msg ok">已收到邀請碼，登入或註冊後會繼續加入。</div>':''}</div>`;
   $('#lsw').onclick=()=>{loginMode=sIn?'up':'in';renderLogin()};
+  const fg=$('#lfg');if(fg)fg.onclick=async()=>{
+    const email=$('#lem').value.trim();
+    if(!/^\S+@\S+\.\S+$/.test(email)){showMsg('#lmsg','請先在上面輸入你的 Email，再按「忘記密碼」','err');return}
+    if(!sb){showMsg('#lmsg','無法載入雲端工具，請確認網路後重新整理','err');return}
+    fg.disabled=true;
+    try{const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;
+      showMsg('#lmsg','已寄出重設密碼的信到 '+email+'。請到信箱（也看看垃圾郵件）點信裡的連結，再設定新密碼。','ok')}
+    catch(e){showMsg('#lmsg',friendly(e),'err')}
+    fg.disabled=false};
   $('#lskip').onclick=()=>{try{localStorage.setItem('nc-localonly','1')}catch(e){}go(st.baby.onboarded?'home':'onboard')};
   $('#lgo').onclick=async()=>{
     const email=$('#lem').value.trim(),password=$('#lpw').value;
@@ -1309,16 +1320,36 @@ function renderJoin(){
       location.reload();
     }catch(e){showMsg('#jmsg',friendly(e),'err');b.disabled=false;b.textContent='加入'}}}
 R.join=renderJoin;
+function renderReset(){
+  $('#s-reset').innerHTML=`<div class="lx-hero"><div class="lx-mark"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.5 1 5.4 3 1.9-2 3.4-3 5.4-3 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg></div><h1 class="lx-name">nex<i>Care</i></h1><div class="lx-orn">◆</div></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:14px"><div class="lbl" style="margin:0">設定新密碼</div>
+   <p class="sub" style="margin:0">請輸入新的密碼，之後用這個密碼登入。</p>
+   <input class="field" id="rp1" type="password" autocomplete="new-password" placeholder="新密碼（至少 6 個字）" style="font-size:17px">
+   <input class="field" id="rp2" type="password" autocomplete="new-password" placeholder="再輸入一次新密碼" style="font-size:17px">
+   <div id="rmsg" hidden></div>
+   <button class="btn" id="rgo" style="padding:16px;font-size:18px">儲存新密碼</button></div>`;
+  $('#rgo').onclick=async()=>{
+    const a=$('#rp1').value,b2=$('#rp2').value;
+    if(a.length<6){showMsg('#rmsg','密碼至少 6 個字','err');return}
+    if(a!==b2){showMsg('#rmsg','兩次輸入的密碼不一樣','err');return}
+    const bt=$('#rgo');bt.disabled=true;bt.textContent='請稍候…';
+    try{const {error}=await sb.auth.updateUser({password:a});if(error)throw error;
+      toast('密碼已更新');cloud.user=cloud.user||(await sb.auth.getSession()).data.session.user;
+      if(!st.baby.onboarded&&cloud.babyId)await syncNow();go(cloud.user&&getJoin()?'join':st.baby.onboarded?'home':'onboard');syncNow()}
+    catch(e){showMsg('#rmsg',friendly(e),'err');bt.disabled=false;bt.textContent='儲存新密碼'}}}
+R.reset=renderReset;
 R.login=renderLogin;R.onboard=renderOnboard;
 async function boot(){
   try{const q=new URLSearchParams(location.search).get('join');if(q){localStorage.setItem(JK,q.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20));history.replaceState(null,'',location.pathname)}}catch(e){}
+  let rec=/type=recovery/.test(location.hash);
   const entry=()=>go(cloud.user&&getJoin()?'join':st.baby.onboarded?'home':'onboard');
   if(!sb){entry();return}
   let sess=null;try{const r=await sb.auth.getSession();sess=r.data.session}catch(e){}
-  if(sess){cloud.user=sess.user;if(loadMeta()==='reset')return;if(!st.baby.onboarded&&cloud.babyId)await syncNow();entry();syncNow()}
+  if(sess&&rec){cloud.user=sess.user;go('reset')}
+  else if(sess){cloud.user=sess.user;if(loadMeta()==='reset')return;if(!st.baby.onboarded&&cloud.babyId)await syncNow();entry();syncNow()}
   else if((()=>{try{return localStorage.getItem('nc-localonly')==='1'}catch(e){return false}})())entry();
-  else go('login');
-  try{sb.auth.onAuthStateChange((ev,s)=>{if(ev==='SIGNED_OUT')cloud.user=null;else if(s)cloud.user=s.user})}catch(e){}
+  else{go('login');if(rec)showMsg('#lmsg','這個重設連結已失效，請重新按「忘記密碼」','err')}
+  try{sb.auth.onAuthStateChange((ev,s)=>{if(ev==='PASSWORD_RECOVERY'&&s){cloud.user=s.user;go('reset')}else if(ev==='SIGNED_OUT')cloud.user=null;else if(s)cloud.user=s.user})}catch(e){}
 }
 /* ---------- life moments: shared posts with photos / videos (needs login) ---------- */
 const MK={items:[],more:false,loading:false,loaded:false,err:'',urls:{},urlAt:0,named:false,form:null,sig:''};
