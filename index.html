@@ -1209,10 +1209,10 @@ renderAcct=function(){
     const pend=pending();
     h=`<b>${esc(cloud.user.email)}</b><div class="msg ${cloud.status==='error'?'err':cloud.status==='ok'?'ok':''}" style="margin:10px 0">${label}${pend&&cloud.status!=='syncing'?`（${pend} 筆待上傳）`:''}</div>
     <div class="inline"><button class="btn sm" id="acsync">立即同步</button><button class="btn soft sm" id="acout">登出</button></div><div id="acwarn"></div>
-    <p class="sub" style="margin:10px 0 0">${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div><div id="pushbox">${pushHtml()}</div>`}
+    <p class="sub" style="margin:10px 0 0">${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div><div id="pushbox">${pushHtml()}</div><div id="bkbox">${isOwner()?backupHtml():''}</div>`}
   el.innerHTML=`<div class="card">${h}</div>`;
   const g=$('#acgo');if(g)g.onclick=()=>go('login');
-  if(cloud.user){bindPush()}
+  if(cloud.user){bindPush();bindBackup()}
   if(cloud.user&&cloud.fam){bindFam();loadFamily(false)}
   const sy=$('#acsync');if(sy)sy.onclick=()=>syncNow();
   const o=$('#acout');if(o)o.onclick=async()=>{
@@ -1559,6 +1559,55 @@ function bindPush(){
   pushLoadPrefs()}
 window.ncPush=PUSH;
 pushInit();
+
+/* ---------- backup / restore (owner only) ---------- */
+const BK_KEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd'];
+function bkBuild(){const d={};BK_KEYS.forEach(k=>{try{const v=localStorage.getItem(k);if(v!=null)d[k]=JSON.parse(v)}catch(e){}});
+  return {app:'nexcare',v:1,at:new Date().toISOString(),baby:st.baby.name||'',data:d}}
+function bkCount(b){const g=k=>{const v=b.data&&b.data[k];return Array.isArray(v)?v.length:0};const vi=(b.data&&b.data['nc-vitals'])||{};
+  return {餵奶:g('nc-feeds'),睡眠:g('nc-sleeps'),擠奶:g('nc-pumps'),尿布:g('nc-diapers'),體溫:(vi.temps||[]).length,體重:(vi.weights||[]).length}}
+async function bkExport(){
+  const b=bkBuild(),n=new Date(),name='nexcare-backup-'+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'.json';
+  const f=new File([JSON.stringify(b)],name,{type:'application/json'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'nexCare 備份'});return true}catch(e){if(e&&e.name==='AbortError')return false}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return true}
+/* merge: add records that are missing (by id); never overwrite or delete what is already here */
+function bkMerge(b){
+  let add=0;const d=b.data||{};
+  const mergeArr=(inc,cur)=>{if(!Array.isArray(inc))return cur;const ids=new Set(cur.map(r=>r&&r.id));const n=inc.filter(r=>r&&r.id&&!ids.has(r.id));add+=n.length;return n.length?cur.concat(n):cur};
+  const mergeObj=(inc,cur)=>{if(!inc||typeof inc!=='object'||Array.isArray(inc))return cur;let o=cur;for(const k of Object.keys(inc)){if(!(k in cur)){if(o===cur)o={...cur};o[k]=inc[k];add++}}return o};
+  st.feeds=mergeArr(d['nc-feeds'],st.feeds);st.sleeps=mergeArr(d['nc-sleeps'],st.sleeps);st.pumps=mergeArr(d['nc-pumps'],st.pumps);st.diapers=mergeArr(d['nc-diapers'],st.diapers);
+  const vi=d['nc-vitals']||{};st.temps=mergeArr(vi.temps,st.temps);st.weights=mergeArr(vi.weights,st.weights);
+  st.vacc=mergeObj(d['nc-vacc'],st.vacc);st.checkup=mergeObj(d['nc-chk'],st.checkup);st.ms=mergeObj(d['nc-ms'],st.ms);st.msDate=mergeObj(d['nc-msd'],st.msDate);
+  sv('nc-feeds',st.feeds);sv('nc-sleeps',st.sleeps);sv('nc-pumps',st.pumps);saveD();saveV();saveCL();
+  return add}
+let bkState=null;   // survives account-card re-renders (sync status changes re-draw the card)
+function bkMsgHtml(){
+  const S=bkState;if(!S)return '';
+  if(S.k==='err')return `<div class="msg err" style="margin-top:10px">${esc(S.t)}</div>`;
+  if(S.k==='done')return `<div class="msg ok" style="margin-top:10px">已補回 ${S.n} 筆紀錄，稍後會自動同步到雲端。</div>`;
+  const b=S.b,c=bkCount(b),line=Object.keys(c).map(k=>k+' '+c[k]+' 筆').join('、');
+  return `<div class="msg" style="margin-top:10px">備份時間：${esc(b.at?new Date(b.at).toLocaleString('zh-TW'):'未知')}<br>內容：${esc(line)}<br>還原只會補回目前沒有的紀錄，不會覆蓋或刪除現有資料。<div class="inline" style="margin-top:10px"><button class="btn sm" id="bkyes">補回缺少的紀錄</button><button class="btn soft sm" id="bkno">取消</button></div></div>`}
+function backupHtml(){
+  return `<div class="lbl" style="margin:16px 0 8px">資料備份</div>
+  <p class="sub" style="margin:0 0 10px">把餵奶、睡眠、擠奶、尿布（含照片）、體溫體重、疫苗健檢紀錄存成一個備份檔，可存到「檔案」或傳給自己。生活貼文的照片影片存在雲端，不在備份檔內。</p>
+  <div class="inline"><button class="btn sm" id="bkout">匯出備份</button><button class="btn soft sm" id="bkin">從備份還原</button></div>
+  <input type="file" id="bkfile" accept=".json,application/json" hidden><div id="bkmsg">${bkMsgHtml()}</div>`}
+function bkShow(){const m=$('#bkmsg');if(!m)return;m.innerHTML=bkMsgHtml();bkBindMsg()}
+function bkBindMsg(){
+  const no=$('#bkno');if(no)no.onclick=()=>{bkState=null;bkShow()};
+  const y=$('#bkyes');if(y)y.onclick=()=>{const n=bkMerge(bkState.b);bkState={k:'done',n};bkShow();try{R[st.tab]&&R[st.tab]()}catch(x){}}}
+function bindBackup(){
+  const o=$('#bkout');if(!o)return;
+  o.onclick=async()=>{o.disabled=true;try{const ok=await bkExport();if(ok)toast('備份檔已產生')}catch(e){toast('匯出失敗：'+(e.message||e))}o.disabled=false};
+  $('#bkin').onclick=()=>$('#bkfile').click();
+  $('#bkfile').onchange=async e=>{
+    const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+    let b;try{b=JSON.parse(await f.text())}catch(x){bkState={k:'err',t:'這不是有效的備份檔。'};bkShow();return}
+    if(!b||b.app!=='nexcare'||!b.data){bkState={k:'err',t:'這不是 nexCare 的備份檔。'};bkShow();return}
+    bkState={k:'prev',b};bkShow()};
+  bkBindMsg()}
 
 boot();
 
