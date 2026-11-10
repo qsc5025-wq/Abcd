@@ -1125,6 +1125,7 @@ function syncNow(){
   syncP=(async()=>{
     try{
       if(!cloud.babyId||!cloud.fam){const ok=await link();if(!ok){cloud.status='needprofile';return}}
+      rtStart();
       cloud.applying=true;cloud.changed=false;
       await pullBaby();for(const col of COLS)await pullCol(col);await repairPhotos();
       cloud.applying=false;
@@ -1139,7 +1140,7 @@ function syncNow(){
   })().finally(()=>{syncP=null;if(cloud.again){cloud.again=false;schedule(300)}});
   return syncP}
 onSaved=()=>{if(!cloud.applying&&cloud.user)schedule()};
-setInterval(()=>{if(cloud.user&&!document.hidden&&navigator.onLine!==false)syncNow()},20000);
+setInterval(()=>{if(cloud.user&&!document.hidden&&navigator.onLine!==false){if(RT.ok&&Date.now()-(cloud.last||0)<55000)return;syncNow()}},20000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cloud.user)syncNow()});
 window.addEventListener('online',()=>{if(cloud.user)syncNow()});
 window.ncSyncNow=()=>syncNow();window.ncLoadFam=()=>loadFamily(true);
@@ -1634,6 +1635,31 @@ function bindBackup(){
     if(!b||b.app!=='nexcare'||!b.data){bkState={k:'err',t:'這不是 nexCare 的備份檔。'};bkShow();return}
     bkState={k:'prev',b};bkShow()};
   bkBindMsg()}
+
+/* ---------- live updates (Supabase Realtime) — polling stays as a fallback ---------- */
+const RT={ch:null,baby:null,ok:false,t:null};
+const RT_TABLES=['feeds','pumps','sleeps','diapers','temps','weights','vaccine_records','checkup_records','milestone_records','supplement_logs','moments'];
+function rtStop(){try{if(RT.ch&&sb)sb.removeChannel(RT.ch)}catch(e){}RT.ch=null;RT.baby=null;RT.ok=false}
+function rtHit(t){
+  clearTimeout(RT.t);
+  RT.t=setTimeout(()=>{
+    if(!cloud.user||document.hidden)return;
+    if(t==='moments'){if(st.cur==='moments')loadMoments(true)}else syncNow()},300)}
+function rtStart(){
+  if(!sb||!sb.channel||!cloud.user||!cloud.babyId)return;
+  if(RT.ch&&RT.baby===cloud.babyId)return;
+  rtStop();RT.baby=cloud.babyId;
+  try{
+    let ch=sb.channel('nc-'+cloud.babyId);
+    RT_TABLES.forEach(t=>{ch=ch.on('postgres_changes',{event:'*',schema:'public',table:t,filter:'baby_id=eq.'+cloud.babyId},()=>rtHit(t))});
+    ch=ch.on('postgres_changes',{event:'*',schema:'public',table:'babies',filter:'id=eq.'+cloud.babyId},()=>rtHit('babies'));
+    ch.subscribe(s=>{RT.ok=(s==='SUBSCRIBED')});
+    RT.ch=ch;
+  }catch(e){RT.ch=null;RT.baby=null}}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden||!cloud.user)return;
+  syncNow();if(RT.baby&&!RT.ok){rtStop();rtStart()}});
+window.addEventListener('online',()=>{if(cloud.user){syncNow();rtStop();rtStart()}});
 
 boot();
 
