@@ -1026,6 +1026,7 @@ const COLS=[
 ];
 const OWNER_ONLY=new Set(['vaccine_records','checkup_records','milestone_records']);
 const canon=(col,r)=>JSON.stringify(col.row(r));
+function skipOld(){try{toast('只有主帳號可以修改今天以外的紀錄，這筆變更沒有同步')}catch(e){}}
 async function pushCol(col){
   const snap=cloud.snap[col.t]||(cloud.snap[col.t]={});
   const cur=col.get();
@@ -1036,10 +1037,10 @@ async function pushCol(col){
   const dels=Object.keys(snap).filter(id=>!seen.has(id));
   for(let i=0;i<ups.length;i+=200){const part=ups.slice(i,i+200);
     const {error}=await sb.from(col.t).upsert(part.map(([r])=>({...col.row(r),baby_id:cloud.babyId,deleted_at:null})),{onConflict:'id'});
-    if(error)throw error;part.forEach(([r,c])=>{snap[r.id]=c})}
+    if(error){if(/before today/i.test(error.message||'')){skipOld();part.forEach(([r,c])=>{snap[r.id]=c});continue}throw error}part.forEach(([r,c])=>{snap[r.id]=c})}
   for(let i=0;i<dels.length;i+=100){const part=dels.slice(i,i+100);
     const {error}=await sb.from(col.t).update({deleted_at:new Date().toISOString()}).in('id',part);
-    if(error)throw error;part.forEach(id=>{if(col.onDel)col.onDel(snap[id]);delete snap[id]})}
+    if(error){if(/before today/i.test(error.message||'')){skipOld();part.forEach(id=>{delete snap[id]});continue}throw error}part.forEach(id=>{if(col.onDel)col.onDel(snap[id]);delete snap[id]})}
 }
 async function pullCol(col){
   const snap=cloud.snap[col.t]||(cloud.snap[col.t]={});
@@ -1102,6 +1103,7 @@ async function link(){
   const {error:e3}=await sb.from('babies').upsert({...babyRow(),family_id:cloud.fam},{onConflict:'id'});if(e3)throw e3;
   cloud.snap.baby=babyCanon();return true}
 function friendly(e){const m=String(e&&e.message||e);
+  if(/before today/i.test(m))return '只有主帳號可以修改今天以外的紀錄';
   if(/only the owner can delete/i.test(m))return '只有主帳號可以刪除帳號';
   if(/invite is invalid/i.test(m))return '邀請碼無效、已使用或已過期';
   if(/only the owner/i.test(m))return '只有管理者可以邀請家人';
@@ -1253,7 +1255,7 @@ function renderLogin(){
     try{
       let r;
       if(sIn){r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error}
-      else{r=await sb.auth.signUp({email,password});if(r.error)throw r.error;
+      else{r=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});if(r.error)throw r.error;
         if(r.data.user&&r.data.user.identities&&r.data.user.identities.length===0)throw new Error('already registered');
         if(!r.data.session){showMsg('#lmsg','已寄出確認信，請到信箱點確認連結後，再回來登入。','ok');b.disabled=false;b.textContent='註冊';return}}
       try{localStorage.removeItem('nc-localonly')}catch(e){}
