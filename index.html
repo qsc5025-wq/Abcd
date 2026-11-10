@@ -265,6 +265,7 @@ body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(-
 #s-login .btn{border-radius:999px}
 .lx-foot{text-align:center;font-size:11px;letter-spacing:.25em;color:var(--muted);margin-top:4px}
 
+.btn.sm,button.sm,[data-me],[data-md]{white-space:nowrap;flex:none}
 </style>
 </head><body>
 <div class="app" id="app">
@@ -1085,8 +1086,8 @@ async function pushBaby(){const c=babyCanon();if(cloud.snap.baby===c)return;
 function pending(){let n=0;if(cloud.role==='viewer')return 0;
   for(const col of COLS){if(!isOwner()&&OWNER_ONLY.has(col.t))continue;const snap=cloud.snap[col.t]||{},seen=new Set();for(const r of col.get()){seen.add(r.id);if(snap[r.id]!==canon(col,r))n++}n+=Object.keys(snap).filter(id=>!seen.has(id)).length}
   if(isOwner()&&cloud.babyId&&cloud.snap.baby!==undefined&&cloud.snap.baby!==babyCanon())n++;return n}
-const META='nc-sync',LOCALKEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd','nc-sstart','nc-sid','nc-vitd','nc-sync','nc-localonly'];
-function wipeLocal(reload){LOCALKEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});if(reload!==false)location.reload()}
+const META='nc-sync',LOCALKEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd','nc-sstart','nc-sid','nc-vitd','nc-sync','nc-localonly','nc-mcache'];
+function wipeLocal(reload){try{window.caches&&caches.delete('nc-moments-v1')}catch(e){}LOCALKEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});if(reload!==false)location.reload()}
 function saveMeta(){try{localStorage.setItem(META,JSON.stringify({uid:cloud.user&&cloud.user.id,fam:cloud.fam,babyId:cloud.babyId,role:cloud.role,cur:cloud.cur,snap:cloud.snap}))}catch(e){}}
 function loadMeta(){const m=ldo(META,null);
   if(m&&m.uid&&cloud.user&&m.uid!==cloud.user.id){wipeLocal(true);return 'reset'}
@@ -1371,6 +1372,28 @@ async function signUrls(list){
   if(!need.length)return;
   const {data}=await sb.storage.from('moments').createSignedUrls(need,3600);
   (data||[]).forEach(x=>{if(x&&x.signedUrl)MK.urls[x.path]=x.signedUrl})}
+const MC_KEY='nc-mcache',MCN='nc-moments-v1',MCB='https://nexcare.local/m/';
+const mcKey=p=>MCB+p;
+function mcSave(items){try{localStorage.setItem(MC_KEY,JSON.stringify({baby:cloud.babyId,items:items.slice(0,20).map(m=>({id:m.id,body:m.body,posted_on:m.posted_on,created_by:m.created_by,created_at:m.created_at,updated_at:m.updated_at,media:m.media||[]}))}))}catch(e){}}
+function mcLoad(){try{const j=JSON.parse(localStorage.getItem(MC_KEY)||'null');return j&&j.baby===cloud.babyId&&Array.isArray(j.items)&&j.items.length?j.items:null}catch(e){return null}}
+async function mcStoreImgs(items){
+  if(!window.caches)return;
+  try{const c=await caches.open(MCN),want=[];
+    items.slice(0,20).forEach(m=>(m.media||[]).forEach(x=>{if(x.type!=='video')want.push(x.path)}));
+    for(const p of want){if(await c.match(mcKey(p)))continue;const u=MK.urls[p];if(!u)continue;
+      try{const r=await fetch(u);if(r.ok)await c.put(mcKey(p),r)}catch(e){}}
+    for(const k of await c.keys()){let p=k.url.slice(MCB.length);try{p=decodeURIComponent(p)}catch(e){}if(!want.includes(p))await c.delete(k)}
+  }catch(e){}}
+async function mcUrls(items){
+  if(!window.caches)return;
+  try{const c=await caches.open(MCN);
+    for(const m of items)for(const x of (m.media||[])){if(x.type==='video'||MK.urls[x.path])continue;
+      const r=await c.match(mcKey(x.path));if(r)MK.urls[x.path]=URL.createObjectURL(await r.blob())}
+  }catch(e){}}
+async function mcBoot(){   // show the last saved list immediately while the network loads
+  if(MK.items.length||MK.loaded)return;const c=mcLoad();if(!c)return;
+  await mcUrls(c);if(MK.items.length||MK.loaded)return;
+  MK.items=c;MK.sig='';if(st.cur==='moments')renderMoments()}
 async function loadMoments(reset){
   if(!sb||!cloud.user||!cloud.babyId||MK.loading)return;
   MK.loading=true;
@@ -1383,9 +1406,11 @@ async function loadMoments(reset){
     const items=reset?data:MK.items.concat(data);
     const sig=JSON.stringify(items.map(m=>[m.id,m.updated_at]));
     MK.more=data.length===20;MK.err='';MK.loaded=true;
-    const changed=sig!==MK.sig;MK.items=items;MK.sig=sig;
+    const changed=sig!==MK.sig||MK.offline;MK.offline=false;MK.items=items;MK.sig=sig;if(reset||!from){mcSave(items);mcStoreImgs(items)}
     MK.loading=false;if(changed&&st.cur==='moments')renderMoments();else if(st.cur==='moments'&&!reset)renderMoments();
-  }catch(e){MK.loading=false;MK.err=friendly(e);MK.loaded=true;if(st.cur==='moments')renderMoments()}}
+  }catch(e){MK.loading=false;MK.loaded=true;const c=mcLoad(),was=MK.offline;
+    if(c){if(!MK.items.length){await mcUrls(c);MK.items=c;MK.sig=''}MK.offline=true;MK.err='';if(!was&&st.cur==='moments')renderMoments();else if(!MK.items.length&&st.cur==='moments')renderMoments()}
+    else{MK.err=friendly(e);if(st.cur==='moments')renderMoments()}}}
 function mediaHtml(m){
   const md=(m.media||[]).filter(x=>MK.urls[x.path]);const n=md.length;if(!n)return '';
   const cell=(x,i)=>x.type==='video'
@@ -1401,7 +1426,8 @@ function renderMoments(){
   else{
     if(canPost())h+=`<button class="btn" id="mnew" style="padding:16px;font-size:18px;width:100%">＋ 分享生活點滴</button>`;
     else h+=`<div class="msg">你是只能查看的成員，可以看但不能發文。</div>`;
-    if(!MK.loaded)h+=`<div class="sub" style="text-align:center;margin:30px 0">載入中…</div>`;
+    if(MK.offline)h+=`<div class="msg" style="display:flex;gap:10px;align-items:center;justify-content:space-between"><span>目前無法連線，顯示上次載入的內容（影片需連線才能觀看）。</span><button class="btn soft sm" id="mretry" style="flex:none">重試</button></div>`;
+    if(!MK.loaded&&!MK.items.length)h+=`<div class="sub" style="text-align:center;margin:30px 0">載入中…</div>`;
     else if(MK.err)h+=`<div class="msg err">${esc(MK.err)}</div><button class="btn soft sm" id="mretry">重新載入</button>`;
     else if(!MK.items.length)h+=`<div class="card" style="text-align:center;padding:34px 18px"><div style="font-size:40px">📷</div><b>還沒有貼文</b><p class="sub">記錄寶寶的每個第一次，家人都能一起看。</p></div>`;
     h+=MK.items.map(m=>`<div class="card" data-m="${m.id}"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><div><b>${esc(authorOf(m))}</b><div class="sub" style="margin:2px 0 0">${dayLabel(m.posted_on)}</div></div>${canManage(m)?`<div class="inline" style="flex-wrap:nowrap"><button class="btn soft sm" data-me="${m.id}">編輯</button><button class="btn soft sm" data-md="${m.id}">刪除</button></div>`:''}</div>${m.body?`<div style="white-space:pre-wrap;word-break:break-word;margin-top:10px;font-size:16px;line-height:1.5">${esc(m.body)}</div>`:''}${mediaHtml(m)}</div>`).join('');
@@ -1487,7 +1513,7 @@ async function publishMoment(){
     showMsg('#mpm',/Payload too large|exceeded the maximum/i.test(String(e&&e.message))?'檔案太大，請剪短影片或減少數量':friendly(e),'err');
     b.disabled=false;b.textContent=f.isEdit?'儲存修改':'發佈';return}
   f.files.forEach(x=>URL.revokeObjectURL(x.url));MK.form=null;MK.sig='';toast(f.isEdit?'已儲存修改':'已發佈');go('moments')}
-R.moments=()=>{MK.named=false;renderMoments();loadMoments(true)};
+R.moments=()=>{MK.named=false;renderMoments();mcBoot();loadMoments(true)};
 R.mpost=renderMpost;
 setInterval(()=>{if(st.cur==='moments'&&!document.hidden&&cloud.user&&navigator.onLine!==false)loadMoments(true)},30000);
 $('#t-moments').style.display='';$('.tabs').classList.add('six');
