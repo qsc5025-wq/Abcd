@@ -1043,6 +1043,12 @@ async function pushCol(col){
     const {error}=await sb.from(col.t).update({deleted_at:new Date().toISOString()}).in('id',part);
     if(error){if(/before today/i.test(error.message||'')){skipOld();part.forEach(id=>{delete snap[id]});continue}throw error}part.forEach(id=>{if(col.onDel)col.onDel(snap[id]);delete snap[id]})}
 }
+const CONF_NAME={feeds:'餵奶',pumps:'擠奶',sleeps:'睡眠',diapers:'尿布',temps:'體溫',weights:'體重',vaccine_records:'疫苗',checkup_records:'健檢',milestone_records:'里程碑',supplement_logs:'維他命 D'};
+function conflict(t){(cloud.conf||(cloud.conf=[])).push(t)}
+function showConflicts(){
+  const c=cloud.conf||[];cloud.conf=[];if(!c.length)return;
+  const names=[...new Set(c.map(t=>CONF_NAME[t]||'紀錄'))].join('、');
+  try{toast(`有 ${c.length} 筆「${names}」剛好也被家人修改，已保留你的版本`)}catch(e){}}
 async function pullCol(col){
   const snap=cloud.snap[col.t]||(cloud.snap[col.t]={});
   const since=cloud.cur[col.t]||null;let from=0,maxU=null,changed=false;
@@ -1056,9 +1062,10 @@ async function pullCol(col){
       const u=String(w.updated_at).replace(/(\.\d{3})\d+/,'$1');if(!maxU||u>maxU)maxU=u;
       const i=idx.get(w.id),local=i===undefined?null:arr[i];
       if(w.deleted_at){
-        if(local){if(dirty(local))continue;arr[i]=null;idx.delete(w.id);changed=true}
+        if(local){if(dirty(local)){if(snap[w.id]!==undefined)conflict(col.t);continue}arr[i]=null;idx.delete(w.id);changed=true}
         delete snap[w.id];continue}
-      if(local&&dirty(local))continue;                      // edited here, upload wins
+      if(local&&dirty(local)){                              // edited here, upload wins — but say so if family edited it too
+        const sc=canon(col,col.loc(w,local));if(sc!==snap[w.id]&&sc!==canon(col,local))conflict(col.t);continue}
       if(!local&&snap[w.id]!==undefined)continue;            // deleted here, delete pending
       const nl=col.loc(w,local),c=canon(col,nl);
       if(!local){arr.push(nl);idx.set(w.id,arr.length-1);changed=true}
@@ -1128,7 +1135,7 @@ function syncNow(){
       rtStart();
       cloud.applying=true;cloud.changed=false;
       await pullBaby();for(const col of COLS)await pullCol(col);await repairPhotos();
-      cloud.applying=false;
+      cloud.applying=false;showConflicts();
       if(cloud.role!=='viewer'){if(isOwner())await pushBaby();for(const col of COLS)if(isOwner()||!OWNER_ONLY.has(col.t))await pushCol(col)}
       cloud.last=Date.now();cloud.status='ok';cloud.err='';saveMeta();
       if(PUSH.sub&&cloud.fam&&PUSH.famSaved&&PUSH.famSaved!==cloud.fam)pushRow(PUSH.sub).catch(()=>{});
