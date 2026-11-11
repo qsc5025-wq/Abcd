@@ -1275,7 +1275,7 @@ function renderLogin(){
    <div id="lmsg" hidden></div>
    <button class="btn" id="lgo" style="padding:16px;font-size:18px">${sIn?'登入':'註冊'}</button>
    <button class="linkbtn" id="lsw">${sIn?'還沒有帳號？註冊':'已有帳號？登入'}</button>${sIn?'<button class="linkbtn muted" id="lfg" style="font-weight:400">忘記密碼？</button>':''}
-   <button class="linkbtn muted" id="lskip" style="font-weight:400">先不登入，只存在這台裝置</button>${(()=>{try{if(localStorage.getItem('nc-deleted')){localStorage.removeItem('nc-deleted');return '<div class="msg ok">帳號與資料已刪除。可以用新的 Email 重新註冊。</div>'}}catch(e){}return ''})()}${getJoin()?'<div class="msg ok">已收到邀請碼，登入或註冊後會繼續加入。</div>':''}</div>`;
+   ${(()=>{try{if(localStorage.getItem('nc-deleted')){localStorage.removeItem('nc-deleted');return '<div class="msg ok">帳號與資料已刪除。可以用新的 Email 重新註冊。</div>'}}catch(e){}return ''})()}${getJoin()?'<div class="msg ok">已收到邀請碼，登入或註冊後會繼續加入。</div>':''}</div>`;
   $('#lsw').onclick=()=>{loginMode=sIn?'up':'in';renderLogin()};
   const fg=$('#lfg');if(fg)fg.onclick=async()=>{
     const email=$('#lem').value.trim();
@@ -1286,7 +1286,6 @@ function renderLogin(){
       showMsg('#lmsg','已寄出重設密碼的信到 '+email+'。請到信箱（也看看垃圾郵件）點信裡的連結，再設定新密碼。','ok')}
     catch(e){showMsg('#lmsg',friendly(e),'err')}
     fg.disabled=false};
-  $('#lskip').onclick=()=>{try{localStorage.setItem('nc-localonly','1')}catch(e){}go(st.baby.onboarded?'home':'onboard')};
   $('#lgo').onclick=async()=>{
     const email=$('#lem').value.trim(),password=$('#lpw').value;
     if(!/^\S+@\S+\.\S+$/.test(email)){showMsg('#lmsg','請輸入正確的 Email','err');return}
@@ -1391,7 +1390,6 @@ async function boot(){
   let sess=null;try{const r=await sb.auth.getSession();sess=r.data.session}catch(e){}
   if(sess&&rec){cloud.user=sess.user;go('reset')}
   else if(sess){cloud.user=sess.user;if(loadMeta()==='reset')return;if(!st.baby.onboarded&&cloud.babyId)await syncNow();entry();syncNow()}
-  else if((()=>{try{return localStorage.getItem('nc-localonly')==='1'}catch(e){return false}})())entry();
   else{go('login');if(rec)showMsg('#lmsg','這個重設連結已失效，請重新按「忘記密碼」','err')}
   try{sb.auth.onAuthStateChange((ev,s)=>{if(ev==='PASSWORD_RECOVERY'&&s){cloud.user=s.user;go('reset')}else if(ev==='SIGNED_OUT')cloud.user=null;else if(s)cloud.user=s.user})}catch(e){}
 }
