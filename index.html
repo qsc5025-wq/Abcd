@@ -755,6 +755,24 @@ const MS={2:{'社交情緒':['有人跟他說話或抱起來時會安靜下來',
  12:{'社交情緒':['會揮手說再見','會把東西拿給你看'],'語言溝通':['會說「爸爸」「媽媽」','聽得懂「不可以」'],'認知學習':['會把東西放進容器','會模仿簡單動作'],'動作發展':['會扶著家具站起來','會扶著走幾步']},
  15:{'社交情緒':['會抱著你表示親近','會用手指著要東西'],'語言溝通':['會說 3 個以上的詞','會聽從簡單指令'],'認知學習':['會用杯子喝水','會模仿你做家事'],'動作發展':['能獨立走幾步','會自己用湯匙']}};
 const AGES=[2,4,6,9,12,15];
+const d2i=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function ymd2d(s){const m=String(s||'').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null}
+function vacSheet(i,edit){
+  let m=$('#vacm');if(!m){m=document.createElement('div');m.className='modal';m.id='vacm';m.innerHTML='<div class="sheet" id="vacb"></div>';document.body.appendChild(m);m.onclick=e=>{if(e.target===m)m.classList.remove('on')}}
+  const v=VAC[i],cur=edit?ymd2d(st.vacc[i]):null,min=d2i(new Date(BIRTH)),max=d2i(NOW);
+  $('#vacb').innerHTML=`<b style="font-size:19px">${v[2]} <span class="muted" style="font-size:15px">${v[3]}</span></b>
+   <div class="lbl" style="margin:4px 0 0">施打日期</div><input class="field" type="date" id="vacd" value="${cur?d2i(cur):max}" min="${min}" max="${max}">
+   <button class="btn" id="vacok">${edit?'儲存日期':'記錄施打'}</button>
+   ${edit?'<button class="btn soft" id="vacno">取消這筆記錄（改回未施打）</button>':''}
+   <button class="linkbtn" id="vacx">關閉</button>`;
+  m.classList.add('on');
+  $('#vacx').onclick=()=>m.classList.remove('on');
+  $('#vacok').onclick=()=>{const val=$('#vacd').value;if(!val){toast('請選擇日期');return}
+    const [y,mo,d]=val.split('-').map(Number),dt=new Date(y,mo-1,d);
+    if(dt>new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate())){toast('日期不能是未來');return}
+    if(dt<new Date(new Date(BIRTH).getFullYear(),new Date(BIRTH).getMonth(),new Date(BIRTH).getDate())){toast('日期不能早於寶寶出生');return}
+    st.vacc[i]=ymd(dt);saveCL();m.classList.remove('on');toast(edit?'已更新日期':'已記錄施打');renderHealth()};
+  const no=$('#vacno');if(no)no.onclick=()=>{delete st.vacc[i];saveCL();m.classList.remove('on');toast('已取消這筆記錄');renderHealth()}}
 function renderHealth(){
   const tabs=`<div class="seg" id="hseg">${[['vac','💉 疫苗'],['chk','🩺 健檢'],['ms','⭐ 里程碑']].map(([k,l])=>`<button data-h="${k}" class="${st.hrange===k?'on':''}">${l}</button>`).join('')}</div>`;
   let h='';
@@ -786,8 +804,8 @@ function renderHealth(){
   }
   $('#s-health').innerHTML=`<div class="hdr"><span class="ic">${st.hrange==='vac'?'💉':st.hrange==='chk'?'🩺':'⭐'}</span><h1>${st.hrange==='vac'?'疫苗':st.hrange==='chk'?'健檢時程':'發展里程碑'}</h1>${bell(st.hrange==='vac'?2:1)}</div>${tabs}${h}`;
   $$('#hseg button').forEach(b=>b.onclick=()=>{st.hrange=b.dataset.h;renderHealth()});
-  $$('[data-vac]').forEach(b=>b.onclick=()=>{st.vacc[b.dataset.vac]=ymd(NOW);saveCL();toast('已記錄施打');renderHealth()});
-  $$('[data-undo]').forEach(b=>b.onclick=()=>{delete st.vacc[b.dataset.undo];saveCL();toast('已取消這筆記錄');renderHealth()});
+  $$('[data-vac]').forEach(b=>b.onclick=()=>vacSheet(b.dataset.vac,false));
+  $$('[data-undo]').forEach(b=>b.onclick=()=>vacSheet(b.dataset.undo,true));
   $$('[data-chk]').forEach(b=>b.onclick=()=>{st.checkup[b.dataset.chk]={d:ymd(NOW),h:''};saveCL();toast('已記錄健檢');renderHealth()});
   $$('[data-cundo]').forEach(b=>b.onclick=()=>{delete st.checkup[b.dataset.cundo];saveCL();toast('已取消這筆記錄');renderHealth()});
   $$('[data-age]').forEach(b=>b.onclick=()=>{st.age=+b.dataset.age;renderHealth()});
@@ -973,9 +991,8 @@ $('#chSleep').onclick=()=>{$('#chooser').classList.remove('on');go('sleep')};
 $('#chDiaper').onclick=()=>{$('#chooser').classList.remove('on');st.dform=null;go('diaper')};
 /* shortcut card on home to reach vaccines, checkups, milestones */
 const _rh=renderHome;
-R.home=function(){_rh();$('#s-home').insertAdjacentHTML('beforeend',`<div class="card"><h3 style="font-weight:700">成長紀錄</h3><div class="grid2" style="grid-template-columns:repeat(3,1fr)">${[['vac','💉','疫苗'],['chk','🩺','健檢'],['ms','⭐','里程碑']].map(([k,i,l])=>`<button class="chip" data-hh="${k}" style="padding:14px 0;border-radius:20px;font-weight:700">${i}<br>${l}</button>`).join('')}</div></div>`);
-  $$('[data-hh]').forEach(b=>b.onclick=()=>{st.hrange=b.dataset.hh;go('health')});
-  if(!isOwner()){lockEls('[data-hh]');
+R.home=function(){_rh();
+  if(!isOwner()){
     if(st.offset!==0){lockEls('#sleepBtn,[data-delf],[data-deld],[data-newd],[data-go-pump],[data-vital]');
       const dn=$('#s-home .datenav');if(dn)dn.insertAdjacentHTML('afterend','<div class="msg" style="margin-bottom:12px">這是過去的紀錄，你可以查看，但只有主帳號可以修改。</div>')}}};
 /* non-owner members: settings / health / PDF are owner-only */
