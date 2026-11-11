@@ -455,7 +455,7 @@ function renderHome(){
   const nurseTxt=x.n[0]?`親餵 ${x.n[0]} 次・${x.n[1]} 分`:'親餵 0 次';
   const mins=Math.round(x.s*60), hh=Math.floor(x.s), mm=Math.round((x.s-hh)*60);
   $('#s-home').innerHTML=`
-  <div class="hdr"><div class="avatar">${st.name.slice(0,1)}</div><div style="flex:1;min-width:0"><div style="font-size:24px;font-weight:900">${st.name}</div><div class="muted">${ageText()}</div></div>${bell(1)}</div>
+  <div class="hdr"><div class="avatar">${st.name.slice(0,1)}</div><div style="flex:1;min-width:0${cloud.user?';cursor:pointer':''}" ${cloud.user?'id="bsw" role="button" tabindex="0"':''}><div style="font-size:24px;font-weight:900">${st.name}${cloud.user?' <span style="font-size:14px;opacity:.6">▾</span>':''}</div><div class="muted">${ageText()}</div></div>${bell(1)}</div>
   <div class="card datenav"><button id="prev" aria-label="前一天">‹</button><div><b>${d.getMonth()+1}月${d.getDate()}日 (${D[d.getDay()]})</b><span>${isToday?'今天':st.offset===1?'昨天':''}</span></div><button id="next" aria-label="後一天" ${isToday?'disabled':''}>›</button></div>
   <div class="grid2">
    <div class="card stat"><span class="e">🍼</span><h3>總奶量</h3><div class="big" style="color:var(--milk)">${tot}<small>ml</small></div><div class="sub">配方 ${tf} ・ 母乳 ${tb}<br>${nurseTxt}</div>
@@ -1093,7 +1093,8 @@ async function pushBaby(){const c=babyCanon();if(cloud.snap.baby===c)return;
 function pending(){let n=0;if(cloud.role==='viewer')return 0;
   for(const col of COLS){if(!isOwner()&&OWNER_ONLY.has(col.t))continue;const snap=cloud.snap[col.t]||{},seen=new Set();for(const r of col.get()){seen.add(r.id);if(snap[r.id]!==canon(col,r))n++}n+=Object.keys(snap).filter(id=>!seen.has(id)).length}
   if(isOwner()&&cloud.babyId&&cloud.snap.baby!==undefined&&cloud.snap.baby!==babyCanon())n++;return n}
-const META='nc-sync',LOCALKEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd','nc-sstart','nc-sid','nc-vitd','nc-sync','nc-localonly','nc-mcache'];
+const MAXB=4,newBabyFlag=()=>{try{return localStorage.getItem('nc-newbaby')}catch(e){return null}};
+const META='nc-sync',LOCALKEYS=['nc-feeds','nc-sleeps','nc-pumps','nc-diapers','nc-vitals','nc-baby','nc-vacc','nc-chk','nc-ms','nc-msd','nc-sstart','nc-sid','nc-vitd','nc-sync','nc-localonly','nc-mcache','nc-newbaby'];
 function wipeLocal(reload){try{window.caches&&caches.delete('nc-moments-v1')}catch(e){}LOCALKEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});if(reload!==false)location.reload()}
 function saveMeta(){try{localStorage.setItem(META,JSON.stringify({uid:cloud.user&&cloud.user.id,fam:cloud.fam,babyId:cloud.babyId,role:cloud.role,cur:cloud.cur,snap:cloud.snap}))}catch(e){}}
 function loadMeta(){const m=ldo(META,null);
@@ -1104,12 +1105,14 @@ async function link(){
   const {data:mem,error}=await sb.from('family_members').select('family_id,role').eq('user_id',cloud.user.id).order('joined_at',{ascending:false});if(error)throw error;
   if(mem.length){cloud.fam=mem[0].family_id;cloud.role=mem[0].role}
   else{const {data,error:e}=await sb.rpc('create_family',{p_name:(st.baby.name||'我')+'的家'});if(e)throw e;cloud.fam=data;cloud.role='owner'}
-  const {data:bs,error:e2}=await sb.from('babies').select('id').eq('family_id',cloud.fam).is('deleted_at',null).order('created_at',{ascending:true}).limit(1);if(e2)throw e2;
-  if(bs.length){cloud.babyId=bs[0].id;return true}
-  if(!st.baby.onboarded)return false;                         // needs the baby profile first
+  const {data:bs,error:e2}=await sb.from('babies').select('id').eq('family_id',cloud.fam).is('deleted_at',null).order('created_at',{ascending:true}).limit(8);if(e2)throw e2;
+  const nb=newBabyFlag();
+  if(bs.length&&!nb){cloud.babyId=bs[0].id;return true}
+  if(!st.baby.onboarded)return false;
+  if(nb){if(cloud.role!=='owner')return false;if(bs.length>=MAXB)throw new Error('最多 '+MAXB+' 位寶寶');st.baby.id=uid();saveBaby()}                         // needs the baby profile first
   cloud.babyId=st.baby.id||uid();st.baby.id=cloud.babyId;saveBaby();
   const {error:e3}=await sb.from('babies').upsert({...babyRow(),family_id:cloud.fam},{onConflict:'id'});if(e3)throw e3;
-  cloud.snap.baby=babyCanon();return true}
+  cloud.snap.baby=babyCanon();try{localStorage.removeItem('nc-newbaby')}catch(e){}return true}
 function friendly(e){const m=String(e&&e.message||e);
   if(/before today/i.test(m))return '只有主帳號可以修改今天以外的紀錄';
   if(/only the owner can delete/i.test(m))return '只有主帳號可以刪除帳號';
@@ -1284,7 +1287,8 @@ function renderOnboard(){
     <div><div class="lbl">出生體重<small>g 選填</small></div><input class="field" id="obw" value="${b.bw||''}" inputmode="numeric" style="font-size:20px;padding:16px"></div>
     <div><div class="lbl">身長<small>cm 選填</small></div><input class="field" id="obl" value="${b.bl||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div>
     <div><div class="lbl">頭圍<small>cm 選填</small></div><input class="field" id="obh" value="${b.bh||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div></div>
-   <div class="msg err">⚠️ 出生日期與時間、出生體重、身長、頭圍送出後<b>只能輸入這一次，無法修改</b>。要改的話，必須刪除帳號後重新註冊，所有紀錄會一起消失。請再確認一次。</div><div id="omsg" hidden></div><button class="btn" id="ogo" style="padding:16px;font-size:18px">開始使用</button>${cloud.user?'<button class="linkbtn" id="ojoin">我是被邀請的家人，輸入邀請碼</button>':''}</div>`;
+   <div class="msg err">⚠️ 出生日期與時間、出生體重、身長、頭圍送出後<b>只能輸入這一次，無法修改</b>。要改的話，必須刪除帳號後重新註冊，所有紀錄會一起消失。請再確認一次。</div><div id="omsg" hidden></div><button class="btn" id="ogo" style="padding:16px;font-size:18px">開始使用</button>${newBabyFlag()?'<button class="linkbtn" id="ocancel">取消，回到原本的寶寶</button>':cloud.user?'<button class="linkbtn" id="ojoin">我是被邀請的家人，輸入邀請碼</button>':''}</div>`;
+  const oc=$('#ocancel');if(oc)oc.onclick=()=>cancelNewBaby();
   const oj=$('#ojoin');if(oj)oj.onclick=()=>go('join');
   $$('[data-og]').forEach(x=>x.onclick=()=>{st.baby.gender=x.dataset.og;$$('[data-og]').forEach(y=>y.classList.toggle('on',y===x))});
   $('#ogo').onclick=async()=>{
@@ -1667,6 +1671,43 @@ document.addEventListener('visibilitychange',()=>{
   if(document.hidden||!cloud.user)return;
   syncNow();if(RT.baby&&!RT.ok){rtStop();rtStart()}});
 window.addEventListener('online',()=>{if(cloud.user){syncNow();rtStop();rtStart()}});
+
+
+// ---- multi-baby ----
+let BSW={list:null};
+function switchModal(){let m=$('#bswm');if(!m){m=document.createElement('div');m.className='modal';m.id='bswm';m.innerHTML='<div class="sheet" id="bswb"></div>';document.body.appendChild(m);m.onclick=e=>{if(e.target===m)m.classList.remove('on')}}return m}
+async function openBabySwitch(){
+  if(!cloud.user||!cloud.fam)return;const m=switchModal();m.classList.add('on');
+  const b=$('#bswb');b.innerHTML='<b style="font-size:18px">切換寶寶</b><div class="sub">載入中…</div>';
+  try{const {data,error}=await sb.from('babies').select('id,name').eq('family_id',cloud.fam).is('deleted_at',null).order('created_at',{ascending:true});if(error)throw error;BSW.list=data}catch(e){b.innerHTML='<b style="font-size:18px">切換寶寶</b><div class="msg err">'+esc(friendly(e))+'</div><button class="btn soft" id="bswx">關閉</button>';$('#bswx').onclick=()=>m.classList.remove('on');return}
+  const L=BSW.list;
+  b.innerHTML='<b style="font-size:18px">切換寶寶</b>'+L.map(x=>`<button class="btn ${x.id===cloud.babyId?'':'soft'}" data-sb="${x.id}" style="text-align:left;padding:14px 16px">${x.id===cloud.babyId?'✓ ':''}${esc(x.name)}</button>`).join('')
+   +(isOwner()?(L.length<MAXB?'<button class="btn soft" id="bswadd">＋ 新增寶寶</button>':'<div class="sub">已達 '+MAXB+' 位上限</div>'):'')
+   +'<button class="linkbtn" id="bswx">關閉</button><div id="bswmsg" hidden></div>';
+  $('#bswx').onclick=()=>m.classList.remove('on');
+  $$('[data-sb]').forEach(x=>x.onclick=()=>x.dataset.sb===cloud.babyId?m.classList.remove('on'):switchBaby(x.dataset.sb));
+  const a=$('#bswadd');if(a)a.onclick=()=>addBaby()}
+async function safeToLeave(){
+  await syncNow();
+  if(cloud.status!=='ok'||pending()>0){showMsg('#bswmsg','目前資料還沒同步完成（'+(cloud.err||'請確認網路')+'），請稍後再切換','err');return false}
+  return true}
+function relink(babyId,flag){
+  const keep={uid:cloud.user.id,fam:cloud.fam,role:cloud.role};
+  wipeLocal(false);
+  try{localStorage.setItem(META,JSON.stringify({...keep,babyId,cur:{},snap:{}}));localStorage.removeItem(JK);if(flag)localStorage.setItem('nc-newbaby',flag)}catch(e){}
+  location.reload()}
+async function switchBaby(id){
+  $$('[data-sb],#bswadd').forEach(x=>x.disabled=true);
+  if(!await safeToLeave()){$$('[data-sb],#bswadd').forEach(x=>x.disabled=false);return}
+  relink(id)}
+async function addBaby(){
+  if(!isOwner())return;
+  if(!confirm('要新增另一位寶寶嗎？目前的寶寶資料會先上傳保留。'))return;
+  $$('[data-sb],#bswadd').forEach(x=>x.disabled=true);
+  if(!await safeToLeave()){$$('[data-sb],#bswadd').forEach(x=>x.disabled=false);return}
+  relink(null,cloud.babyId)}
+function cancelNewBaby(){const prev=newBabyFlag();relink(prev&&prev!=='1'?prev:null)}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bsw'))openBabySwitch()});
 
 boot();
 
