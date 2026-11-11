@@ -62,7 +62,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .datenav span{font-size:13px;color:var(--accent);font-weight:700}
 .tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:20;
   padding:8px max(8px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-right,0px))}
-.tabs{max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 1.1fr 1fr 1fr;align-items:end}
+.tabs{max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1.1fr 1fr 1fr;align-items:end}
 .tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);padding:6px 0}
 .tab svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tab.on{color:var(--accent)}
@@ -290,15 +290,13 @@ body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(-
   <section class="screen" id="s-reset"></section>
   <section class="screen" id="s-onboard"></section>
   <section class="screen" id="s-join"></section>
-  <section class="screen" id="s-moments"></section>
   <section class="screen" id="s-push"></section>
-  <section class="screen" id="s-mpost"></section>
   <section class="screen" id="s-sleep"></section>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="主選單">
   <div class="tabs">
     <button class="tab on" data-go="home" id="t-home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>今日</button>
-    <button class="tab" data-go="moments" id="t-moments" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9-9.2C1.7 8.3 3.7 5 7 5c2 0 3.400 1.100 5 3 1.600-1.900 3-3 5-3 3.300 0 5.300 3.300 4 6.800C19 16.600 12 21 12 21z"/></svg>生活</button>
+    <button class="tab" data-go="health" id="t-health"><svg viewBox="0 0 24 24"><path d="M12 21V11"/><path d="M12 11c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 14c0-3-2.5-5-6-5 0 3 2.5 5 6 5z"/></svg>成長</button>
     <button class="fab" id="fab" aria-label="新增記錄"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
     <button class="tab" data-go="stats" id="t-stats"><svg viewBox="0 0 24 24"><path d="M4 21V4M4 21h16M9 21v-9M14 21V8M19 21v-5"/></svg>統計</button>
     <button class="tab" data-go="settings" id="t-settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
@@ -958,9 +956,10 @@ function go(name){
   if(name==='yest'){st.offset=1;scr='home'}else if(name==='home'){if(st.keep)st.keep=false;else st.offset=0}
   $$('.screen').forEach(s=>s.classList.remove('on'));
   st.cur=scr;R[scr]();$('#s-'+scr).classList.add('on');
-  const tabKey={home:'home',push:'settings',yest:'yest',stats:'stats',report:'stats',settings:'settings',moments:'moments',mpost:'moments'}[name];
+  if(name==='health'&&!st.hrange)st.hrange='vac';
+  const tabKey={home:'home',health:'health',push:'settings',yest:'yest',stats:'stats',report:'stats',settings:'settings'}[name];
   $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.go===tabKey));
-  $('#tabbar').style.display=(['add','diaper','vital','pump','sleep','login','reset','onboard','join','mpost'].includes(name))?'none':'';
+  $('#tabbar').style.display=(['add','diaper','vital','pump','sleep','login','reset','onboard','join'].includes(name))?'none':'';
   window.scrollTo(0,0);
 }
 $$('.tab').forEach(t=>t.onclick=()=>go(t.dataset.go));
@@ -1393,174 +1392,11 @@ async function boot(){
   else{go('login');if(rec)showMsg('#lmsg','這個重設連結已失效，請重新按「忘記密碼」','err')}
   try{sb.auth.onAuthStateChange((ev,s)=>{if(ev==='PASSWORD_RECOVERY'&&s){cloud.user=s.user;go('reset')}else if(ev==='SIGNED_OUT')cloud.user=null;else if(s)cloud.user=s.user})}catch(e){}
 }
-/* ---------- life moments: shared posts with photos / videos (needs login) ---------- */
-const MK={items:[],more:false,loading:false,loaded:false,err:'',urls:{},urlAt:0,named:false,form:null,sig:''};
-const WD=['日','一','二','三','四','五','六'];
-const dayLabel=s=>{const [y,m,d]=String(s).slice(0,10).split('-').map(Number),t=new Date(y,m-1,d);
-  const n=Math.floor((t-new Date(BIRTH.getFullYear(),BIRTH.getMonth(),BIRTH.getDate()))/864e5)+1;
-  return `${y}/${m}/${d} 週${WD[t.getDay()]}${st.baby.birth&&n>=1?` ・ 出生第 ${n} 天`:''}`};
-const todayStr=()=>{const t=new Date();return `${t.getFullYear()}-${p2d(t.getMonth()+1)}-${p2d(t.getDate())}`};
-const canPost=()=>cloud.user&&cloud.babyId&&cloud.role!=='viewer';
-const canManage=m=>cloud.role==='owner'||(cloud.role!=='viewer'&&m.created_by===cloud.user.id);
-const authorOf=m=>{const x=(cloud.members||[]).find(y=>y.user_id===m.created_by);
-  if(m.created_by===cloud.user.id)return (x&&x.name)||'我';
-  return x?(x.name||ROLE[x.role]||'家人'):(cloud.members&&cloud.members.length?'前家人':'家人')};
-async function signUrls(list){
-  if(Date.now()-MK.urlAt>50*60*1000){MK.urls={};MK.urlAt=Date.now()}
-  const need=[...new Set(list.flatMap(m=>(m.media||[]).map(x=>x.path)))].filter(p=>!MK.urls[p]);
-  if(!need.length)return;
-  const {data}=await sb.storage.from('moments').createSignedUrls(need,3600);
-  (data||[]).forEach(x=>{if(x&&x.signedUrl)MK.urls[x.path]=x.signedUrl})}
-const MC_KEY='nc-mcache',MCN='nc-moments-v1',MCB='https://nexcare.local/m/';
-const mcKey=p=>MCB+p;
-function mcSave(items){try{localStorage.setItem(MC_KEY,JSON.stringify({baby:cloud.babyId,items:items.slice(0,20).map(m=>({id:m.id,body:m.body,posted_on:m.posted_on,created_by:m.created_by,created_at:m.created_at,updated_at:m.updated_at,media:m.media||[]}))}))}catch(e){}}
-function mcLoad(){try{const j=JSON.parse(localStorage.getItem(MC_KEY)||'null');return j&&j.baby===cloud.babyId&&Array.isArray(j.items)&&j.items.length?j.items:null}catch(e){return null}}
-async function mcStoreImgs(items){
-  if(!window.caches)return;
-  try{const c=await caches.open(MCN),want=[];
-    items.slice(0,20).forEach(m=>(m.media||[]).forEach(x=>{if(x.type!=='video')want.push(x.path)}));
-    for(const p of want){if(await c.match(mcKey(p)))continue;const u=MK.urls[p];if(!u)continue;
-      try{const r=await fetch(u);if(r.ok)await c.put(mcKey(p),r)}catch(e){}}
-    for(const k of await c.keys()){let p=k.url.slice(MCB.length);try{p=decodeURIComponent(p)}catch(e){}if(!want.includes(p))await c.delete(k)}
-  }catch(e){}}
-async function mcUrls(items){
-  if(!window.caches)return;
-  try{const c=await caches.open(MCN);
-    for(const m of items)for(const x of (m.media||[])){if(x.type==='video'||MK.urls[x.path])continue;
-      const r=await c.match(mcKey(x.path));if(r)MK.urls[x.path]=URL.createObjectURL(await r.blob())}
-  }catch(e){}}
-async function mcBoot(){   // show the last saved list immediately while the network loads
-  if(MK.items.length||MK.loaded)return;const c=mcLoad();if(!c)return;
-  await mcUrls(c);if(MK.items.length||MK.loaded)return;
-  MK.items=c;MK.sig='';if(st.cur==='moments')renderMoments()}
-async function loadMoments(reset){
-  if(!sb||!cloud.user||!cloud.babyId||MK.loading)return;
-  MK.loading=true;
-  try{
-    const from=reset?0:MK.items.length;
-    const {data,error}=await sb.from('moments').select('*').eq('baby_id',cloud.babyId).is('deleted_at',null)
-      .order('posted_on',{ascending:false}).order('created_at',{ascending:false}).range(from,from+19);
-    if(error)throw error;
-    await signUrls(data);
-    const items=reset?data:MK.items.concat(data);
-    const sig=JSON.stringify(items.map(m=>[m.id,m.updated_at]));
-    MK.more=data.length===20;MK.err='';MK.loaded=true;
-    const changed=sig!==MK.sig||MK.offline;MK.offline=false;MK.items=items;MK.sig=sig;if(reset||!from){mcSave(items);mcStoreImgs(items)}
-    MK.loading=false;if(changed&&st.cur==='moments')renderMoments();else if(st.cur==='moments'&&!reset)renderMoments();
-  }catch(e){MK.loading=false;MK.loaded=true;const c=mcLoad(),was=MK.offline;
-    if(c){if(!MK.items.length){await mcUrls(c);MK.items=c;MK.sig=''}MK.offline=true;MK.err='';if(!was&&st.cur==='moments')renderMoments();else if(!MK.items.length&&st.cur==='moments')renderMoments()}
-    else{MK.err=friendly(e);if(st.cur==='moments')renderMoments()}}}
-function mediaHtml(m){
-  const md=(m.media||[]).filter(x=>MK.urls[x.path]);const n=md.length;if(!n)return '';
-  const cell=(x,i)=>x.type==='video'
-    ?`<video src="${MK.urls[x.path]}#t=0.1" preload="metadata" playsinline controls style="width:100%;height:100%;object-fit:cover;border-radius:14px;background:#000"></video>`
-    :`<img src="${MK.urls[x.path]}" alt="生活照片" loading="lazy" data-mv="${m.id}|${i}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;cursor:zoom-in">`;
-  if(n===1)return `<div style="margin-top:10px;${md[0].type==='video'?'':'max-height:420px;'}overflow:hidden;border-radius:14px">${md[0].type==='video'?`<video src="${MK.urls[md[0].path]}#t=0.1" preload="metadata" playsinline controls style="width:100%;max-height:420px;border-radius:14px;background:#000;display:block"></video>`:`<img src="${MK.urls[md[0].path]}" alt="生活照片" loading="lazy" data-mv="${m.id}|0" style="width:100%;display:block;cursor:zoom-in">`}</div>`;
-  return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">${md.map((x,i)=>`<div style="aspect-ratio:1;overflow:hidden;border-radius:14px">${cell(x,i)}</div>`).join('')}</div>`}
-function renderMoments(){
-  const root=$('#s-moments');
-  let h=`<div class="hdr"><span class="ic">🌱</span><h1>生活點滴</h1></div>`;
-  if(!cloud.user)h+=`<div class="card"><b>登入後才能使用</b><p class="sub">生活點滴會和家人一起看，需要先登入帳號。</p><button class="btn" id="mlogin">登入或註冊</button></div>`;
-  else if(!cloud.babyId)h+=`<div class="card"><b>還沒有寶寶資料</b><p class="sub">請先到設定填寫寶寶資料。</p></div>`;
-  else{
-    if(canPost())h+=`<button class="btn" id="mnew" style="padding:16px;font-size:18px;width:100%">＋ 分享生活點滴</button>`;
-    else h+=`<div class="msg">你是只能查看的成員，可以看但不能發文。</div>`;
-    if(MK.offline)h+=`<div class="msg" style="display:flex;gap:10px;align-items:center;justify-content:space-between"><span>目前無法連線，顯示上次載入的內容（影片需連線才能觀看）。</span><button class="btn soft sm" id="mretry" style="flex:none">重試</button></div>`;
-    if(!MK.loaded&&!MK.items.length)h+=`<div class="sub" style="text-align:center;margin:30px 0">載入中…</div>`;
-    else if(MK.err)h+=`<div class="msg err">${esc(MK.err)}</div><button class="btn soft sm" id="mretry">重新載入</button>`;
-    else if(!MK.items.length)h+=`<div class="card" style="text-align:center;padding:34px 18px"><div style="font-size:40px">📷</div><b>還沒有貼文</b><p class="sub">記錄寶寶的每個第一次，家人都能一起看。</p></div>`;
-    h+=MK.items.map(m=>`<div class="card" data-m="${m.id}"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><div><b>${esc(authorOf(m))}</b><div class="sub" style="margin:2px 0 0">${dayLabel(m.posted_on)}</div></div>${canManage(m)?`<div class="inline" style="flex-wrap:nowrap"><button class="btn soft sm" data-me="${m.id}">編輯</button><button class="btn soft sm" data-md="${m.id}">刪除</button></div>`:''}</div>${m.body?`<div style="white-space:pre-wrap;word-break:break-word;margin-top:10px;font-size:16px;line-height:1.5">${esc(m.body)}</div>`:''}${mediaHtml(m)}</div>`).join('');
-    if(MK.more)h+=`<button class="btn soft" id="mmore" style="width:100%">載入更多</button>`;
-  }
-  const y=window.scrollY;root.innerHTML=h;window.scrollTo(0,y);
-  const q=s=>$(s,root);
-  if(q('#mlogin'))q('#mlogin').onclick=()=>go('login');
-  if(q('#mnew'))q('#mnew').onclick=()=>{MK.form={id:uid(),isEdit:false,date:todayStr(),body:'',media:[],files:[],removed:[]};go('mpost')};
-  if(q('#mretry'))q('#mretry').onclick=()=>{MK.loaded=false;renderMoments();loadMoments(true)};
-  if(q('#mmore'))q('#mmore').onclick=()=>loadMoments(false);
-  $$('[data-me]',root).forEach(b=>b.onclick=()=>{const m=MK.items.find(x=>x.id===b.dataset.me);if(!m)return;
-    MK.form={id:m.id,isEdit:true,date:m.posted_on,body:m.body||'',media:(m.media||[]).map(x=>({...x})),files:[],removed:[]};go('mpost')});
-  $$('[data-md]',root).forEach(b=>b.onclick=()=>deleteMoment(b.dataset.md,b));
-  $$('[data-mv]',root).forEach(i=>i.onclick=()=>{const [id,k]=i.dataset.mv.split('|');const m=MK.items.find(x=>x.id===id);if(!m)return;
-    const x=(m.media||[]).filter(z=>MK.urls[z.path])[+k];if(!x)return;
-    $('#viewerBody').innerHTML=`<div class="inline" style="justify-content:space-between"><b style="font-size:18px">${dayLabel(m.posted_on)}</b><button id="vx" aria-label="關閉" style="font-size:28px;width:40px;color:var(--muted)">✕</button></div><img src="${MK.urls[x.path]}" alt="生活照片" style="width:100%;border-radius:18px;display:block">`;
-    $('#viewer').classList.add('on');$('#vx').onclick=()=>$('#viewer').classList.remove('on')});
-  loadFamily(false).then(()=>{if(cloud.members&&!MK.named&&cloud.members.length){MK.named=true;if(st.cur==='moments')renderMoments()}});
-}
-async function deleteMoment(id,btn){
-  const m=MK.items.find(x=>x.id===id);if(!m)return;
-  if(!confirm('確定刪除這則貼文？裡面的照片和影片也會一起刪除，無法復原。'))return;
-  btn.disabled=true;
-  const {error}=await sb.from('moments').update({deleted_at:new Date().toISOString()}).eq('id',id);
-  if(error){toast(friendly(error));btn.disabled=false;return}
-  const paths=(m.media||[]).map(x=>x.path);if(paths.length)try{await sb.storage.from('moments').remove(paths)}catch(e){}
-  MK.items=MK.items.filter(x=>x.id!==id);MK.sig='';toast('已刪除貼文');renderMoments()}
-const EXT={'video/mp4':'mp4','video/quicktime':'mov','video/webm':'webm'};
-function shrinkBlob(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
-  img.onload=()=>{const k=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),w=Math.round(img.naturalWidth*k),h=Math.round(img.naturalHeight*k);
-    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
-    c.toBlob(b=>{URL.revokeObjectURL(u);b?res(b):rej(new Error('照片處理失敗'))},'image/jpeg',.85)};
-  img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error('無法讀取這張照片，請換成 JPG 或 PNG'))};img.src=u})}
-function renderMpost(){
-  const f=MK.form;if(!f){go('moments');return}
-  const total=f.media.length+f.files.length;
-  const thumbs=[...f.media.map((x,i)=>({k:'m'+i,v:x.type==='video',src:MK.urls[x.path]||''})),...f.files.map((x,i)=>({k:'f'+i,v:x.type==='video',src:x.url}))];
-  $('#s-mpost').innerHTML=`<div class="hdr"><button id="mpb" aria-label="返回" style="font-size:32px;width:40px">‹</button><span class="ic">🌱</span><h1>${f.isEdit?'編輯貼文':'新增貼文'}</h1></div>
-  <div class="card" style="display:flex;flex-direction:column;gap:16px">
-   <div><div class="lbl">貼文日期</div><input class="field" type="date" id="mpd" value="${f.date}" max="${todayStr()}"></div>
-   <div><div class="lbl">內容<small id="mpc">${f.body.length}/2000</small></div><textarea class="field" id="mpt" rows="6" maxlength="2000" placeholder="今天寶寶發生了什麼事？" style="resize:vertical;line-height:1.5">${esc(f.body)}</textarea></div>
-   <div><div class="lbl">照片與影片<small>${total}/9</small></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">${thumbs.map(t=>`<div style="position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--chip)">${t.v?`<video src="${t.src}#t=0.1" preload="metadata" muted playsinline style="width:100%;height:100%;object-fit:cover"></video><span style="position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;padding:1px 6px;font-size:12px">▶ 影片</span>`:`<img src="${t.src}" alt="" style="width:100%;height:100%;object-fit:cover">`}<button data-xm="${t.k}" aria-label="移除" style="position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:15px">✕</button></div>`).join('')}
-     ${total<9?`<label style="aspect-ratio:1;border:2px dashed var(--line);border-radius:14px;display:grid;place-items:center;color:var(--muted);cursor:pointer;text-align:center;font-size:13px"><span><span style="font-size:30px;display:block">＋</span>加照片／影片</span><input type="file" id="mpf" accept="image/*,video/mp4,video/quicktime,video/webm" multiple hidden></label>`:''}</div>
-    <div class="sub">最多 9 個。照片會自動縮小；影片每個最多 50 MB。</div></div>
-   <div id="mpm" hidden></div>
-   <button class="btn" id="mpgo" style="padding:16px;font-size:18px">${f.isEdit?'儲存修改':'發佈'}</button></div>`;
-  $('#mpb').onclick=()=>{if(f.files.length)f.files.forEach(x=>URL.revokeObjectURL(x.url));MK.form=null;go('moments')};
-  $('#mpd').onchange=e=>{if(e.target.value)f.date=e.target.value};
-  $('#mpt').oninput=e=>{f.body=e.target.value;$('#mpc').textContent=f.body.length+'/2000'};
-  $$('[data-xm]').forEach(b=>b.onclick=()=>{const k=b.dataset.xm,i=+k.slice(1);
-    if(k[0]==='m'){f.removed.push(f.media[i].path);f.media.splice(i,1)}else{URL.revokeObjectURL(f.files[i].url);f.files.splice(i,1)}renderMpost()});
-  const inp=$('#mpf');if(inp)inp.onchange=e=>{
-    let msg='';for(const file of [...e.target.files]){
-      if(f.media.length+f.files.length>=9){msg='最多 9 個，多的沒有加入';break}
-      const isV=file.type.startsWith('video/'),isI=file.type.startsWith('image/');
-      if(!isV&&!isI){msg='有檔案不是照片或影片，已略過';continue}
-      if(isV&&!EXT[file.type]){msg='影片請使用 MP4 或 MOV 格式';continue}
-      if(isV&&file.size>52428800){msg='影片超過 50 MB（'+file.name+'），請剪短或壓縮後再上傳';continue}
-      f.files.push({file,type:isV?'video':'image',name:file.name,url:URL.createObjectURL(file)})}
-    renderMpost();if(msg)showMsg('#mpm',msg,'err')};
-  $('#mpgo').onclick=publishMoment}
-async function publishMoment(){
-  const f=MK.form,body=f.body.trim(),total=f.media.length+f.files.length;
-  if(!body&&!total){showMsg('#mpm','請寫點內容，或加一張照片','err');return}
-  if(!f.date){showMsg('#mpm','請選擇日期','err');return}
-  const b=$('#mpgo');b.disabled=true;showMsg('#mpm','');
-  const added=[];
-  try{
-    for(let i=0;i<f.files.length;i++){const x=f.files[i];b.textContent=`上傳中 ${i+1}/${f.files.length}…`;
-      const img=x.type==='image',blob=img?await shrinkBlob(x.file):x.file,ct=img?'image/jpeg':x.file.type;
-      const path=`${cloud.fam}/${f.id}/${uid()}.${img?'jpg':EXT[ct]}`;
-      const {error}=await sb.storage.from('moments').upload(path,blob,{contentType:ct,upsert:false});if(error)throw error;
-      added.push({path,type:x.type,name:(x.name||'').slice(0,60)})}
-    b.textContent='發佈中…';
-    const media=[...f.media.map(({path,type,name})=>({path,type,name})),...added];
-    if(f.isEdit){const {error}=await sb.from('moments').update({posted_on:f.date,body,media}).eq('id',f.id);if(error)throw error;
-      if(f.removed.length)try{await sb.storage.from('moments').remove(f.removed)}catch(e){}}
-    else{const {error}=await sb.from('moments').insert({id:f.id,baby_id:cloud.babyId,posted_on:f.date,body,media});if(error)throw error}
-  }catch(e){
-    if(added.length)try{await sb.storage.from('moments').remove(added.map(a=>a.path))}catch(_){}
-    showMsg('#mpm',/Payload too large|exceeded the maximum/i.test(String(e&&e.message))?'檔案太大，請剪短影片或減少數量':friendly(e),'err');
-    b.disabled=false;b.textContent=f.isEdit?'儲存修改':'發佈';return}
-  f.files.forEach(x=>URL.revokeObjectURL(x.url));MK.form=null;MK.sig='';toast(f.isEdit?'已儲存修改':'已發佈');go('moments')}
-R.moments=()=>{MK.named=false;renderMoments();mcBoot();loadMoments(true)};
-R.mpost=renderMpost;
-setInterval(()=>{if(st.cur==='moments'&&!document.hidden&&cloud.user&&navigator.onLine!==false)loadMoments(true)},30000);
-$('#t-moments').style.display='';$('.tabs').classList.add('six');
 
 /* ---------- web push: enable / disable / preferences (web build, logged in) ---------- */
 const VAPID_PUB='BNuFOyBG1C_I0oU2HrMCX18L4jzPjYNPAMcAifGNCKLG4mAivDph-yKw6k3ABP1Yh5b119PoGpCtZzPjAOs96a4';
-const PUSH={reg:null,sub:null,prefs:{feed:true,sleep:true,moment:true,vaccine:true},loaded:false,busy:false,msg:'',famSaved:null};
-const PK=[['feed','🍼 餵奶時間快到'],['sleep','😴 寶寶快想睡'],['moment','📷 家人新增生活貼文'],['vaccine','💉 疫苗／健檢快到期']];
+const PUSH={reg:null,sub:null,prefs:{feed:true,sleep:true,vaccine:true},loaded:false,busy:false,msg:'',famSaved:null};
+const PK=[['feed','🍼 餵奶時間快到'],['sleep','😴 寶寶快想睡'],['vaccine','💉 疫苗／健檢快到期']];
 const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const isStandalone=()=>navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
 const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
@@ -1676,13 +1512,13 @@ function bindBackup(){
 
 /* ---------- live updates (Supabase Realtime) — polling stays as a fallback ---------- */
 const RT={ch:null,baby:null,ok:false,t:null};
-const RT_TABLES=['feeds','pumps','sleeps','diapers','temps','weights','vaccine_records','checkup_records','milestone_records','supplement_logs','moments'];
+const RT_TABLES=['feeds','pumps','sleeps','diapers','temps','weights','vaccine_records','checkup_records','milestone_records','supplement_logs'];
 function rtStop(){try{if(RT.ch&&sb)sb.removeChannel(RT.ch)}catch(e){}RT.ch=null;RT.baby=null;RT.ok=false}
 function rtHit(t){
   clearTimeout(RT.t);
   RT.t=setTimeout(()=>{
     if(!cloud.user||document.hidden)return;
-    if(t==='moments'){if(st.cur==='moments')loadMoments(true)}else syncNow()},300)}
+    syncNow()},300)}
 function rtStart(){
   if(!sb||!sb.channel||!cloud.user||!cloud.babyId)return;
   if(RT.ch&&RT.baby===cloud.babyId)return;
