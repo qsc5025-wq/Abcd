@@ -1,6 +1,6 @@
 {
-  "name": "nexCare 寶寶照護",
-  "short_name": "nexCare",
+  "name": "寶寶健康成長",
+  "short_name": "寶寶健康成長",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

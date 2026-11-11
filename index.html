@@ -1,5 +1,5 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#FBF7F2"><meta name="apple-mobile-web-app-title" content="nexCare"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>nexCare 寶寶照護</title>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#FBF7F2"><meta name="apple-mobile-web-app-title" content="寶寶健康成長"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>寶寶健康成長</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@500;700;900&family=Cormorant+Garamond:wght@500;600;700&display=swap">
@@ -252,7 +252,7 @@ body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(-
 .lx-hero{text-align:center;padding:10px 0 4px}
 .lx-mark{width:84px;height:84px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#EAC3B3,#B5776A);box-shadow:0 0 0 5px var(--bg),0 0 0 6px var(--gold2),0 18px 36px rgba(181,119,106,.35)}
 .lx-mark svg{width:40px;height:40px;fill:#fff}
-.lx-name{font-family:var(--serif);font-size:44px;font-weight:600;letter-spacing:.06em;line-height:1.1;margin:0}
+.lx-name{font-family:var(--serif);font-size:38px;font-weight:600;letter-spacing:.06em;line-height:1.1;margin:0}
 .lx-name i{font-style:italic;color:var(--accent)}
 .lx-tag{margin:8px 0 0;font-size:13px;letter-spacing:.35em;color:var(--gold);padding-left:.35em}
 .lx-orn{display:flex;align-items:center;gap:12px;justify-content:center;margin:16px auto 2px;color:var(--gold);font-size:11px;max-width:220px}
@@ -590,9 +590,9 @@ async function makePdf(nDays){
       }
     }
     const total=pdf.getNumberOfPages();
-    for(let i=1;i<=total;i++){pdf.setPage(i);pdf.setFontSize(8);pdf.setTextColor(140,127,120);pdf.text('nexCare  '+i+' / '+total,PW/2,PH-6,{align:'center'})}
+    for(let i=1;i<=total;i++){pdf.setPage(i);pdf.setFontSize(8);pdf.setTextColor(140,127,120);pdf.text('Baby Growth  '+i+' / '+total,PW/2,PH-6,{align:'center'})}
     const blob=pdf.output('blob');
-    const n=new Date(NOW),fname='nexCare-care-report-'+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'-'+nDays+'d.pdf';
+    const n=new Date(NOW),fname='baby-care-report-'+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'-'+nDays+'d.pdf';
     const r=await downloads.save({filename:fname,data:blob});
     toast(r&&r.status==='saved'?'已儲存 PDF':'已送出');
   }catch(err){
@@ -618,7 +618,7 @@ function renderReport(){
   <div class="hdr"><button id="rb" aria-label="返回" style="font-size:30px;width:40px">‹</button><span class="ic">📄</span><h1>照護報告</h1>${rangeSeg('rg2')}</div>
   <div class="card"><div class="inline" style="flex-wrap:nowrap"><button class="btn" id="mkpdf" style="flex:1;padding:18px;font-size:19px">📄 產生 PDF</button><button class="btn soft" id="detail" style="padding:18px 14px">含每筆明細</button></div>
    <p class="sub" style="margin:12px 0 0">產生後按「分享或儲存」：iPhone 會跳出分享面板，可直接傳 LINE 給醫師或存到「檔案」；電腦會直接下載。</p></div>
-  <div class="card" style="border-top:6px solid #F4A98F"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="min-width:0"><b style="font-size:22px">${st.name} 的照護紀錄</b><div class="sub">${md(days[0]).replace('-','/')}～${md(days[days.length-1]).replace('-','/')}（${days.length} 天）・ ${st.gender} ・ ${ymd(BIRTH)} ${hm(BIRTH)} 出生 ・ ${ageText().replace('出生第','出生第').replace('・',' ・ ')}<br>出生體重 ${st.baby.bw} g ・ 身長 ${st.baby.bl} cm ・ 頭圍 ${st.baby.bh} cm ・ 餵奶間隔 ${st.interval/60} 小時</div></div><div class="sub" style="text-align:right"><b style="color:var(--poop);font-size:18px">nexCare</b><br>${NOW.getFullYear()}/${NOW.getMonth()+1}/${NOW.getDate()} ${hm(NOW)} 產生</div></div></div>
+  <div class="card" style="border-top:6px solid #F4A98F"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="min-width:0"><b style="font-size:22px">${st.name} 的照護紀錄</b><div class="sub">${md(days[0]).replace('-','/')}～${md(days[days.length-1]).replace('-','/')}（${days.length} 天）・ ${st.gender} ・ ${ymd(BIRTH)} ${hm(BIRTH)} 出生 ・ ${ageText().replace('出生第','出生第').replace('・',' ・ ')}<br>出生體重 ${st.baby.bw} g ・ 身長 ${st.baby.bl} cm ・ 頭圍 ${st.baby.bh} cm ・ 餵奶間隔 ${st.interval/60} 小時</div></div><div class="sub" style="text-align:right"><b style="color:var(--poop);font-size:18px">寶寶健康成長</b><br>${NOW.getFullYear()}/${NOW.getMonth()+1}/${NOW.getDate()} ${hm(NOW)} 產生</div></div></div>
   <div class="grid2">
    <div class="card"><h3>日均奶量（瓶餵）</h3><div class="big" style="font-size:32px;color:var(--milk)">${s.milk}<small>ml</small></div><div class="sub">${s.cnt.toFixed(1)} 次/天・親餵 1 次<br>${recMilk()}</div></div>
    <div class="card"><h3>日均尿布</h3><div class="big" style="font-size:32px;color:var(--blue)">${s.u.toFixed(1)}<small>濕</small></div><div class="sub">大便 ${s.p.toFixed(1)} 次/天</div></div>
@@ -1267,7 +1267,7 @@ let loginMode='in';
 const showMsg=(id,text,type)=>{const el=$(id);el.hidden=!text;el.className='msg '+(type||'');el.textContent=text||''};
 function renderLogin(){
   const sIn=loginMode==='in';
-  $('#s-login').innerHTML=`<div class="lx-hero"><div class="lx-mark"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.5 1 5.4 3 1.9-2 3.4-3 5.4-3 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg></div><h1 class="lx-name">nex<i>Care</i></h1><p class="lx-tag">溫柔守護 · 每個珍貴時刻</p><div class="lx-orn">◆</div></div>
+  $('#s-login').innerHTML=`<div class="lx-hero"><div class="lx-mark"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.5 1 5.4 3 1.9-2 3.4-3 5.4-3 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg></div><h1 class="lx-name">寶寶<i>健康成長</i></h1><p class="lx-tag">溫柔守護 · 每個珍貴時刻</p><div class="lx-orn">◆</div></div>
   <div class="card" style="display:flex;flex-direction:column;gap:14px"><div class="lbl" style="margin:0">${sIn?'登入':'建立帳號'}</div>
    <p class="sub" style="margin:0">登入後，全家人共享同一份寶寶紀錄。</p>
    <input class="field" id="lem" type="email" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="Email" style="font-size:17px">
@@ -1365,7 +1365,7 @@ function renderJoin(){
     }catch(e){showMsg('#jmsg',friendly(e),'err');b.disabled=false;b.textContent='加入'}}}
 R.join=renderJoin;
 function renderReset(){
-  $('#s-reset').innerHTML=`<div class="lx-hero"><div class="lx-mark"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.5 1 5.4 3 1.9-2 3.4-3 5.4-3 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg></div><h1 class="lx-name">nex<i>Care</i></h1><div class="lx-orn">◆</div></div>
+  $('#s-reset').innerHTML=`<div class="lx-hero"><div class="lx-mark"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.2 3 4.5 6.6 4.5c2 0 3.5 1 5.4 3 1.9-2 3.4-3 5.4-3 3.6 0 5.7 3.7 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg></div><h1 class="lx-name">寶寶<i>健康成長</i></h1><div class="lx-orn">◆</div></div>
   <div class="card" style="display:flex;flex-direction:column;gap:14px"><div class="lbl" style="margin:0">設定新密碼</div>
    <p class="sub" style="margin:0">請輸入新的密碼，之後用這個密碼登入。</p>
    <input class="field" id="rp1" type="password" autocomplete="new-password" placeholder="新密碼（至少 6 個字）" style="font-size:17px">
@@ -1586,7 +1586,7 @@ async function pushEnable(){
   PUSH.busy=true;PUSH.msg='';renderAcct();
   try{
     const perm=await Notification.requestPermission();
-    if(perm!=='granted'){PUSH.msg=perm==='denied'?'通知被封鎖了，請到手機「設定 → 通知 → nexCare」重新允許。':'沒有允許通知。';return}
+    if(perm!=='granted'){PUSH.msg=perm==='denied'?'通知被封鎖了，請到手機「設定 → 通知 → 寶寶健康成長」重新允許。':'沒有允許通知。';return}
     if(!PUSH.reg)PUSH.reg=await navigator.serviceWorker.register('sw.js');
     await navigator.serviceWorker.ready;
     const sub=await PUSH.reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(VAPID_PUB)});
@@ -1610,8 +1610,8 @@ function pushHtml(){
   let h='<div class="lbl" style="margin:16px 0 8px">推播通知</div>';
   if(!VAPID_PUB||VAPID_PUB.indexOf('__')===0)return h+'<div class="sub">通知功能尚未啟用。</div>';
   if(!pushOk()){
-    return h+(isIOS&&!isStandalone()?'<div class="msg">📲 iPhone 要先加到主畫面才能收通知：<br>1. 用 Safari 開這個網站<br>2. 點下方「分享」鈕 → 「加入主畫面」<br>3. 從主畫面的 nexCare 圖示打開，再回到這裡按「開啟通知」</div>':'<div class="sub">這個瀏覽器不支援通知。</div>')}
-  if(Notification.permission==='denied')return h+'<div class="msg err">通知被封鎖了，請到手機「設定 → 通知 → nexCare」（或瀏覽器的網站設定）重新允許，再回來開啟。</div>';
+    return h+(isIOS&&!isStandalone()?'<div class="msg">📲 iPhone 要先加到主畫面才能收通知：<br>1. 用 Safari 開這個網站<br>2. 點下方「分享」鈕 → 「加入主畫面」<br>3. 從主畫面的「寶寶健康成長」圖示打開，再回到這裡按「開啟通知」</div>':'<div class="sub">這個瀏覽器不支援通知。</div>')}
+  if(Notification.permission==='denied')return h+'<div class="msg err">通知被封鎖了，請到手機「設定 → 通知 → 寶寶健康成長」（或瀏覽器的網站設定）重新允許，再回來開啟。</div>';
   if(!PUSH.sub)return h+`<div class="sub" style="margin-bottom:10px">餵奶、想睡、家人貼文、疫苗到期時，推播到這支手機。</div><button class="btn sm" id="pson" ${PUSH.busy?'disabled':''}>${PUSH.busy?'處理中…':'開啟通知'}</button>${PUSH.msg?`<div class="msg err" style="margin-top:10px">${esc(PUSH.msg)}</div>`:''}`;
   return h+`<div class="msg ok" style="margin-bottom:10px">這台裝置已開啟通知</div>
    <div class="chips">${PK.map(([k,l])=>`<button class="chip ${PUSH.prefs[k]!==false?'on':''}" data-pk="${k}" style="font-size:15px">${l}</button>`).join('')}</div>
@@ -1636,7 +1636,7 @@ function bkCount(b){const g=k=>{const v=b.data&&b.data[k];return Array.isArray(v
 async function bkExport(){
   const b=bkBuild(),n=new Date(),name='nexcare-backup-'+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+'.json';
   const f=new File([JSON.stringify(b)],name,{type:'application/json'});
-  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'nexCare 備份'});return true}catch(e){if(e&&e.name==='AbortError')return false}}
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'寶寶健康成長 備份'});return true}catch(e){if(e&&e.name==='AbortError')return false}}
   const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return true}
 /* merge: add records that are missing (by id); never overwrite or delete what is already here */
@@ -1672,7 +1672,7 @@ function bindBackup(){
   $('#bkfile').onchange=async e=>{
     const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
     let b;try{b=JSON.parse(await f.text())}catch(x){bkState={k:'err',t:'這不是有效的備份檔。'};bkShow();return}
-    if(!b||b.app!=='nexcare'||!b.data){bkState={k:'err',t:'這不是 nexCare 的備份檔。'};bkShow();return}
+    if(!b||b.app!=='nexcare'||!b.data){bkState={k:'err',t:'這不是本 App 的備份檔。'};bkShow();return}
     bkState={k:'prev',b};bkShow()};
   bkBindMsg()}
 
