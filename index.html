@@ -62,11 +62,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .datenav span{font-size:13px;color:var(--accent);font-weight:700}
 .tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:20;
   padding:8px max(8px,env(safe-area-inset-left,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-right,0px))}
-.tabs{max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1.1fr 1fr 1fr;align-items:end}
+.tabs{max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 1.1fr 1fr 1fr;align-items:end}
 .tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);padding:6px 0}
 .tab svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tab.on{color:var(--accent)}
-.tabs.six{grid-template-columns:1fr 1fr 1fr 1.1fr 1fr 1fr}
+.tabs.six{grid-template-columns:1fr 1fr 1.1fr 1fr 1fr}
 .tabs.six .tab{font-size:11px}
 .fab{width:76px;height:76px;border-radius:50%;background:var(--accent);margin:-34px auto 0;display:grid;place-items:center;box-shadow:0 8px 22px rgba(184,120,104,.45);color:#fff}
 .fab svg{width:38px;height:38px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round}
@@ -266,6 +266,14 @@ body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(-
 .lx-foot{text-align:center;font-size:11px;letter-spacing:.25em;color:var(--muted);margin-top:4px}
 
 .btn.sm,button.sm,[data-me],[data-md]{white-space:nowrap;flex:none}
+.avatar{position:relative;cursor:pointer;overflow:visible}.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}.avatar.nophoto::after{content:'📷';position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:var(--card);font-size:12px;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.sec{font-family:var(--serif),var(--font);font-size:13px;letter-spacing:.18em;color:var(--gold,var(--muted));margin:26px 6px 10px;font-weight:700}
+.rowlink{margin-top:14px;display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:16px 18px}
+.rowlink .t{flex:1;min-width:0}.rowlink .t b{display:block;font-size:17px}.rowlink .t span{font-size:13px;color:var(--muted)}
+.rowlink .go{font-size:22px;color:var(--muted)}
+.datenav .pick{position:relative;cursor:pointer;flex:1}
+.datenav .pick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.datenav .back{display:inline-block;margin-top:2px;text-decoration:underline}
 </style>
 </head><body>
 <div class="app" id="app">
@@ -283,13 +291,13 @@ body{background-image:radial-gradient(90% 45% at 50% -8%,color-mix(in srgb,var(-
   <section class="screen" id="s-onboard"></section>
   <section class="screen" id="s-join"></section>
   <section class="screen" id="s-moments"></section>
+  <section class="screen" id="s-push"></section>
   <section class="screen" id="s-mpost"></section>
   <section class="screen" id="s-sleep"></section>
 </div>
 <nav class="tabbar" id="tabbar" aria-label="主選單">
   <div class="tabs">
     <button class="tab on" data-go="home" id="t-home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>今日</button>
-    <button class="tab" data-go="yest" id="t-yest"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>昨日</button>
     <button class="tab" data-go="moments" id="t-moments" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9-9.2C1.7 8.3 3.7 5 7 5c2 0 3.400 1.100 5 3 1.600-1.900 3-3 5-3 3.300 0 5.300 3.300 4 6.800C19 16.600 12 21 12 21z"/></svg>生活</button>
     <button class="fab" id="fab" aria-label="新增記錄"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
     <button class="tab" data-go="stats" id="t-stats"><svg viewBox="0 0 24 24"><path d="M4 21V4M4 21h16M9 21v-9M14 21V8M19 21v-5"/></svg>統計</button>
@@ -455,8 +463,8 @@ function renderHome(){
   const nurseTxt=x.n[0]?`親餵 ${x.n[0]} 次・${x.n[1]} 分`:'親餵 0 次';
   const mins=Math.round(x.s*60), hh=Math.floor(x.s), mm=Math.round((x.s-hh)*60);
   $('#s-home').innerHTML=`
-  <div class="hdr"><div class="avatar">${st.name.slice(0,1)}</div><div style="flex:1;min-width:0${cloud.user?';cursor:pointer':''}" ${cloud.user?'id="bsw" role="button" tabindex="0"':''}><div style="font-size:24px;font-weight:900">${st.name}${cloud.user?' <span style="font-size:14px;opacity:.6">▾</span>':''}</div><div class="muted">${ageText()}</div></div>${bell(1)}</div>
-  <div class="card datenav"><button id="prev" aria-label="前一天">‹</button><div><b>${d.getMonth()+1}月${d.getDate()}日 (${D[d.getDay()]})</b><span>${isToday?'今天':st.offset===1?'昨天':''}</span></div><button id="next" aria-label="後一天" ${isToday?'disabled':''}>›</button></div>
+  <div class="hdr"><div class="avatar${st.baby.avatar?'':' nophoto'}" id="avpick" role="button" aria-label="寶寶照片">${st.baby.avatar?`<img src="${st.baby.avatar}" alt="">`:esc(st.name.slice(0,1))}</div><div style="flex:1;min-width:0${cloud.user?';cursor:pointer':''}" ${cloud.user?'id="bsw" role="button" tabindex="0"':''}><div style="font-size:24px;font-weight:900">${st.name}${cloud.user?' <span style="font-size:14px;opacity:.6">▾</span>':''}</div><div class="muted">${ageText()}</div></div>${bell(1)}</div>
+  <div class="card datenav"><button id="prev" aria-label="前一天">‹</button><div class="pick"><b>${d.getMonth()+1}月${d.getDate()}日 (${D[d.getDay()]}) ▾</b><span>${isToday?'今天':st.offset===1?'昨天':d.getFullYear()+'年'}</span><input type="date" id="dpick" aria-label="選擇日期" value="${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}" min="${(()=>{const m=new Date(BIRTH);return m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0')+'-'+String(m.getDate()).padStart(2,'0')})()}" max="${NOW.getFullYear()}-${String(NOW.getMonth()+1).padStart(2,'0')}-${String(NOW.getDate()).padStart(2,'0')}"></div><button id="next" aria-label="後一天" ${isToday?'disabled':''}>›</button></div>${isToday?'':'<div style="text-align:center;margin:-6px 0 12px"><button class="linkbtn" id="totoday">回到今天</button></div>'}
   <div class="grid2">
    <div class="card stat"><span class="e">🍼</span><h3>總奶量</h3><div class="big" style="color:var(--milk)">${tot}<small>ml</small></div><div class="sub">配方 ${tf} ・ 母乳 ${tb}<br>${nurseTxt}</div>
      ${isToday?`<span class="pill" style="background:var(--milk-soft);color:var(--milk)">${feedStale()?'還沒有最近的餵奶記錄':'下次 '+hm(nf)}<br><span style="font-weight:500">${feedStale()?'記錄後會算出下次時間':untilLabel(nf)}</span></span>`:''}</div>
@@ -478,6 +486,8 @@ function renderHome(){
   <div class="card stat" data-go-pump="1" role="button" tabindex="0" style="cursor:pointer"><span class="e">🫙</span><h3>媽媽擠奶</h3><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px"><div class="big" style="color:var(--pump)">${x.pm}<small>ml</small></div><div class="sub" style="text-align:right">${x.pc} 次<br>左 ${x.pl} ・ 右 ${x.pr} ml</div></div></div>`;
   $('#prev').onclick=()=>{if(st.offset<Math.floor((NOW-BIRTH)/864e5)){st.offset++;R.home()}};
   $('#next').onclick=()=>{if(st.offset>0){st.offset--;R.home()}};
+  const tdb=$('#totoday');if(tdb)tdb.onclick=()=>{st.offset=0;R.home()};
+  $('#dpick').onchange=e=>{const v=e.target.value;if(!v)return;const [y,m,dd]=v.split('-').map(Number);const a=new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()),b=new Date(y,m-1,dd);let n=Math.round((a-b)/864e5);if(n<0)n=0;st.offset=n;R.home()};
   $('#sleepBtn').onclick=()=>{toggleSleep();R.home()};
   $$('[data-delf]').forEach(b=>b.onclick=()=>{{const r0=st.feeds.find(q=>q.id===b.dataset.delf);if(r0&&!okT(r0.t))return}if(b.dataset.arm){st.feeds=st.feeds.filter(q=>q.id!==b.dataset.delf);sv('nc-feeds',st.feeds);R.home()}else{b.dataset.arm=1;b.textContent='確定刪除？';b.style.color='var(--warn)'}});
   const gp=$('[data-go-pump]');if(gp){gp.onclick=()=>go('pump');gp.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go('pump')}}}
@@ -683,7 +693,7 @@ function renderSettings(){
   const rm=[[0,'準時'],[10,'10 分'],[15,'15 分'],[30,'30 分'],[-1,'關閉']];
   $('#s-settings').innerHTML=`
   <div class="hdr"><span class="ic">⚙️</span><h1>設定</h1>${bell(1)}</div>
-  <div id="acct"></div>
+  <div class="sec">寶寶資料</div>
   <div class="card" style="display:flex;flex-direction:column;gap:22px">
    <div><div class="lbl">寶寶名字 / 小名</div><input class="field" id="nm" value="${st.name}"></div>
    <div><div class="lbl">性別</div><div class="grid2" style="grid-template-columns:repeat(3,1fr)">${['男寶','女寶','保密'].map(g=>`<button class="chip ${st.gender===g?'on':''}" data-g="${g}" style="padding:14px 0;font-size:18px;font-weight:700">${g}</button>`).join('')}</div></div>
@@ -692,12 +702,13 @@ function renderSettings(){
     <div><div class="lbl">出生體重<small>g</small></div><input class="field" id="bw" ${(!DEMO&&st.baby.onboarded)&&st.baby.bw?'disabled':''} value="${st.baby.bw||''}" inputmode="numeric" style="font-size:20px;padding:16px"></div>
     <div><div class="lbl">身長<small>cm</small></div><input class="field" id="bh" ${(!DEMO&&st.baby.onboarded)&&st.baby.bl?'disabled':''} value="${st.baby.bl||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div>
     <div><div class="lbl">頭圍<small>cm</small></div><input class="field" id="bc" ${(!DEMO&&st.baby.onboarded)&&st.baby.bh?'disabled':''} value="${st.baby.bh||''}" inputmode="decimal" style="font-size:20px;padding:16px"></div></div>${(!DEMO&&st.baby.onboarded)?'<div class="msg" style="margin-top:10px">🔒 出生日期與時間、出生體重、身長、頭圍只能輸入一次，已鎖定。留空的欄位可以補填一次。如需修改，請由主帳號刪除帳號後重新註冊。</div>':''}
+  </div>
+  <div class="sec">餵奶與睡眠</div>
+  <div class="card" style="display:flex;flex-direction:column;gap:22px">
    <div><div class="lbl">餵奶間隔<small>用來算下次建議餵奶時間</small></div><div class="chips" id="ivs">${iv.map(v=>`<button class="chip ${st.interval===v?'on':''}" data-iv="${v}">${ivl[v]}</button>`).join('')}</div>
     <div class="inline" style="margin-top:12px;flex-wrap:nowrap"><span class="muted" style="white-space:nowrap">自訂</span><div class="field" style="display:flex;align-items:center;gap:8px;padding:8px 16px"><input id="ivc" value="${st.interval}" inputmode="numeric" style="border:0;background:none;font-size:22px;width:100%;min-width:0;outline:0"><span class="muted" style="white-space:nowrap">分鐘</span></div><b id="ivt" style="font-size:19px;white-space:nowrap">${st.interval/60} 小時</b></div></div>
-   <div><div class="lbl">餵奶提醒<small>建議餵奶時間前多久推播通知</small></div><div class="chips" id="rms">${rm.map(([v,l])=>`<button class="chip ${st.remind===v?'on':''}" data-rm="${v}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div>
-    ${DEMO?`<div class="card" style="background:var(--accent-soft);box-shadow:none;margin-top:14px;border-radius:22px"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:19px">🔔 這台裝置：<span id="nst">未開啟</span></b><button class="btn sm" id="nbtn" style="background:var(--card);color:var(--fg)">開啟通知</button></div><p class="sub" style="margin:10px 0 0">每台手機都要各自開啟一次；開啟後所有寶寶的提醒都會送到這台。</p></div>`:'<div class="sub" style="margin-top:14px">🔔 要收到推播通知，請到上方「推播通知」開啟。</div>'}</div>
-   <div><div class="lbl">想睡提醒<small>預測的想睡時段開始前多久推播</small></div><div class="chips">${['準時','10 分','15 分','關閉'].map((l,i)=>`<button class="chip ${st.baby.sleepRemind===[0,10,15,-1][i]?'on':''}" data-sl="${[0,10,15,-1][i]}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div></div>
-  </div>`;
+  </div>
+  <div id="acct"></div>`;
   $('#nm').oninput=e=>{st.name=e.target.value;saveBaby()};
   $('#bd').onchange=e=>{const t=new Date(e.target.value).getTime();if(t){st.baby.birth=t;BIRTH=new Date(t);saveBaby()}};
   $('#bw').onchange=e=>{let v=parseInt(e.target.value)||0;if(v&&(v<500||v>7000)){toast('出生體重請輸入 500～7000 公克');v=0;e.target.value=''}st.baby.bw=v;saveBaby()};
@@ -708,6 +719,18 @@ function renderSettings(){
   const setIv=v=>{st.interval=v;saveBaby();$$('[data-iv]').forEach(x=>x.classList.toggle('on',+x.dataset.iv===v));$('#ivc').value=v;$('#ivt').textContent=(v/60)+' 小時'};
   $$('[data-iv]').forEach(b=>b.onclick=()=>setIv(+b.dataset.iv));
   $('#ivc').onchange=e=>{const v=Math.min(480,Math.max(30,parseInt(e.target.value)||180));setIv(v)};
+}
+
+
+/* reminder timing (used on the push page) */
+function remindHtml(){
+  const rm=[[0,'準時'],[10,'10 分'],[15,'15 分'],[30,'30 分'],[-1,'關閉']];
+  return `<div style="display:flex;flex-direction:column;gap:22px">
+   <div><div class="lbl">餵奶提醒<small>建議餵奶時間前多久推播通知</small></div><div class="chips" id="rms">${rm.map(([v,l])=>`<button class="chip ${st.remind===v?'on':''}" data-rm="${v}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div>
+    ${DEMO?`<div class="card" style="background:var(--accent-soft);box-shadow:none;margin-top:14px;border-radius:22px"><div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><b style="font-size:19px">🔔 這台裝置：<span id="nst">未開啟</span></b><button class="btn sm" id="nbtn" style="background:var(--card);color:var(--fg)">開啟通知</button></div><p class="sub" style="margin:10px 0 0">每台手機都要各自開啟一次；開啟後所有寶寶的提醒都會送到這台。</p></div>`:'<div class="sub" style="margin-top:14px">🔔 要收到推播通知，請到上方「推播通知」開啟。</div>'}</div>
+   <div><div class="lbl">想睡提醒<small>預測的想睡時段開始前多久推播</small></div><div class="chips">${['準時','10 分','15 分','關閉'].map((l,i)=>`<button class="chip ${st.baby.sleepRemind===[0,10,15,-1][i]?'on':''}" data-sl="${[0,10,15,-1][i]}" style="font-size:17px;padding:12px 24px">${l}</button>`).join('')}</div></div>
+  </div>`}
+function bindRemind(){
   $$('[data-rm]').forEach(b=>b.onclick=()=>{st.remind=+b.dataset.rm;saveBaby();$$('[data-rm]').forEach(x=>x.classList.toggle('on',x===b))});
   $$('[data-sl]').forEach(b=>b.onclick=()=>{st.baby.sleepRemind=+b.dataset.sl;saveBaby();$$('[data-sl]').forEach(x=>x.classList.toggle('on',x===b))});
   if($('#nbtn'))$('#nbtn').onclick=()=>{const on=$('#nst').textContent==='未開啟';$('#nst').textContent=on?'已開啟':'未開啟';$('#nbtn').textContent=on?'關閉通知':'開啟通知';toast(on?'示範版不會真的推播':'已關閉')};
@@ -934,7 +957,7 @@ function go(name){
   if(name==='yest'){st.offset=1;scr='home'}else if(name==='home'){if(st.keep)st.keep=false;else st.offset=0}
   $$('.screen').forEach(s=>s.classList.remove('on'));
   st.cur=scr;R[scr]();$('#s-'+scr).classList.add('on');
-  const tabKey={home:'home',yest:'yest',stats:'stats',report:'stats',settings:'settings',moments:'moments',mpost:'moments'}[name];
+  const tabKey={home:'home',push:'settings',yest:'yest',stats:'stats',report:'stats',settings:'settings',moments:'moments',mpost:'moments'}[name];
   $$('.tab').forEach(t=>t.classList.toggle('on',t.dataset.go===tabKey));
   $('#tabbar').style.display=(['add','diaper','vital','pump','sleep','login','reset','onboard','join','mpost'].includes(name))?'none':'';
   window.scrollTo(0,0);
@@ -1076,14 +1099,14 @@ async function pullCol(col){
   if(maxU)cloud.cur[col.t]=new Date(ts(maxU)-5000).toISOString();
 }
 const GENDER={'男寶':'male','女寶':'female','保密':'private'},GENDER_R={male:'男寶',female:'女寶',private:'保密'};
-const babyRow=()=>({id:cloud.babyId,name:st.baby.name||'寶寶',gender:GENDER[st.baby.gender]||'private',birth_at:iso(st.baby.birth),birth_weight_g:(st.baby.bw>=500&&st.baby.bw<=7000)?st.baby.bw:null,birth_length_cm:(st.baby.bl>0&&st.baby.bl<100)?st.baby.bl:null,birth_head_cm:(st.baby.bh>0&&st.baby.bh<100)?st.baby.bh:null,feed_interval_min:Number.isFinite(+st.baby.interval)&&st.baby.interval>0?+st.baby.interval:180,feed_remind_min:Number.isFinite(st.baby.remind)?st.baby.remind:15,sleep_remind_min:Number.isFinite(st.baby.sleepRemind)?st.baby.sleepRemind:10});
+const babyRow=()=>({id:cloud.babyId,name:st.baby.name||'寶寶',gender:GENDER[st.baby.gender]||'private',birth_at:iso(st.baby.birth),birth_weight_g:(st.baby.bw>=500&&st.baby.bw<=7000)?st.baby.bw:null,birth_length_cm:(st.baby.bl>0&&st.baby.bl<100)?st.baby.bl:null,birth_head_cm:(st.baby.bh>0&&st.baby.bh<100)?st.baby.bh:null,feed_interval_min:Number.isFinite(+st.baby.interval)&&st.baby.interval>0?+st.baby.interval:180,feed_remind_min:Number.isFinite(st.baby.remind)?st.baby.remind:15,sleep_remind_min:Number.isFinite(st.baby.sleepRemind)?st.baby.sleepRemind:10,...(st.baby.avatar!==undefined?{avatar:st.baby.avatar||null}:{})});
 const babyCanon=()=>JSON.stringify(babyRow());
 async function pullBaby(){
   const {data,error}=await sb.from('babies').select('*').eq('id',cloud.babyId).limit(1);if(error)throw error;
   const w=data[0];if(!w)return;
   if(cloud.snap.baby!==undefined&&babyCanon()!==cloud.snap.baby)return;   // edited here, upload wins
   const b=st.baby,before=babyCanon();
-  Object.assign(b,{id:w.id,name:w.name,gender:GENDER_R[w.gender]||'保密',birth:ts(w.birth_at),bw:w.birth_weight_g||0,bl:+w.birth_length_cm||0,bh:+w.birth_head_cm||0,interval:w.feed_interval_min??180,remind:w.feed_remind_min??15,sleepRemind:w.sleep_remind_min??10,onboarded:true});
+  Object.assign(b,{id:w.id,name:w.name,gender:GENDER_R[w.gender]||'保密',birth:ts(w.birth_at),bw:w.birth_weight_g||0,bl:+w.birth_length_cm||0,bh:+w.birth_head_cm||0,interval:w.feed_interval_min??180,remind:w.feed_remind_min??15,sleepRemind:w.sleep_remind_min??10,onboarded:true,...('avatar' in w?{avatar:w.avatar||''}:{})});
   BIRTH=new Date(b.birth);saveBaby();
   if(babyCanon()!==before)cloud.changed=true;
   cloud.snap.baby=babyCanon();
@@ -1161,10 +1184,11 @@ async function loadFamily(force){
   if(!force&&cloud.members&&Date.now()-cloud.mAt<8000)return;
   cloud.loadingFam=true;
   try{
-    const {data:ms,error}=await sb.from('family_members').select('user_id,role,joined_at').eq('family_id',cloud.fam).order('joined_at',{ascending:true});if(error)throw error;
+    let {data:ms,error}=await sb.from('family_members').select('user_id,role,joined_at,label').eq('family_id',cloud.fam).order('joined_at',{ascending:true});
+    if(error){({data:ms,error}=await sb.from('family_members').select('user_id,role,joined_at').eq('family_id',cloud.fam).order('joined_at',{ascending:true}))}if(error)throw error;
     const {data:ps}=await sb.from('profiles').select('id,display_name').in('id',ms.map(m=>m.user_id));
     const nm={};(ps||[]).forEach(x=>nm[x.id]=x.display_name);
-    cloud.members=ms.map(m=>({user_id:m.user_id,role:m.role,name:nm[m.user_id]||''}));cloud.mAt=Date.now();
+    cloud.members=ms.map(m=>({user_id:m.user_id,role:m.role,name:nm[m.user_id]||'',label:m.label||''}));cloud.mAt=Date.now();
     const me=ms.find(m=>m.user_id===cloud.user.id);if(me&&me.role!==cloud.role){cloud.role=me.role;saveMeta();if(['home','settings','health','report'].includes(st.cur))R[st.cur]()}
   }catch(e){if(!cloud.members)cloud.members=[];cloud.mAt=Date.now()}
   cloud.loadingFam=false;renderAcct()}
@@ -1172,11 +1196,11 @@ function famHtml(){
   if(!cloud.members)return '<div class="sub" style="margin:14px 0 0">載入家人名單…</div>';
   if(!cloud.members.length)return '<div class="sub" style="margin:14px 0 0">暫時無法載入家人名單，稍後再試。</div>';
   const own=cloud.role==='owner';
-  const rows=cloud.members.map(m=>{const me=m.user_id===cloud.user.id;const nm=me?(m.name||cloud.user.email.split('@')[0])+'（你）':(m.name||'家人');
+  const rows=cloud.members.map(m=>{const me=m.user_id===cloud.user.id;const nm=me?(m.name||cloud.user.email.split('@')[0])+'（你）':(m.label||m.name||'家人');
     return `<div class="inline" style="justify-content:space-between;flex-wrap:nowrap;padding:8px 0"><div><b>${esc(nm)}</b><div class="sub" style="margin:0">${ROLE[m.role]||m.role}</div></div>${own&&!me?`<button class="btn soft sm" data-rm="${m.user_id}">移除</button>`:''}</div>`}).join('');
   const inv=own?`<div class="lbl" style="margin:14px 0 8px">邀請家人加入</div>
    <div class="chips" id="invrole"><button class="chip on" data-ir="parent">爸媽</button><button class="chip" data-ir="caregiver">保母</button><button class="chip" data-ir="viewer">只能查看</button></div>
-   <button class="btn sm" id="invgo" style="margin-top:10px">產生邀請碼</button>
+   <input class="field" id="invname" value="${esc(cloud.invName||'')}" placeholder="對方稱呼（選填）例如：奶奶" maxlength="12" style="margin-top:10px"><button class="btn sm" id="invgo" style="margin-top:10px">產生邀請碼</button>
    ${cloud.invite?`<div class="msg ok" style="margin-top:10px"><div style="font-size:26px;font-weight:800;letter-spacing:2px;user-select:all">${esc(cloud.invite)}</div><div style="margin:6px 0">7 天內有效，只能用一次。對方註冊或登入後輸入這組碼，或直接開下面的連結。</div><button class="btn soft sm" id="invcopy">複製邀請連結</button></div>`:''}`
    :`<div class="inline" style="margin-top:10px"><button class="btn soft sm" id="leave">退出這個家庭</button></div><div id="leavewarn"></div>`;
   const myn=(cloud.members.find(m=>m.user_id===cloud.user.id)||{}).name||'';
@@ -1186,10 +1210,12 @@ function famHtml(){
 function bindFam(){
   let role='parent';
   $$('[data-ir]').forEach(b=>b.onclick=()=>{role=b.dataset.ir;$$('[data-ir]').forEach(x=>x.classList.toggle('on',x===b))});
+  const ivn=$('#invname');if(ivn)ivn.oninput=()=>{cloud.invName=ivn.value};
   const g=$('#invgo');if(g)g.onclick=async()=>{g.disabled=true;
-    const {data,error}=await sb.rpc('create_invite',{p_family:cloud.fam,p_role:role});
+    const lb=($('#invname').value||'').trim().slice(0,12);
+    const {data,error}=await sb.rpc('create_invite',lb?{p_family:cloud.fam,p_role:role,p_label:lb}:{p_family:cloud.fam,p_role:role});
     if(error){toast(friendly(error));g.disabled=false;return}
-    cloud.invite=data;renderAcct()};
+    cloud.invite=data;cloud.invName='';renderAcct()};
   const c=$('#invcopy');if(c)c.onclick=async()=>{const url=location.origin+location.pathname+'?join='+cloud.invite;
     try{await navigator.clipboard.writeText(url);toast('已複製邀請連結')}catch(e){prompt('複製這個連結',url)}};
   $$('#fam [data-rm]').forEach(b=>b.onclick=async()=>{if(!confirm('確定移除這位家人？他就看不到寶寶的紀錄了。'))return;
@@ -1214,17 +1240,19 @@ function bindFam(){
       if(error){toast(friendly(error));return}wipeLocal(true)}}}
 /* ---------- account card in settings ---------- */
 renderAcct=function(){
-  const el=$('#acct');if(!el)return;let h;
+  if(st.cur==='push')renderPush();
+  const el=$('#acct');if(!el)return;let h,extra='';
   if(!sb)h='<div class="msg err">無法載入雲端同步工具，目前只存在這台裝置。請確認網路後重新整理。</div>';
   else if(!cloud.user)h='<div class="inline" style="justify-content:space-between;flex-wrap:nowrap"><div><b>尚未登入</b><div class="sub" style="margin:2px 0 0">資料只存在這台裝置</div></div><button class="btn sm" id="acgo">登入或註冊</button></div>';
   else{const label={syncing:'同步中…',ok:'已同步 '+hm(new Date(cloud.last)),offline:'目前離線，連線後會自動同步',error:'同步失敗：'+esc(cloud.err),needprofile:'請先填寫寶寶資料',local:'尚未同步'}[cloud.status]||'';
     const pend=pending();
     h=`<b>${esc(cloud.user.email)}</b><div class="msg ${cloud.status==='error'?'err':cloud.status==='ok'?'ok':''}" style="margin:10px 0">${label}${pend&&cloud.status!=='syncing'?`（${pend} 筆待上傳）`:''}</div>
     <div class="inline"><button class="btn sm" id="acsync">立即同步</button><button class="btn soft sm" id="acout">登出</button></div><div id="acwarn"></div>
-    <p class="sub" style="margin:10px 0 0">${cloud.role==='viewer'?'你是只能查看的成員，這裡新增的紀錄不會上傳。':''}</p><div id="fam">${cloud.fam?famHtml():''}</div><div id="pushbox">${pushHtml()}</div><div id="bkbox">${isOwner()?backupHtml():''}</div>`}
-  el.innerHTML=`<div class="card">${h}</div>`;
+    ${cloud.role==='viewer'?'<p class="sub" style="margin:10px 0 0">你是只能查看的成員，這裡新增的紀錄不會上傳。</p>':''}`;
+    extra=`<button class="card rowlink" id="gopush"><span style="font-size:26px">🔔</span><span class="t"><b>推播提醒</b><span id="pushst">${pushStatus()}</span></span><span class="go">›</span></button>${cloud.fam?`<div class="sec">家人</div><div class="card"><div id="fam">${famHtml()}</div></div>`:''}`}
+  el.innerHTML=`<div class="sec">帳號</div><div class="card">${h}</div>${extra}`;
+  const gp=$('#gopush');if(gp)gp.onclick=()=>go('push');
   const g=$('#acgo');if(g)g.onclick=()=>go('login');
-  if(cloud.user){bindPush();bindBackup()}
   if(cloud.user&&cloud.fam){bindFam();loadFamily(false)}
   const sy=$('#acsync');if(sy)sy.onclick=()=>syncNow();
   const o=$('#acout');if(o)o.onclick=async()=>{
@@ -1708,6 +1736,31 @@ async function addBaby(){
   relink(null,cloud.babyId)}
 function cancelNewBaby(){const prev=newBabyFlag();relink(prev&&prev!=='1'?prev:null)}
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#bsw'))openBabySwitch()});
+
+// ---- push page ----
+function pushStatus(){if(!VAPID_PUB||VAPID_PUB.indexOf('__')===0||!pushOk())return '這台裝置尚未支援';return PUSH.sub?'已開啟':'未開啟'}
+function renderPush(){
+  const own=isOwner();
+  $('#s-push').innerHTML=`<div class="hdr"><button class="linkbtn" id="pback" style="font-size:20px">‹ 設定</button><h1 style="flex:1;text-align:center;margin:0">推播提醒</h1><span style="width:56px"></span></div>
+  <div class="card">${pushHtml()}</div>
+  ${own?`<div class="sec">提醒時間</div><div class="card">${remindHtml()}</div>`:''}`;
+  $('#pback').onclick=()=>go('settings');
+  bindPush();if(own)bindRemind()}
+R.push=renderPush;
+// ---- baby avatar ----
+function avatarPick(){
+  if(!isOwner()){toast('只有主帳號可以更換寶寶照片');return}
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;
+    const img=new Image(),u=URL.createObjectURL(f);
+    img.onload=()=>{const S=192,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');
+      const m=Math.min(img.width,img.height),sx=(img.width-m)/2,sy=(img.height-m)/2;x.drawImage(img,sx,sy,m,m,0,0,S,S);URL.revokeObjectURL(u);
+      st.baby.avatar=c.toDataURL('image/jpeg',.82);saveBaby();toast('已更新寶寶照片');if(st.cur==='home')R.home()};
+    img.onerror=()=>{URL.revokeObjectURL(u);toast('這張照片無法讀取')};img.src=u};
+  if(st.baby.avatar&&confirm('要更換照片嗎？\n（按「取消」可以選擇移除照片）')){inp.click();return}
+  if(st.baby.avatar){if(confirm('移除寶寶照片？')){st.baby.avatar='';saveBaby();if(st.cur==='home')R.home()}return}
+  inp.click()}
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('#avpick'))avatarPick()});
 
 boot();
 
