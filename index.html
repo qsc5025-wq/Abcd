@@ -1177,7 +1177,7 @@ function syncNow(){
       if(!cloud.babyId||!cloud.fam){const ok=await link();if(!ok){cloud.status='needprofile';return}}
       rtStart();
       cloud.applying=true;cloud.changed=false;
-      await pullBaby();for(const col of COLS)await pullCol(col);await repairPhotos();
+      await pullBaby();{const rs=await Promise.allSettled(COLS.map(pullCol));const bad=rs.find(x=>x.status==='rejected');if(bad)throw bad.reason}await repairPhotos();
       cloud.applying=false;showConflicts();
       if(cloud.role!=='viewer'){if(isOwner())await pushBaby();for(const col of COLS)if(isOwner()||!OWNER_ONLY.has(col.t))await pushCol(col)}
       cloud.last=Date.now();cloud.status='ok';cloud.err='';saveMeta();
@@ -1567,9 +1567,12 @@ async function openBabySwitch(){
   $('#bswx').onclick=()=>m.classList.remove('on');
   $$('[data-sb]').forEach(x=>x.onclick=()=>x.dataset.sb===cloud.babyId?m.classList.remove('on'):switchBaby(x.dataset.sb));
   const a=$('#bswadd');if(a)a.onclick=()=>addBaby()}
+function busyOverlay(t){let o=$('#bsyo');if(!o){o=document.createElement('div');o.id='bsyo';o.style.cssText='position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(0,0,0,.55);color:#fff;font-size:18px;font-weight:700;letter-spacing:.08em';document.body.appendChild(o)}o.textContent=t;o.style.display='grid'}
+function busyOff(){const o=$('#bsyo');if(o)o.style.display='none'}
 async function safeToLeave(){
-  await syncNow();
-  if(cloud.status!=='ok'||pending()>0){showMsg('#bswmsg','目前資料還沒同步完成（'+(cloud.err||'請確認網路')+'），請稍後再切換','err');return false}
+  busyOverlay('切換中…');
+  if(!(cloud.status==='ok'&&pending()===0))await syncNow();
+  if(cloud.status!=='ok'||pending()>0){busyOff();showMsg('#bswmsg','目前資料還沒同步完成（'+(cloud.err||'請確認網路')+'），請稍後再切換','err');return false}
   return true}
 function relink(babyId,flag){
   const keep={uid:cloud.user.id,fam:cloud.fam,role:cloud.role};
